@@ -280,6 +280,7 @@ source = { editable = "." }
 dependencies = [
     { name = "numpy" },
     { name = "pandas" },
+    { name = "scikit-learn" },
     { name = "scipy" },
 ]
 
@@ -309,6 +310,7 @@ requires-dist = [
     { name = "populace-fit", marker = "extra == 'methods'", git = "https://github.com/PolicyEngine/populace.git?subdirectory=packages%2Fpopulace-fit" },
     { name = "populace-frame", marker = "extra == 'methods'", git = "https://github.com/PolicyEngine/populace.git?subdirectory=packages%2Fpopulace-frame" },
     { name = "py-statmatch", marker = "extra == 'methods'", git = "https://github.com/CosilicoAI/py-statmatch.git" },
+    { name = "scikit-learn", specifier = ">=1.5" },
     { name = "scipy", specifier = ">=1.13" },
 ]
 provides-extras = ["methods", "viz"]
