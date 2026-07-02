@@ -1,0 +1,52 @@
+\section{Data and tasks}
+\label{sec:data}
+
+Four tasks span the settings the estimator is used in. Each defines a donor
+table, a receiver table, predictors shared by both, and target variables
+observed only in the donor; the protocol of Section~\ref{sec:protocol} applies
+identically to all.
+
+\subsection{Task 1: wealth from the SCF onto the CPS}
+
+The Survey of Consumer Finances \citep{fed2023scf} observes household net
+worth; the \cps{} Annual Social and Economic Supplement \citep{census2024}
+does not. We impute net worth from the \scf{} onto \cps{} households from
+shared demographic and income predictors, the task the \microimpute{}
+manuscript introduced. The policy application is the Supplemental Security
+Income asset test: \textsc{SSI} eligibility depends on countable resources
+\citep{ssa2024ssi}, so simulating the baseline caseload --- and reforms such
+as the SSI Savings Penalty Elimination Act \citep{ssi_spea_2025}, which would
+raise the resource limits --- requires imputed wealth. \todo{State the
+predictor set and sample sizes from the frozen task config.}
+
+\subsection{Task 2: cross-survey structure on CPS, SIPP, and PSID}
+
+Each of the \cps{} \citep{census2024}, \sipp{} \citep{census2023sipp}, and
+\psid{} \citep{psid2023} observes variables the others lack. We impute each
+survey's non-shared variables from shared demographics and score joint
+structure against that survey's own held-out records with \prdc{} coverage
+\citep{naeem2020reliable}. This is the task where chaining should matter most:
+unchained imputation preserves marginals while attenuating the dependence the
+holdout exhibits. \todo{State the variable surfaces per survey from the frozen
+task config.}
+
+\subsection{Task 3: zero-inflated tax components}
+
+Dividend and interest income in tax microdata are zero for most records,
+positive with a heavy tail for the rest, and central to revenue estimation.
+We impute \puf{}-style income components under the protocol, score zero-share
+preservation and tail fit, and run the reweighting stress test of
+Section~\ref{sec:metrics}: prior \policyengine{} production experience
+motivates this task, where an unweighted fit broadcast rare high-value donor
+records across a receiver file as near-zero-weight point masses that later
+reweighting amplified. All fragility numbers reported here are measured under
+this paper's protocol. \todo{Task config, component list, and donor/receiver
+definitions.}
+
+\subsection{Task 4: cross-dataset transfer}
+
+To test behavior beyond economic microdata, we run the method surface over
+the six OpenML AutoML Benchmark regression datasets used in the
+\microimpute{} manuscript's appendix \citep{vanschoren2014openml}, treating
+the target variable of each as the imputed column. \todo{Enumerate the six
+datasets and their donor/receiver splits from the frozen task config.}

@@ -1,0 +1,19 @@
+\section{Discussion}
+\label{sec:discussion}
+
+\todo{Interpret the results against the three design choices; be explicit
+where the candidate does not win.}
+
+Several limitations bound the claims. First, the comparison holds
+hyperparameters matched where implementations share a forest backend, but the
+baseline packages embody their own defaults elsewhere; results attribute
+differences to design choices only where the ablation isolates them. Second,
+the tasks are single imputations scored distributionally; we do not evaluate
+multiple-imputation uncertainty propagation \citep{rubin1987multiple}, which
+matters for inference from the imputed file rather than for the population
+statistics microsimulation consumes. Third, the reweighting fragility family
+is one formalization of downstream reweighting; other admissible families
+would give different worst cases. Fourth, chained draws inherit the usual
+compatibility caveats of sequential conditional specifications
+\citep{vanbuuren2011mice}. \todo{Extend with limitations observed in the
+sweeps.}

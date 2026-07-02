@@ -1,0 +1,77 @@
+\section{Introduction}
+
+Microsimulation models of tax and transfer policy require individual records
+that span domains no single survey covers
+\citep{bourguignon2006microsimulation, sutherland2013euromod}. The Current
+Population Survey observes employment and income but not wealth; the Survey of
+Consumer Finances observes wealth in detail but lacks the \cps{}'s coverage
+and program detail; administrative tax records observe income components
+precisely but only for filers, and with narrow demographics. Model builders
+bridge these gaps with imputation: fit a conditional model of the missing
+variables on a donor survey, then draw values for the receiver's records
+\citep{little2002statistical, dorazio2006statistical}.
+
+Two properties of this setting distinguish it from generic missing-data
+problems. First, both files are \emph{weighted samples}: each record stands in
+for a different number of population units, and the quantity of interest is a
+population distribution, not a sample one. An imputation model fit to
+unweighted records recovers the sample conditional, which differs from the
+population conditional exactly when the design (or a prior calibration)
+correlates weights with outcomes. Second, the imputed file is not an endpoint.
+It is \emph{reweighted downstream} --- calibrated to administrative margins
+\citep{deville1992calibration, hainmueller2012entropy}, filtered to
+subpopulations, stressed under reforms --- so an imputation that looks
+acceptable under the weights it shipped with can fail under weights it never
+saw. A rare donor record carrying an extreme value at near-zero weight is
+invisible in the shipped aggregates; a later reweighting that assigns it mass
+turns it into a distortion of the population total. We refer to such records
+as landmines, and we measure exposure to them directly with a reweighting
+stress test (\todo{fragility results reference}).
+
+This paper presents and evaluates the imputation operator of \populace{},
+\policyengine{}'s open-source microdata stack \citep{populace2026}. The
+estimator combines three design choices, each motivated by one of the failure
+modes above: a \emph{weighted bootstrap} that materializes survey weights into
+the training data of each forest, so the learned conditionals are population
+conditionals; \emph{regime gates} that classify each record's sign class
+(negative, zero, positive) before magnitudes are modeled, so zero-inflated and
+sign-mixed variables --- ubiquitous in economic microdata
+\citep{mullahy1986specification, lambert1992zero} --- retain their mass
+structure; and \emph{sequential chaining} across imputed variables, so joint
+structure among targets survives the imputation
+\citep{raghunathan2003multiple, vanbuuren2011mice}. The interface enforces the
+first choice: fits are weighted by construction, and an unweighted fit must be
+requested explicitly.
+
+We make three contributions:
+
+\begin{enumerate}
+\item \textbf{A weight-aware imputation estimator, available standalone.}
+We describe the estimator and its interface contract, and release it as
+\populacefit{}, installable and usable on plain data frames independently of
+the rest of the \populace{} stack.
+\item \textbf{A benchmark against standard practice with attribution.} We
+compare the estimator against unweighted and weighted quantile regression
+forests \citep{meinshausen2006quantile}, ordinary least squares imputation
+\citep{vonhippel2007should}, linear quantile regression
+\citep{koenker1978regression}, and nearest-neighbour hot-deck statistical
+matching \citep{andridge2010review, dorazio2021statistical}, under a paired,
+repeated holdout protocol with weighted distributional metrics. Ablations
+knock out one design choice at a time, attributing performance to weighting,
+gating, and chaining separately.
+\item \textbf{A reweighting stress test.} We introduce a fragility diagnostic
+that measures the worst-case single-record contribution to a population
+aggregate under admissible reweightings of the imputed file, formalizing the
+landmine failure mode; we evaluate every method under it.
+\end{enumerate}
+
+The policy stakes are concrete. \todo{One-paragraph SSI Savings Penalty
+Elimination Act exhibit: without imputed wealth the baseline caseload and the
+reform are unsimulable; with weight-blind imputation the caseload is
+misestimated; numbers from the task-1 sweep.}
+
+The rest of the paper proceeds as follows. Section~2 situates the estimator in
+the survey-imputation literature. Section~3 specifies the estimator, the
+ablation design, the metrics, and the protocol. Section~4 describes the four
+benchmark tasks and their data. Section~5 reports results, Section~6
+discusses limitations, and Section~7 concludes.

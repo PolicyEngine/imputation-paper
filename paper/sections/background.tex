@@ -1,0 +1,69 @@
+\section{Background}
+
+\subsection{Imputation methods in survey practice}
+
+Survey agencies and microsimulation teams draw on a small set of imputation
+families. \emph{Hot-deck and statistical matching} methods donate observed
+values from a matched donor record; they preserve marginal distributions by
+construction because every imputed value is a real donor value
+\citep{andridge2010review, dorazio2006statistical}, and remain the standard
+data-fusion tool in European microsimulation practice
+\citep{sutherland2013euromod}. \emph{Regression-based} methods impute from a
+fitted conditional model --- ordinary least squares with residual draws
+\citep{vonhippel2007should}, linear quantile regression
+\citep{koenker1978regression, koenker2005quantile} --- and extend to multiple
+imputation for uncertainty propagation \citep{rubin1987multiple,
+kennickell1998multiple}. \emph{Tree-ensemble} methods, in particular quantile
+regression forests \citep{meinshausen2006quantile, breiman2001random},
+estimate full conditional distributions nonparametrically and have become the
+default in \policyengine{}'s data pipelines \citep{ghenis2018quantile,
+woodruff2024enhancing} for their ability to capture nonlinear structure without
+per-variable specification. The \microimpute{} package
+\citep{policyengine2025microimpute} implements these families under one
+interface and selects among them by cross-validation; its central finding ---
+no family dominates across datasets --- motivates empirical comparison on
+each new task rather than a prescribed method.
+
+\subsection{Chained imputation and joint structure}
+
+Imputing several variables one at a time, each conditional only on shared
+predictors, destroys the dependence among imputed variables; sequential
+(chained-equations) imputation conditions each variable on those already
+imputed, retaining joint structure \citep{raghunathan2003multiple,
+vanbuuren2011mice}. In data fusion the same issue appears as the conditional
+independence assumption of statistical matching: matched files preserve
+marginals but attenuate cross-source correlations \citep{dorazio2006statistical,
+meinfelder2011simulation}. Synthetic-data generation faces the identical
+trade-off at whole-file scale \citep{rubin1993statistical}.
+
+\subsection{Weights in imputation}
+
+Design weights enter imputation practice unevenly. The model-based literature
+often treats weights as a nuisance --- if the model is correctly specified and
+the design variables are conditioned on, weighting is unnecessary --- while
+the design-based tradition weights every estimator \citep{little2002statistical}.
+In production microdata pipelines the model is never correctly specified and
+the design variables are never fully available, so the choice is consequential:
+an unweighted fit targets the sample conditional, and any correlation between
+weights and outcomes within predictor cells propagates into the imputed
+population distribution. Tree ensembles add a mechanical subtlety: a
+fully-grown forest's \emph{predictive distribution} is a leaf-membership
+distribution, which per-record \texttt{sample\_weight} arguments do not
+reweight, so honoring weights requires materializing them into the training
+data --- the weighted bootstrap of Section~3. Zero-inflated targets add a
+second subtlety: weighting the zero/nonzero gate by resampling can delete a
+rare sign class outright, so the gate must be weighted directly. We are not
+aware of prior survey-imputation work that combines weight-aware forest
+training, sign-regime gating, and chaining in one estimator; documenting and
+testing that combination is the gap this paper fills.
+
+\subsection{Evaluating imputed files}
+
+Because an imputation is a draw from an estimated conditional distribution,
+pointwise accuracy metrics understate quality; the relevant question is
+distributional. We follow the quantile-loss tradition for conditional
+calibration \citep{koenker2005quantile, meinshausen2006quantile}, use
+Wasserstein distance for marginal fit, and adopt the precision--density--coverage
+framework of \citet{naeem2020reliable} for joint structure across imputed
+columns, as prior \policyengine{} evaluation work did. The reweighting
+fragility diagnostic of Section~3 is, to our knowledge, new.

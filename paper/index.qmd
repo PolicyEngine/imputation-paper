@@ -1,0 +1,45 @@
+---
+title-meta: "Weight-aware imputation for policy microsimulation"
+author-meta: "Max Ghenis; María Juaristi"
+date: ""
+bibliography: bibliography/references.bib
+format:
+  html:
+    cite-method: citeproc
+    link-citations: true
+    link-bibliography: true
+  pdf:
+    documentclass: article
+    classoption: 11pt
+    pdf-engine: pdflatex
+    cite-method: natbib
+    biblio-style: plainnat
+    include-in-header:
+      - preamble.tex
+    keep-tex: true
+number-sections: true
+---
+
+\title{Weight-aware imputation for policy microsimulation}
+
+% Author list and order TBD: this manuscript absorbs the unpublished
+% microimpute paper's task designs and appendix, so align authorship with
+% María Juaristi (and any other microimpute-manuscript authors) before
+% circulation or submission.
+\author{
+    Max Ghenis\thanks{PolicyEngine. Corresponding author: max@policyengine.org} \and
+    María Juaristi\footnotemark[1]
+}
+\date{}
+
+\maketitle
+
+\input{sections/abstract}
+\input{sections/introduction}
+\input{sections/background}
+\input{sections/methodology}
+\input{sections/data}
+\input{sections/results}
+\input{sections/discussion}
+\input{sections/conclusion}
+\input{sections/disclosures}

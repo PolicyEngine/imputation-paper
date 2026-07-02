@@ -1,0 +1,87 @@
+\section{Methodology}
+
+\subsection{The estimator}
+\label{sec:estimator}
+
+\populacefit{} models $P(\text{targets} \mid \text{predictors})$ with a
+quantile-regression-forest estimator \citep{meinshausen2006quantile,
+zillow2024quantile} wrapped in three mechanisms.
+
+\paragraph{Weighted bootstrap.} Random forests cannot honor a per-record
+\texttt{sample\_weight} in their predictive distribution: a fully grown leaf
+holds individual training rows, and weighting the impurity criterion does not
+change which values a quantile query reads out. \populacefit{} therefore
+materializes weights into the data: before each forest is grown, training rows
+are resampled with replacement with probability proportional to weight, so
+leaf distributions reflect the weighted population. Draws from the fitted
+forest then sample the \emph{weighted} conditional.
+
+\paragraph{Regime gates.} A numeric target's sign support --- which of
+$\{\text{negative}, \text{zero}, \text{positive}\}$ occur --- defines its
+regime. A single regressor over a zero-inflated or sign-mixed target either
+drops a tail or interpolates across the empty gap at zero; hurdle-style
+two-part models are the classical remedy \citep{mullahy1986specification,
+lambert1992zero}. \populacefit{} fits a classifier that gates each row into a
+sign class and a separate magnitude forest within each nonzero sign. Regime
+detection is structural (it reads the unweighted support, since which signs
+\emph{exist} is a fact about the variable, not the weighting), while the gate
+itself is weighted directly through its \texttt{sample\_weight} --- not by
+resampling, which would delete a rare sign class whose total weight share is
+negligible. Draws sample the gate's predicted class probabilities rather than
+taking the modal class, preserving the zero mass.
+
+\paragraph{Sequential chaining.} Targets are imputed in order, each
+conditioning on the predictors plus the targets already drawn
+\citep{raghunathan2003multiple, vanbuuren2011mice}, so dependence among
+imputed variables survives.
+
+\paragraph{Interface contract.} Fitting over a \populace{} frame reads the
+frame's typed survey weights by default; fitting over a plain data frame ---
+the standalone path --- requires the weights explicitly (a weight column name,
+a weight vector, or the literal \texttt{"none"}), and omitting them is an
+error rather than a silent unweighted fit. The contract makes the
+weight-blindness failure mode of Section~2.3 unrepresentable by accident.
+
+\subsection{Ablations and baselines}
+\label{sec:ablations}
+
+Each design choice is evaluated by knocking it out with everything else held
+fixed: the full estimator versus itself with \texttt{weights="none"} (the
+weighted bootstrap's contribution), versus fitting each target independently
+(chaining's contribution), and versus a single ungated forest at matched
+hyperparameters (gating's contribution). Baselines are standard practice:
+quantile-regression-forest, ordinary-least-squares, and linear
+quantile-regression imputers from \microimpute{}
+\citep{policyengine2025microimpute}, and nearest-neighbour-distance hot-deck
+statistical matching from \pystatmatch{} \citep{dorazio2021statistical}. The
+candidate and the plain-forest baselines share the same underlying forest
+implementation \citep{zillow2024quantile}, so their differences isolate the
+design choices rather than implementation quality.
+
+\subsection{Metrics}
+\label{sec:metrics}
+
+All metrics are computed under survey weights, on held-out receiver rows.
+\emph{Weighted pinball loss}, averaged over a decile grid, scores conditional
+distributional calibration \citep{koenker2005quantile}. \emph{Weighted
+Wasserstein-1 distance} to the weighted donor distribution scores marginal
+fit. \emph{Zero-share error} scores preservation of the exact-zero mass of
+zero-inflated targets. \emph{\prdc{} coverage} \citep{naeem2020reliable}
+scores joint structure across imputed columns on the cross-survey task.
+Finally, \emph{reweighting fragility} formalizes the landmine diagnostic: over
+an admissible family of reweightings of the imputed file (holding stated
+calibration margins), the worst-case single-record share of a population
+aggregate. \todo{Finalize the admissible-reweighting family and state it
+precisely here.}
+
+\subsection{Protocol}
+\label{sec:protocol}
+
+Every task uses an 80/20 donor/receiver holdout repeated over ten seeds, with
+splits paired across methods: the split is a pure function of the seed, so
+every method fits and is scored on identical partitions. Task inputs are
+frozen once and pinned by hash; only the method varies within a sweep. All
+results tables are generated from the sweep artifacts by the repository's
+command line; no result is hand-entered. Where a method is unavailable or a
+metric undefined for a task, the cell is reported as absent rather than
+omitted.

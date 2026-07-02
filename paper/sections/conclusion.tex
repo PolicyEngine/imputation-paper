@@ -1,0 +1,14 @@
+\section{Conclusion}
+\label{sec:conclusion}
+
+Imputation sits upstream of every population statistic a microsimulation
+model produces, and the files it produces are reweighted by consumers the
+imputer never sees. We presented an estimator that treats survey weights as a
+structural obligation rather than an option --- weighted bootstrap into the
+forests, directly-weighted regime gates, sequential chaining, and an
+interface that refuses a silent unweighted fit --- and evaluated it against
+standard survey-imputation methods with ablations that attribute performance
+to each design choice. \todo{One-sentence headline finding.} \todo{One
+sentence on the fragility result.} The estimator is available standalone as
+\populacefit{}; the benchmark harness, task configs, and every table in this
+paper regenerate from the accompanying repository.

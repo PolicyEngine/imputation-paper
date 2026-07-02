@@ -1,0 +1,8 @@
+project:
+  type: default
+  output-dir: _output
+  render:
+    - paper/index.qmd
+
+execute:
+  freeze: auto
