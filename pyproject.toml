@@ -26,14 +26,18 @@ methods = [
     # The subject of the paper: populace-fit's regime-gated, chained, weighted
     # QRF, plus the Frame it fits over. Git deps against the populace monorepo
     # subdirectories (populace is not yet on PyPI).
-    "populace-fit @ git+https://github.com/PolicyEngine/populace.git#subdirectory=packages/populace-fit",
-    "populace-frame @ git+https://github.com/PolicyEngine/populace.git#subdirectory=packages/populace-frame",
+    # Pinned to the DataFrame-front-door commit (populace#290); repoint to a
+    # main SHA once that PR merges.
+    "populace-fit @ git+https://github.com/PolicyEngine/populace.git@71b5a83b433195748e62178b34f299b065a21b37#subdirectory=packages/populace-fit",
+    "populace-frame @ git+https://github.com/PolicyEngine/populace.git@71b5a83b433195748e62178b34f299b065a21b37#subdirectory=packages/populace-frame",
     # Survey-imputation baselines: plain QRF, OLS, quantile regression, and the
     # matching imputer, under one interface.
     "microimpute>=1,<2",
     # Nearest-neighbour-distance hot-deck statistical matching (a Python port of
     # R's StatMatch), the classical data-fusion baseline.
-    "py-statmatch @ git+https://github.com/CosilicoAI/py-statmatch.git",
+    # Pinned to the packaging-fix commit (py-statmatch#12); repoint to a main
+    # SHA once that PR merges.
+    "py-statmatch @ git+https://github.com/CosilicoAI/py-statmatch.git@094a242b9ecaafd08676b4b00d304c4116662dbf",
 ]
 viz = [
     # Figures for the sweep. matplotlib exports vector PDF/SVG for LaTeX natively

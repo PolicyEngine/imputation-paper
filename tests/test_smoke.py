@@ -40,7 +40,6 @@ EXPECTED_METHOD_KEYS = {
     "microimpute_qrf",
     "microimpute_ols",
     "microimpute_quantreg",
-    "microimpute_matching",
     "statmatch_hotdeck",
     "weighted_marginal",
 }
@@ -215,12 +214,17 @@ def test_sweep_writes_artifacts_and_accounts_for_skips(tmp_path) -> None:
     )
     assert code == 0
     long = pd.read_csv(out / "metrics_long.csv")
-    assert set(long["method"]) == {"weighted_marginal"}
-    assert set(long["seed"]) == {0, 1}
     skipped = pd.read_csv(out / "skipped.csv")
-    # populace_fit skips on either frontier: package missing (base install) or
-    # adapter pending (methods extra installed) -- both are recorded reasons.
-    assert list(skipped["method"]) == ["populace_fit"]
+    # The accounting invariant: every requested method lands in exactly one of
+    # metrics_long (its package is installed and its adapter ran) or
+    # skipped.csv (package missing) -- never silently dropped. Which side
+    # populace_fit falls on depends on whether the methods extra is installed.
+    ran = set(long["method"])
+    dropped = set(skipped["method"]) if len(skipped) else set()
+    assert ran | dropped == {"weighted_marginal", "populace_fit"}
+    assert ran & dropped == set()
+    assert "weighted_marginal" in ran
+    assert set(long[long["method"] == "weighted_marginal"]["seed"]) == {0, 1}
 
     assert make_figures(out) == 0
     summary = pd.read_csv(out / "summary.csv")

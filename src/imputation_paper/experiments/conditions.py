@@ -68,7 +68,7 @@ def run_condition(
     """
     method = method_registry.get_method(method_key)
     fit = method.constructor()
-    predict = fit(train, list(predictors), list(targets), weight_column)
+    predict = fit(train, list(predictors), list(targets), weight_column, seed=seed)
     imputed = predict(test)
 
     train_weights = train[weight_column].to_numpy(dtype=np.float64)

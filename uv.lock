@@ -307,9 +307,9 @@ requires-dist = [
     { name = "microimpute", marker = "extra == 'methods'", specifier = ">=1,<2" },
     { name = "numpy", specifier = ">=2" },
     { name = "pandas", specifier = ">=2.3" },
-    { name = "populace-fit", marker = "extra == 'methods'", git = "https://github.com/PolicyEngine/populace.git?subdirectory=packages%2Fpopulace-fit" },
-    { name = "populace-frame", marker = "extra == 'methods'", git = "https://github.com/PolicyEngine/populace.git?subdirectory=packages%2Fpopulace-frame" },
-    { name = "py-statmatch", marker = "extra == 'methods'", git = "https://github.com/CosilicoAI/py-statmatch.git" },
+    { name = "populace-fit", marker = "extra == 'methods'", git = "https://github.com/PolicyEngine/populace.git?subdirectory=packages%2Fpopulace-fit&rev=71b5a83b433195748e62178b34f299b065a21b37" },
+    { name = "populace-frame", marker = "extra == 'methods'", git = "https://github.com/PolicyEngine/populace.git?subdirectory=packages%2Fpopulace-frame&rev=71b5a83b433195748e62178b34f299b065a21b37" },
+    { name = "py-statmatch", marker = "extra == 'methods'", git = "https://github.com/CosilicoAI/py-statmatch.git?rev=094a242b9ecaafd08676b4b00d304c4116662dbf" },
     { name = "scikit-learn", specifier = ">=1.5" },
     { name = "scipy", specifier = ">=1.13" },
 ]
@@ -760,7 +760,7 @@ wheels = [
 [[package]]
 name = "populace-fit"
 version = "0.1.0"
-source = { git = "https://github.com/PolicyEngine/populace.git?subdirectory=packages%2Fpopulace-fit#f2818269609b206bc2c8879e3b462f86d9b33567" }
+source = { git = "https://github.com/PolicyEngine/populace.git?subdirectory=packages%2Fpopulace-fit&rev=71b5a83b433195748e62178b34f299b065a21b37#71b5a83b433195748e62178b34f299b065a21b37" }
 dependencies = [
     { name = "numpy" },
     { name = "pandas" },
@@ -772,7 +772,7 @@ dependencies = [
 [[package]]
 name = "populace-frame"
 version = "0.1.0"
-source = { git = "https://github.com/PolicyEngine/populace.git?subdirectory=packages%2Fpopulace-frame#f2818269609b206bc2c8879e3b462f86d9b33567" }
+source = { git = "https://github.com/PolicyEngine/populace.git?subdirectory=packages%2Fpopulace-frame&rev=71b5a83b433195748e62178b34f299b065a21b37#71b5a83b433195748e62178b34f299b065a21b37" }
 dependencies = [
     { name = "numpy" },
     { name = "pandas" },
@@ -809,7 +809,7 @@ wheels = [
 [[package]]
 name = "py-statmatch"
 version = "0.1.0"
-source = { git = "https://github.com/CosilicoAI/py-statmatch.git#15e1ff1badca7c7ee7555bc680a9099a3507b1f8" }
+source = { git = "https://github.com/CosilicoAI/py-statmatch.git?rev=094a242b9ecaafd08676b4b00d304c4116662dbf#094a242b9ecaafd08676b4b00d304c4116662dbf" }
 dependencies = [
     { name = "matplotlib" },
     { name = "numpy" },
