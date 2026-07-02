@@ -10,13 +10,17 @@ plants extreme low-weight donor values that a later reweighting can amplify.
 We present the imputation operator of \populace{}, \policyengine{}'s
 open-source microdata stack: a regime-gated, sequentially-chained,
 weighted-bootstrap quantile-regression-forest estimator whose interface makes
-an unweighted fit impossible to request by accident. We benchmark it against
-standard survey-imputation methods --- unweighted and weighted quantile
-regression forests, ordinary least squares, linear quantile regression, and
-nearest-neighbour hot-deck statistical matching --- on \todo{task count} tasks
-including \scf{}-to-\cps{} wealth imputation and zero-inflated tax-record
-components, under a paired, repeated holdout protocol scored with weighted
-distributional metrics. Ablations attribute performance to each design choice:
+an unweighted fit impossible to request by accident. To evaluate it we formalize a
+\emph{population-view harness}: one latent population observed through survey
+views, with any candidate weighted file scored by projecting it through each
+view against that survey's holdout --- a strictly proper joint score, a
+coverage axis invariant to reweighting of the candidate, and a classifier
+two-sample test. Under this harness and paired repeated holdouts we benchmark
+the estimator against standard survey-imputation methods --- unweighted and
+weighted quantile regression forests, ordinary least squares, linear quantile
+regression, and nearest-neighbour hot-deck statistical matching --- on
+within-\scf{} wealth, \scf{}-onto-\cps{} population synthesis, zero-inflated
+\cps{} income components, and six cross-domain datasets. Ablations attribute performance to each design choice:
 the weighted bootstrap \todo{weighted-vs-unweighted result}, regime gating
 \todo{gating result}, and sequential chaining \todo{chaining result}. A
 reweighting stress test shows \todo{fragility result}, and an application to

@@ -58,7 +58,40 @@ candidate and the plain-forest baselines share the same underlying forest
 implementation \citep{zillow2024quantile}, so their differences isolate the
 design choices rather than implementation quality.
 
-\subsection{Metrics}
+\subsection{The population-view harness}
+\label{sec:harness}
+
+Per-variable metrics cannot adjudicate the question this paper cares about,
+because the methods differ most in how they treat the \emph{joint}. We
+therefore evaluate within a framework we call the population-view harness. One
+latent population distribution produces individuals; each survey $s$ is a
+\emph{view} $V_s$ of it --- a variable subset, a sampling design, a
+measurement idiom --- and the survey's holdout is a weighted sample from
+$V_s(P)$ \citep{lohr2017combining}. A candidate weighted file $Q$ (any
+generator's) is scored by projecting it through each view and comparing
+$V_s(Q)$ to that view's holdout \emph{in the view's own variable space}.
+Cross-survey consistency is never required --- the candidate is only asked to
+explain each view in its own idiom --- which keeps the harness usable even
+though surveys disagree with one another about the population they share.
+
+Each view carries three complementary axes. The \emph{weighted energy
+distance} \citep{szekely2013energy} is the sample form of a strictly proper
+scoring rule \citep{gneiting2007strictly}: the true distribution uniquely
+minimizes its expectation, so a candidate hedged toward modal households
+scores strictly worse than one matching the full distribution. \emph{\prdc{}
+coverage} \citep{naeem2020reliable} --- the weighted fraction of holdout
+points with a candidate point inside their $k$-nearest-neighbour radius ---
+is the explicit anti-collapse axis; because it depends on the candidate only
+through its support, it is invariant to any reweighting of the candidate,
+making it the calibration-blind block of the scorecard. A \emph{weighted
+classifier two-sample test} (cross-validated AUC of a gradient-boosted
+classifier at equal class mass; $0.5$ is indistinguishable) is the omnibus
+check. Holdouts are used nowhere upstream, so the harness is a
+non-self-referential test surface; a sampling-noise floor --- the donor split
+itself scored as a candidate --- anchors what "as good as another sample of
+the survey" means on each axis.
+
+\subsection{Marginal and stress metrics}
 \label{sec:metrics}
 
 All metrics are computed under survey weights, on held-out receiver rows.
@@ -66,13 +99,15 @@ All metrics are computed under survey weights, on held-out receiver rows.
 distributional calibration \citep{koenker2005quantile}. \emph{Weighted
 Wasserstein-1 distance} to the weighted donor distribution scores marginal
 fit. \emph{Zero-share error} scores preservation of the exact-zero mass of
-zero-inflated targets. \emph{\prdc{} coverage} \citep{naeem2020reliable}
-scores joint structure across imputed columns on the cross-survey task.
-Finally, \emph{reweighting fragility} formalizes the landmine diagnostic: over
-an admissible family of reweightings of the imputed file (holding stated
-calibration margins), the worst-case single-record share of a population
-aggregate. \todo{Finalize the admissible-reweighting family and state it
-precisely here.}
+zero-inflated targets. Finally, \emph{reweighting fragility} formalizes the
+landmine diagnostic: over the family of bounded multiplicative reweightings
+$w_i \mapsto m_i w_i$ with $m_i \in [1/\kappa, \kappa]$ (the hard weight-ratio
+bounds production calibration guards use), the worst-case single-record share
+of a target aggregate has the closed form
+$\kappa^2 c^* / (\kappa^2 c^* + S - c^*)$, where $c^*$ is the largest baseline
+contribution $w_i |a_i|$ and $S$ their sum. We report it at $\kappa = 5$ for
+every method next to the held-out truth's own fragility --- the exposure a
+method should not exceed.
 
 \subsection{Protocol}
 \label{sec:protocol}

@@ -20,12 +20,13 @@ format:
 number-sections: true
 ---
 
+<!-- Author list and order TBD: this manuscript absorbs the unpublished
+microimpute paper's task designs and appendix, so align authorship with
+María Juaristi (and any other microimpute-manuscript authors) before
+circulation or submission. -->
+
 \title{Weight-aware imputation for policy microsimulation}
 
-% Author list and order TBD: this manuscript absorbs the unpublished
-% microimpute paper's task designs and appendix, so align authorship with
-% María Juaristi (and any other microimpute-manuscript authors) before
-% circulation or submission.
 \author{
     Max Ghenis\thanks{PolicyEngine. Corresponding author: max@policyengine.org} \and
     María Juaristi\footnotemark[1]

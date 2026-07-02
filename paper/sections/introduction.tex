@@ -50,19 +50,28 @@ We make three contributions:
 We describe the estimator and its interface contract, and release it as
 \populacefit{}, installable and usable on plain data frames independently of
 the rest of the \populace{} stack.
-\item \textbf{A benchmark against standard practice with attribution.} We
-compare the estimator against unweighted and weighted quantile regression
-forests \citep{meinshausen2006quantile}, ordinary least squares imputation
-\citep{vonhippel2007should}, linear quantile regression
-\citep{koenker1978regression}, and nearest-neighbour hot-deck statistical
-matching \citep{andridge2010review, dorazio2021statistical}, under a paired,
-repeated holdout protocol with weighted distributional metrics. Ablations
+\item \textbf{The population-view harness.} We formalize the evaluation
+question as one latent population observed through survey \emph{views} ---
+variable subsets, designs, measurement idioms --- and score any candidate
+weighted file by projecting it through each view against that survey's
+holdout, using a strictly proper joint score \citep{gneiting2007strictly,
+szekely2013energy}, a support-based coverage axis that is invariant to
+reweighting of the candidate \citep{naeem2020reliable}, and a weighted
+classifier two-sample test. The harness is generator-agnostic and
+non-self-referential (holdouts appear nowhere upstream), and it cleanly
+separates what record generation must get right from what calibration can
+later change.
+\item \textbf{A benchmark against standard practice with attribution, plus a
+reweighting stress test.} We compare the estimator against unweighted and
+weighted quantile regression forests \citep{meinshausen2006quantile},
+ordinary least squares imputation \citep{vonhippel2007should}, linear
+quantile regression \citep{koenker1978regression}, and nearest-neighbour
+hot-deck statistical matching \citep{andridge2010review,
+dorazio2021statistical}, under a paired, repeated holdout protocol. Ablations
 knock out one design choice at a time, attributing performance to weighting,
-gating, and chaining separately.
-\item \textbf{A reweighting stress test.} We introduce a fragility diagnostic
-that measures the worst-case single-record contribution to a population
-aggregate under admissible reweightings of the imputed file, formalizing the
-landmine failure mode; we evaluate every method under it.
+gating, and chaining separately, and a closed-form fragility diagnostic
+measures each method's worst-case single-record exposure under bounded
+reweightings of the imputed file --- the landmine failure mode.
 \end{enumerate}
 
 The policy stakes are concrete. \todo{One-paragraph SSI Savings Penalty

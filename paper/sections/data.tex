@@ -1,52 +1,74 @@
 \section{Data and tasks}
 \label{sec:data}
 
-Four tasks span the settings the estimator is used in. Each defines a donor
-table, a receiver table, predictors shared by both, and target variables
-observed only in the donor; the protocol of Section~\ref{sec:protocol} applies
-identically to all.
+Four task families span the settings the estimator is used in. Where a task
+imputes within one survey, the protocol of Section~\ref{sec:protocol} applies:
+80/20 donor/receiver holdouts repeated over ten paired seeds. The
+population-view experiment additionally projects candidates onto a second
+survey. Every table in Section~\ref{sec:results} regenerates from the
+repository's committed run configurations; row caps and skipped cells are
+recorded in the run manifests.
 
-\subsection{Task 1: wealth from the SCF onto the CPS}
+\subsection{Task 1: wealth within the SCF}
+\label{sec:task-scf}
 
-The Survey of Consumer Finances \citep{fed2023scf} observes household net
-worth; the \cps{} Annual Social and Economic Supplement \citep{census2024}
-does not. We impute net worth from the \scf{} onto \cps{} households from
-shared demographic and income predictors, the task the \microimpute{}
-manuscript introduced. The policy application is the Supplemental Security
-Income asset test: \textsc{SSI} eligibility depends on countable resources
-\citep{ssa2024ssi}, so simulating the baseline caseload --- and reforms such
-as the SSI Savings Penalty Elimination Act \citep{ssi_spea_2025}, which would
-raise the resource limits --- requires imputed wealth. \todo{State the
-predictor set and sample sizes from the frozen task config.}
+The Survey of Consumer Finances \citep{fed2023scf} observes household wealth
+in detail. From the 2022 summary extract (first implicate, survey weights) we
+impute \texttt{debt} --- zero-inflated and nonnegative --- and
+\texttt{networth} --- sign-mixed, with a heavy right tail --- from age, sex,
+education class, marital status, children, total income, and wage income.
+The two targets are chosen deliberately: their sign structures exercise the
+regime gates, and their strong mutual dependence exercises chaining.
 
-\subsection{Task 2: cross-survey structure on CPS, SIPP, and PSID}
+\subsection{Task 2: the SCF\texorpdfstring{$\to$}{->}CPS population view}
+\label{sec:task-harness}
 
-Each of the \cps{} \citep{census2024}, \sipp{} \citep{census2023sipp}, and
-\psid{} \citep{psid2023} observes variables the others lack. We impute each
-survey's non-shared variables from shared demographics and score joint
-structure against that survey's own held-out records with \prdc{} coverage
-\citep{naeem2020reliable}. This is the task where chaining should matter most:
-unchained imputation preserves marginals while attenuating the dependence the
-holdout exhibits. \todo{State the variable surfaces per survey from the frozen
-task config.}
+Each method fits wealth conditionals on an SCF donor split and imputes them
+onto real \cps{} ASEC households \citep{census2024} sharing the predictor
+set. The candidate population --- \cps{} demographics plus imputed wealth,
+under \cps{} household weights --- is then scored through the harness of
+Section~\ref{sec:harness} against the \emph{held-out} SCF: the joint of
+shared predictors and wealth, under SCF weights. The
+\texttt{scf\_sample\_reference} rows score the donor split itself against the
+holdout, anchoring the sampling-noise floor. This is the paper's direct test
+of whether conditional-distribution methods preserve joint structure that
+matching's conditional-independence gluing loses \citep{rassler2002statistical,
+dorazio2006statistical}, measured where it matters: on a receiver file the
+donor survey never saw. Because the demographic block of every candidate is
+the same real \cps{} sample, differences between methods isolate the wealth
+block and its coupling to demographics; the shared demographic offset between
+the two surveys is common to all methods and bounded below by the reference
+floor.
 
-\subsection{Task 3: zero-inflated tax components}
+\subsection{Task 3: zero-inflated income components in the CPS}
+\label{sec:task-cps}
 
-Dividend and interest income in tax microdata are zero for most records,
-positive with a heavy tail for the rest, and central to revenue estimation.
-We impute \puf{}-style income components under the protocol, score zero-share
-preservation and tail fit, and run the reweighting stress test of
-Section~\ref{sec:metrics}: prior \policyengine{} production experience
-motivates this task, where an unweighted fit broadcast rare high-value donor
-records across a receiver file as near-zero-weight point masses that later
-reweighting amplified. All fragility numbers reported here are measured under
-this paper's protocol. \todo{Task config, component list, and donor/receiver
-definitions.}
+From the raw \cps{} ASEC microdata (the pre-enhancement
+\texttt{cps\_2023} file --- using the enhanced CPS would embed the prior
+production imputations this paper is about) we impute interest and dividend
+income for adults from age, sex, and employment income, under person weights.
+Both components are zero for most adults with heavy positive tails --- the
+regime surface where gating and weighting matter most. This task also carries
+the reweighting stress test of Section~\ref{sec:metrics}: prior
+\policyengine{} production experience motivates it, where an unweighted fit
+broadcast rare high-value donor records across a receiver file as
+near-zero-weight point masses that later reweighting amplified. All fragility
+numbers reported here are measured under this paper's protocol.
 
 \subsection{Task 4: cross-dataset transfer}
+\label{sec:task-openml}
 
 To test behavior beyond economic microdata, we run the method surface over
 the six OpenML AutoML Benchmark regression datasets used in the
-\microimpute{} manuscript's appendix \citep{vanschoren2014openml}, treating
-the target variable of each as the imputed column. \todo{Enumerate the six
-datasets and their donor/receiver splits from the frozen task config.}
+\microimpute{} manuscript's appendix \citep{vanschoren2014openml} ---
+\texttt{space\_ga}, \texttt{elevators}, \texttt{brazilian\_houses},
+\texttt{onlinenewspopularity}, \texttt{abalone}, and \texttt{house\_sales}
+--- treating each dataset's target as the imputed column under uniform
+weights.
+
+Full multi-view synthesis --- one candidate scored simultaneously against
+\cps{}, \sipp{} \citep{census2023sipp}, and \psid{} \citep{psid2023} views ---
+is the production release-gate use of the harness and is left to future work;
+\psid{} access requires registration, and the two-view experiment of
+Section~\ref{sec:task-harness} already identifies the joint-structure
+differences the paper is about.

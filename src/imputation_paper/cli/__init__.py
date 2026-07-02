@@ -63,15 +63,48 @@ def main(argv: list[str] | None = None) -> int:
         default=10,
         help="Number of repeated donor/receiver splits.",
     )
+    sweep.add_argument(
+        "--max-rows",
+        type=int,
+        default=20_000,
+        help="Deterministic row cap applied to the task before splitting.",
+    )
+
+    harness = subcommands.add_parser(
+        "harness",
+        help="Run the SCF->CPS population-view experiment.",
+    )
+    harness.add_argument(
+        "--out",
+        type=Path,
+        default=Path("runs/scf-to-cps-harness"),
+        help="Run directory to write harness_long.csv into.",
+    )
+    harness.add_argument(
+        "--methods",
+        nargs="*",
+        default=None,
+        help="Registry keys to run (default: every registered method).",
+    )
+    harness.add_argument(
+        "--seeds", type=int, default=10, help="Number of SCF donor/holdout splits."
+    )
+    harness.add_argument(
+        "--max-receiver-rows",
+        type=int,
+        default=20_000,
+        help="Deterministic cap on the CPS receiver sample.",
+    )
 
     figures = subcommands.add_parser(
         "figures",
-        help="Aggregate a run's metrics_long.csv into summary tables.",
+        help="Aggregate a run's long-format artifacts into summary tables.",
     )
     figures.add_argument(
         "run_dir",
         type=Path,
-        help="A run directory containing metrics_long.csv (from `imp sweep`).",
+        help="A run directory containing metrics_long.csv and/or "
+        "harness_long.csv (from `imp sweep` / `imp harness`).",
     )
 
     args = parser.parse_args(argv)
@@ -88,6 +121,16 @@ def main(argv: list[str] | None = None) -> int:
             out=args.out,
             methods=args.methods,
             n_seeds=args.seeds,
+            max_rows=args.max_rows,
+        )
+    if args.command == "harness":
+        from imputation_paper.cli.harness import run_harness
+
+        return run_harness(
+            out=args.out,
+            methods=args.methods,
+            n_seeds=args.seeds,
+            max_receiver_rows=args.max_receiver_rows,
         )
     if args.command == "figures":
         from imputation_paper.cli.figures import make_figures

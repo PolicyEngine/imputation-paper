@@ -95,6 +95,16 @@ def run_condition(
             scores[f"{target}.zero_share_error"] = metrics.zero_share_error(
                 y_true, y_pred, true_weights=test_weights, pred_weights=test_weights
             )
+        # The landmine diagnostic: worst-case single-record share of the
+        # target's aggregate under bounded reweighting, for the imputed file
+        # and for the held-out truth (the reference exposure a method should
+        # not exceed).
+        scores[f"{target}.fragility_kappa5"] = metrics.reweight_fragility(
+            y_pred, test_weights, kappa=5.0
+        )
+        scores[f"{target}.fragility_kappa5_truth"] = metrics.reweight_fragility(
+            y_true, test_weights, kappa=5.0
+        )
 
     return ConditionResult(
         method=method_key, seed=seed, metrics=scores, imputed=imputed

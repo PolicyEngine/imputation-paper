@@ -40,38 +40,56 @@ def _to_latex_tabular(summary: pd.DataFrame) -> str:
     return "\n".join(lines)
 
 
+def _aggregate(long: pd.DataFrame, unit_column: str) -> pd.DataFrame:
+    """Mean/sd per (method, unit, metric) over seeds; unit is target or view."""
+    summary = (
+        long.groupby(["method", unit_column, "metric"], as_index=False)["value"]
+        .agg(mean="mean", sd="std")
+        .fillna({"sd": 0.0})  # a single seed has no dispersion, not a missing one
+        .sort_values([unit_column, "metric", "mean"], kind="stable")
+        .reset_index(drop=True)
+    )
+    return summary.rename(columns={unit_column: "target"})
+
+
 def make_figures(run_dir: Path) -> int:
-    """Aggregate ``run_dir/metrics_long.csv`` into summary table artifacts.
+    """Aggregate a run's long artifacts into summary table artifacts.
+
+    Handles both run kinds: ``metrics_long.csv`` (``imp sweep``) becomes
+    ``summary.csv``/``summary.tex``; ``harness_long.csv`` (``imp harness``)
+    becomes ``harness_summary.csv``/``harness_summary.tex``.
 
     Args:
-        run_dir: A run directory written by ``imp sweep``.
+        run_dir: A run directory written by ``imp sweep`` or ``imp harness``.
 
     Returns:
         Process exit code (``0`` on success).
     """
-    metrics_path = run_dir / "metrics_long.csv"
-    if not metrics_path.exists():
+    wrote_any = False
+    for filename, unit_column, out_stem in (
+        ("metrics_long.csv", "target", "summary"),
+        ("harness_long.csv", "view", "harness_summary"),
+    ):
+        long_path = run_dir / filename
+        if not long_path.exists():
+            continue
+        long = pd.read_csv(long_path)
+        if long.empty:
+            continue
+        summary = _aggregate(long, unit_column)
+        summary_csv = run_dir / f"{out_stem}.csv"
+        summary.to_csv(summary_csv, index=False)
+        summary_tex = run_dir / f"{out_stem}.tex"
+        summary_tex.write_text(_to_latex_tabular(summary))
+        print(f"imp figures -- aggregated {long_path}")
+        print(f"  wrote {summary_csv} ({len(summary)} rows)")
+        print(f"  wrote {summary_tex}")
+        wrote_any = True
+
+    if not wrote_any:
         raise SystemExit(
-            f"{metrics_path} not found; pass a run directory written by `imp sweep`."
+            f"No non-empty metrics_long.csv or harness_long.csv under "
+            f"{run_dir}; pass a run directory written by `imp sweep` or "
+            "`imp harness`."
         )
-    long = pd.read_csv(metrics_path)
-    if long.empty:
-        raise SystemExit(f"{metrics_path} has no metric rows to aggregate.")
-
-    summary = (
-        long.groupby(["method", "target", "metric"], as_index=False)["value"]
-        .agg(mean="mean", sd="std")
-        .fillna({"sd": 0.0})  # a single seed has no dispersion, not a missing one
-        .sort_values(["target", "metric", "mean"], kind="stable")
-        .reset_index(drop=True)
-    )
-
-    summary_csv = run_dir / "summary.csv"
-    summary.to_csv(summary_csv, index=False)
-    summary_tex = run_dir / "summary.tex"
-    summary_tex.write_text(_to_latex_tabular(summary))
-
-    print(f"imp figures -- aggregated {metrics_path}")
-    print(f"  wrote {summary_csv} ({len(summary)} rows)")
-    print(f"  wrote {summary_tex}")
     return 0

@@ -62,8 +62,20 @@ testing that combination is the gap this paper fills.
 Because an imputation is a draw from an estimated conditional distribution,
 pointwise accuracy metrics understate quality; the relevant question is
 distributional. We follow the quantile-loss tradition for conditional
-calibration \citep{koenker2005quantile, meinshausen2006quantile}, use
-Wasserstein distance for marginal fit, and adopt the precision--density--coverage
-framework of \citet{naeem2020reliable} for joint structure across imputed
-columns, as prior \policyengine{} evaluation work did. The reweighting
-fragility diagnostic of Section~3 is, to our knowledge, new.
+calibration \citep{koenker2005quantile, meinshausen2006quantile} and use
+Wasserstein distance for marginal fit. For the joint, the evaluation
+perspective this paper formalizes --- one latent population, surveys as
+partial views of it, candidates scored through each view against held-out
+survey samples --- has ancestry in several literatures that have not, to our
+knowledge, been assembled into an operational benchmark: the survey-statistics
+treatment of multiple sources observing one population
+\citep{lohr2017combining}, the missing-data view of fusion as block
+missingness on a single file \citep{little2002statistical,
+rassler2002statistical}, strictly proper scoring of distributional claims
+against realized samples \citep{gneiting2007strictly, szekely2013energy}, and
+the precision--recall--density--coverage geometry of generative-model
+evaluation \citep{naeem2020reliable}. Population-synthesis practice validates
+against input marginals rather than held-out views, and reviews of the field
+note the absence of a standard benchmark. Section~3.3 operationalizes the
+combination; the reweighting fragility diagnostic of Section~3.4 is, to our
+knowledge, new.
