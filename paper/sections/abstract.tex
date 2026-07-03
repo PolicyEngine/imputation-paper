@@ -22,11 +22,14 @@ regression, and nearest-neighbour hot-deck statistical matching --- on
 within-\scf{} wealth, \scf{}-onto-\cps{} population synthesis, zero-inflated
 \cps{} income components, and six cross-domain datasets. Ablations attribute performance to each design choice:
 the weighted bootstrap \todo{weighted-vs-unweighted result}, regime gating
-\todo{gating result}, and sequential chaining \todo{chaining result}. A
-reweighting stress test shows \todo{fragility result}, and an application to
-the Supplemental Security Income savings penalty illustrates the policy
-stakes: \todo{SSI application result}. The estimator is available as
-\populacefit{}, installable independently of the rest of the stack.
+\todo{gating result}, and sequential chaining \todo{chaining result}; a
+closed-form reweighting stress test measures each method's worst-case
+single-record exposure \todo{fragility result}. Wealth imputation is what
+makes asset-tested programs such as Supplemental Security Income simulable on
+the \cps{} at all, and the population-view results identify which methods
+preserve the demographics--wealth joint that such simulation depends on. The
+estimator is available as \populacefit{}, installable independently of the
+rest of the stack.
 
 \vspace{1em}
 \noindent\textbf{Keywords:} microsimulation, imputation, survey weights,

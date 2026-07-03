@@ -133,9 +133,7 @@ def run_sweep(
         Process exit code (``0`` if at least one method produced metrics).
     """
     if task not in TASK_LOADERS:
-        raise SystemExit(
-            f"Unknown task {task!r}; available: {sorted(TASK_LOADERS)}."
-        )
+        raise SystemExit(f"Unknown task {task!r}; available: {sorted(TASK_LOADERS)}.")
     task_frame = TASK_LOADERS[task]()
     frame, was_capped = _capped(task_frame.frame, max_rows)
 

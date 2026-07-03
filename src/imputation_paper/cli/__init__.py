@@ -96,6 +96,20 @@ def main(argv: list[str] | None = None) -> int:
         help="Deterministic cap on the CPS receiver sample.",
     )
 
+    tables = subcommands.add_parser(
+        "tables",
+        help="Write the manuscript's LaTeX tables from the run directories.",
+    )
+    tables.add_argument(
+        "--runs-dir", type=Path, default=Path("runs"), help="Runs root."
+    )
+    tables.add_argument(
+        "--out",
+        type=Path,
+        default=Path("paper/tables"),
+        help="Directory the manuscript \\input's tables from.",
+    )
+
     figures = subcommands.add_parser(
         "figures",
         help="Aggregate a run's long-format artifacts into summary tables.",
@@ -132,6 +146,10 @@ def main(argv: list[str] | None = None) -> int:
             n_seeds=args.seeds,
             max_receiver_rows=args.max_receiver_rows,
         )
+    if args.command == "tables":
+        from imputation_paper.cli.tables import make_tables
+
+        return make_tables(runs_dir=args.runs_dir, out_dir=args.out)
     if args.command == "figures":
         from imputation_paper.cli.figures import make_figures
 

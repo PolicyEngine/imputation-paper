@@ -74,10 +74,16 @@ measures each method's worst-case single-record exposure under bounded
 reweightings of the imputed file --- the landmine failure mode.
 \end{enumerate}
 
-The policy stakes are concrete. \todo{One-paragraph SSI Savings Penalty
-Elimination Act exhibit: without imputed wealth the baseline caseload and the
-reform are unsimulable; with weight-blind imputation the caseload is
-misestimated; numbers from the task-1 sweep.}
+The policy stakes are concrete. Supplemental Security Income conditions
+eligibility on countable resources \citep{ssa2024ssi}, so simulating its
+baseline caseload on the \cps{} --- or reforms such as the SSI Savings Penalty
+Elimination Act, which would raise the resource limits
+\citep{ssi_spea_2025} --- is impossible without imputed wealth, and the
+composition of the simulated caseload is exactly a functional of the imputed
+demographics--wealth joint. The population-view experiment of
+Section~\ref{sec:task-harness} scores that joint directly: it asks whether
+households assembled from \cps{} demographics and imputed wealth are
+distributionally exchangeable with households the \scf{} actually observed.
 
 The rest of the paper proceeds as follows. Section~2 situates the estimator in
 the survey-imputation literature. Section~3 specifies the estimator, the
