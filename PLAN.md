@@ -73,11 +73,15 @@ table, not drift.
    instantiation of the harness and the direct test of the hypothesis that
    conditional-distribution methods beat matching on joint structure.
 3. **`cps_components`** — within-CPS imputation of interest and dividend
-   income for adults (raw `cps_2023.h5`; never the enhanced CPS, which embeds
-   prior imputations). The zero-inflation surface, plus the
-   **reweight-fragility** stress test: worst-case single-record share of each
-   component aggregate under bounded (κ=5) multiplicative reweighting,
-   reported for every method next to the held-out truth's own fragility.
+   income for adults, from the Census ASEC 2025 public-use files pulled
+   directly from census.gov (never any processed or enhanced artifact: the
+   paper's task inputs must not flow through PolicyEngine's own pipelines,
+   and enhanced files embed the imputations under evaluation). The
+   zero-inflation surface, plus the **reweight-fragility** stress test:
+   worst-case single-record share of each component aggregate under bounded
+   (κ=5) multiplicative reweighting, reported for every method next to the
+   held-out truth's own fragility. ASEC amounts are topcoded, which truncates
+   the extreme tail relative to the SCF.
 4. **`openml_*`** — the six OpenML AutoML Benchmark regression datasets from
    the microimpute manuscript's appendix (space_ga, elevators,
    brazilian_houses, onlinenewspopularity, abalone, house_sales), uniform

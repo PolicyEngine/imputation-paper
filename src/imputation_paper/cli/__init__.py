@@ -77,8 +77,16 @@ def main(argv: list[str] | None = None) -> int:
     harness.add_argument(
         "--out",
         type=Path,
-        default=Path("runs/scf-to-cps-harness"),
-        help="Run directory to write harness_long.csv into.",
+        default=None,
+        help="Run directory (default depends on --profile).",
+    )
+    harness.add_argument(
+        "--profile",
+        default="minimal",
+        choices=("minimal", "populace-scale"),
+        help="minimal: 7 shared predictors, 2 targets, one receiver vintage; "
+        "populace-scale: 10 predictors, 4 chained targets, pooled 2023-2025 "
+        "receiver.",
     )
     harness.add_argument(
         "--methods",
@@ -145,6 +153,7 @@ def main(argv: list[str] | None = None) -> int:
             methods=args.methods,
             n_seeds=args.seeds,
             max_receiver_rows=args.max_receiver_rows,
+            profile=args.profile,
         )
     if args.command == "tables":
         from imputation_paper.cli.tables import make_tables

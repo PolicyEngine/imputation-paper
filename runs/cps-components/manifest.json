@@ -1,7 +1,7 @@
 {
   "task": "cps_components",
   "rows_used": 20000,
-  "rows_available": 39686,
+  "rows_available": 108044,
   "row_cap_applied": true,
   "max_rows": 20000,
   "seeds": [

@@ -1,383 +1,248 @@
-"""CPS tasks: within-CPS zero-inflated components, and the SCF->CPS receiver.
+"""CPS tasks from the Census Bureau's ASEC public-use files, directly.
 
-Both loaders read the *raw* CPS file the PolicyEngine data pipeline starts from
-(``cps_2023.h5`` on the Hugging Face Hub). This is a hard rule: the loaders must
-never read ``enhanced_cps*``, because the enhanced file already embeds the very
-QRF imputations this paper evaluates -- scoring against it would be
-self-referential.
+Both loaders read the CPS Annual Social and Economic Supplement CSVs straight
+from ``census.gov`` (``asecpub{yy}csv.zip``) rather than any processed
+artifact. Two rules motivate the direct source:
 
-Two tasks are exposed:
+* **Independence.** The paper evaluates PolicyEngine-adjacent methods, so its
+  task inputs must not flow through PolicyEngine's own data processing; the
+  Census files are the neutral origin every pipeline shares.
+* **No enhanced files, ever.** Derived products such as the enhanced CPS embed
+  the very QRF imputations this paper evaluates -- scoring against them would
+  be self-referential.
+
+Two loaders are exposed:
 
 * :func:`load_cps` -- person-level ``cps_components`` task. Adults only,
-  predictors ``age, is_female, employment_income``, targets ``interest_income``
-  and ``dividend_income`` (each summed from the file's component variables).
-  These are the paper's zero-inflated component surface, where gating and
-  weighting matter most.
-* :func:`load_cps_households` -- one row per household, the *receiver* table for
-  the SCF->CPS wealth harness. Its columns mirror the SCF predictor semantics as
-  closely as the CPS allows.
+  predictors ``age, is_female, employment_income``, targets
+  ``interest_income`` and ``dividend_income``. These are the paper's
+  zero-inflated component surface, where gating and weighting matter most.
+* :func:`load_cps_households` -- one row per household, the *receiver* table
+  for the SCF->CPS wealth harness. Its columns mirror the SCF predictor
+  semantics as closely as the ASEC allows.
 
-**h5 layout.** This file keys datasets by bare PolicyEngine variable name (e.g.
-``age``, not ``age/2023``); each key is a 1-D array whose length is its entity
-count -- 50863 persons, 20655 households. Variables are joined across entities by
-the ``person_*_id`` / ``*_id`` columns. See the module constants for the exact
-names used and the derivations documented on each loader.
+**File conventions** (verified against ASEC 2024 and 2025): the person file
+(``pppub{yy}.csv``) and household file (``hhpub{yy}.csv``) join on
+``PH_SEQ``/``H_SEQ``; weights (``MARSUPWT``, ``HSUP_WGT``) carry two implied
+decimals, so raw sums of roughly 33.2e9 persons and 13.2e9 households divide
+by 100 to the actual ~332M persons and ~132M households; the household file
+includes zero-weight shell records, which are dropped. ASEC year ``N``
+reports income for calendar year ``N - 1``.
 """
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+import zipfile
+from collections.abc import Sequence
 
-import numpy as np
 import pandas as pd
 
-from imputation_paper.data.base import TaskFrame
-
-if TYPE_CHECKING:  # pragma: no cover - typing only
-    import h5py
+from imputation_paper.data.base import TaskFrame, download
 
 __all__ = ["load_cps", "load_cps_households"]
 
-#: The raw CPS file on the Hub. NEVER an ``enhanced_cps*`` file (those embed the
-#: QRF imputations this paper evaluates; reading them would be self-referential).
-_HF_REPO_ID = "policyengine/policyengine-us-data"
-_HF_FILENAME = "cps_2023.h5"
-
-# --- Person-level variable names (length 50863) -----------------------------
-_V_AGE = "age"
-_V_IS_FEMALE = "is_female"
-_V_EMPLOYMENT_INCOME = "employment_income"
-#: Interest components. In this file ``tax_exempt_interest_income`` is a fixed
-#: multiple of ``taxable_interest_income`` on the same support; their sum is a
-#: valid "total interest received" concept sharing the components' zero pattern.
-_V_INTEREST_PARTS = ("taxable_interest_income", "tax_exempt_interest_income")
-#: Dividend components (qualified + non-qualified) -- a genuine split summing to
-#: total dividend income, sharing one nonzero support.
-_V_DIVIDEND_PARTS = ("qualified_dividend_income", "non_qualified_dividend_income")
-_V_IS_HOUSEHOLD_HEAD = "is_household_head"
-_V_PERSON_HOUSEHOLD_ID = "person_household_id"
-_V_PERSON_MARITAL_UNIT_ID = "person_marital_unit_id"
-_V_SELF_EMPLOYMENT_INCOME = "self_employment_income"
-
-# --- Household-level variable names (length 20655) --------------------------
-_V_HOUSEHOLD_ID = "household_id"
-_V_HOUSEHOLD_WEIGHT = "household_weight"
-
-#: Adults only, matching the paper's component surface.
-_ADULT_AGE = 18
-
-#: Derived clean target column names.
-_INTEREST_INCOME = "interest_income"
-_DIVIDEND_INCOME = "dividend_income"
-
-_CPS_COMPONENTS_PREDICTORS: tuple[str, ...] = (
-    _V_AGE,
-    _V_IS_FEMALE,
-    _V_EMPLOYMENT_INCOME,
-)
-_CPS_COMPONENTS_TARGETS: tuple[str, ...] = (_INTEREST_INCOME, _DIVIDEND_INCOME)
-_PERSON_WEIGHT = "person_weight"
-
-#: SCF->CPS shared predictor list (the intersection of what both surveys carry).
-#: ``edcl`` (SCF education class) has no clean analogue in this CPS file, so it
-#: is omitted; ``income``/``wageinc`` are household aggregates matching the SCF
-#: household-income semantics.
-_HOUSEHOLD_SHARED_PREDICTORS: tuple[str, ...] = (
-    "age",  # household head's age
-    "hhsex",  # head sex, 1 = male / 2 = female (SCF coding)
-    "married",  # 1 = head in a 2-person marital unit, 2 = otherwise (SCF coding)
-    "kids",  # count of household members under 18
-    "income",  # household total income (sum of person incomes)
-    "wageinc",  # household wage/employment income (sum of person employment income)
+#: The Census ASEC public-use CSV bundle for a given ASEC (survey) year.
+_URL_TEMPLATE = (
+    "https://www2.census.gov/programs-surveys/cps/datasets/{year}/march/"
+    "asecpub{yy}csv.zip"
 )
 
+#: ASEC public-use weights carry two implied decimal places.
+_WEIGHT_DIVISOR = 100.0
 
-def _download_raw_cps() -> str:
-    """Return the local path to the raw CPS h5, fetching it if needed.
+# --- Person-file (pppub) variable names -------------------------------------
+_P_AGE = "A_AGE"
+_P_SEX = "A_SEX"  # 1 = male, 2 = female (same coding as SCF `hhsex`)
+_P_MARITAL = "A_MARITL"  # 1-7; 1/2 = married, spouse present (civilian/AF)
+_P_REL = "A_EXPRRP"  # 1/2 = reference person (with/without relatives)
+_P_WAGE = "WSAL_VAL"  # wage and salary income, prior calendar year
+_P_SELF_EMP = "SEMP_VAL"  # self-employment income, prior calendar year
+_P_INTEREST = "INT_VAL"  # interest income, prior calendar year
+_P_DIVIDEND = "DIV_VAL"  # dividend income, prior calendar year
+_P_WEIGHT = "MARSUPWT"  # person supplement weight (two implied decimals)
+_P_HH_SEQ = "PH_SEQ"  # household sequence number (joins H_SEQ)
 
-    Tries the Hub anonymously first (the repo is public). Only on an
-    authorization failure does it retry with a token from the environment, so
-    the common path needs no credentials.
+# --- Rich-profile person variables (populace-scale shared predictors) -------
+_P_EDUCATION = "A_HGA"  # educational attainment code (31..46 for adults)
+_P_HISPANIC = "PEHSPNON"  # 1 = Hispanic, 2 = not
+_P_RACE = "PRDTRACE"  # detailed race; 1 white, 2 Black, 4 Asian, else other
+_P_LABOR_FORCE = "A_LFSR"  # labor force status recode; 1/2 = employed
 
-    Returns:
-        The local filesystem path to ``cps_2023.h5``.
-    """
-    import logging
-    import os
-
-    from huggingface_hub import hf_hub_download
-    from huggingface_hub.errors import GatedRepoError, RepositoryNotFoundError
-
-    logger = logging.getLogger(__name__)
-    if "enhanced" in _HF_FILENAME:  # pragma: no cover - guards a future edit
-        raise ValueError(
-            "Refusing to load an enhanced CPS file: it embeds prior QRF "
-            "imputations, which would make this benchmark self-referential."
-        )
-    try:
-        path = hf_hub_download(repo_id=_HF_REPO_ID, filename=_HF_FILENAME)
-        logger.info("Fetched %s anonymously.", _HF_FILENAME)
-        return path
-    except (GatedRepoError, RepositoryNotFoundError, PermissionError) as exc:
-        token = os.environ.get("HUGGING_FACE_HUB_TOKEN") or os.environ.get("HF_TOKEN")
-        if not token:
-            raise RuntimeError(
-                f"Anonymous download of {_HF_FILENAME} failed ({exc}); set "
-                "HUGGING_FACE_HUB_TOKEN to authenticate."
-            ) from exc
-        path = hf_hub_download(repo_id=_HF_REPO_ID, filename=_HF_FILENAME, token=token)
-        logger.info("Fetched %s with HUGGING_FACE_HUB_TOKEN.", _HF_FILENAME)
-        return path
+# --- Household-file (hhpub) variable names ----------------------------------
+_H_SEQ = "H_SEQ"
+_H_TOTAL_INCOME = "HTOTVAL"  # total household income, prior calendar year
+_H_WEIGHT = "HSUP_WGT"  # household supplement weight (two implied decimals)
+_H_TENURE = "H_TENURE"  # 1 = owned, 2 = rented, 3 = occupied w/o payment
 
 
-def _read_person_columns(store: h5py.File, names: tuple[str, ...]) -> pd.DataFrame:
-    """Read named person-level datasets into a float64 frame."""
-    return pd.DataFrame({name: store[name][:].astype(np.float64) for name in names})
-
-
-def _person_household_weight(
-    store: h5py.File, person_household_id: np.ndarray
-) -> np.ndarray:
-    """Map each person to their household's weight.
-
-    The raw CPS file stores no per-person weight -- only ``household_weight``.
-    PolicyEngine's convention is that a person inherits their household's weight,
-    so this joins ``household_weight`` onto persons by household id. Every person
-    resolves to exactly one household weight.
+def _asec_member(year: int, member_prefix: str, usecols: Sequence[str]) -> pd.DataFrame:
+    """Read one CSV member of the cached ASEC bundle for ``year``.
 
     Args:
-        store: The open h5 file.
-        person_household_id: Person-level household ids (length = n persons).
+        year: ASEC survey year (income reference year is ``year - 1``).
+        member_prefix: ``"pppub"`` (person) or ``"hhpub"`` (household).
+        usecols: Columns to load (the person file has ~800; never read all).
 
     Returns:
-        A float64 person-level weight vector.
-
-    Raises:
-        KeyError: If a person references a household id absent from the
-            household table.
+        The requested columns as a DataFrame.
     """
-    household_id = store[_V_HOUSEHOLD_ID][:]
-    household_weight = store[_V_HOUSEHOLD_WEIGHT][:].astype(np.float64)
-    weight_by_household = dict(
-        zip(household_id.tolist(), household_weight.tolist(), strict=True)
+    yy = f"{year % 100:02d}"
+    path = download(_URL_TEMPLATE.format(year=year, yy=yy), f"asecpub{yy}csv.zip")
+    with zipfile.ZipFile(path) as bundle:
+        with bundle.open(f"{member_prefix}{yy}.csv") as handle:
+            return pd.read_csv(handle, usecols=list(usecols))
+
+
+def load_cps(year: int = 2025) -> TaskFrame:
+    """Person-level zero-inflated components task from the ASEC person file.
+
+    Adults (18+) with positive supplement weight; ``employment_income`` is
+    wage-and-salary plus self-employment income; interest and dividend income
+    are the ASEC amounts for the prior calendar year.
+
+    Args:
+        year: ASEC survey year (default 2025, income year 2024).
+
+    Returns:
+        The ``cps_components`` :class:`TaskFrame`, weighted by the person
+        supplement weight (implied decimals resolved).
+    """
+    persons = _asec_member(
+        year,
+        "pppub",
+        [_P_AGE, _P_SEX, _P_WAGE, _P_SELF_EMP, _P_INTEREST, _P_DIVIDEND, _P_WEIGHT],
     )
-    try:
-        return np.array(
-            [weight_by_household[h] for h in person_household_id.tolist()],
-            dtype=np.float64,
-        )
-    except KeyError as exc:  # pragma: no cover - defensive; ids are consistent
-        raise KeyError(
-            f"Person references household id {exc} absent from the household "
-            "table; the CPS file's entity ids are inconsistent."
-        ) from None
-
-
-def _married_from_marital_unit(person_marital_unit_id: np.ndarray) -> np.ndarray:
-    """Derive an SCF-style ``married`` flag from marital-unit membership.
-
-    The raw CPS file has no marital-status field; it groups people into marital
-    units via ``person_marital_unit_id``. A unit with two members is a
-    married/partnered couple; a singleton unit is an unmarried person. This
-    returns the SCF ``married`` coding: ``1`` for a person in a 2-member unit,
-    ``2`` otherwise -- matching the SCF summary extract's
-    ``married in {1: married/living with partner, 2: otherwise}``.
-
-    Args:
-        person_marital_unit_id: Person-level marital-unit ids.
-
-    Returns:
-        An int-valued (as float64 downstream) array of 1/2 codes, per person.
-    """
-    unit = pd.Series(person_marital_unit_id)
-    unit_size = unit.map(unit.value_counts())
-    return np.where(unit_size.to_numpy() >= 2, 1, 2)
-
-
-def load_cps(year: int = 2023) -> TaskFrame:
-    """Load the ``cps_components`` task: zero-inflated interest and dividends.
-
-    Person-level, adults (``age >= 18``) only. Predictors are ``age``,
-    ``is_female`` and ``employment_income``; targets are ``interest_income`` (sum
-    of the file's taxable and tax-exempt interest components) and
-    ``dividend_income`` (sum of qualified and non-qualified dividends). The
-    weight column is ``person_weight``, derived from ``household_weight`` (this
-    raw file carries no per-person weight; a person inherits its household's).
-
-    Args:
-        year: CPS data year. Only 2023 (``cps_2023.h5``) is exercised.
-
-    Returns:
-        A :class:`~imputation_paper.data.base.TaskFrame` named
-        ``"cps_components"``.
-    """
-    import h5py
-
-    if year != 2023:  # pragma: no cover - single supported file
-        raise ValueError(f"Only the 2023 raw CPS file is supported, got {year}.")
-
-    path = _download_raw_cps()
-    with h5py.File(path, "r") as store:
-        base = _read_person_columns(store, _CPS_COMPONENTS_PREDICTORS)
-        interest = sum(store[p][:].astype(np.float64) for p in _V_INTEREST_PARTS)
-        dividend = sum(store[p][:].astype(np.float64) for p in _V_DIVIDEND_PARTS)
-        base[_INTEREST_INCOME] = interest
-        base[_DIVIDEND_INCOME] = dividend
-        base[_PERSON_WEIGHT] = _person_household_weight(
-            store, store[_V_PERSON_HOUSEHOLD_ID][:]
-        )
-
-    adults = base.loc[base[_V_AGE] >= _ADULT_AGE]
-    used = [*_CPS_COMPONENTS_PREDICTORS, *_CPS_COMPONENTS_TARGETS, _PERSON_WEIGHT]
-    frame = adults.loc[:, used].astype(np.float64).dropna().reset_index(drop=True)
-
-    notes = (
-        f"Source: raw {_HF_FILENAME} from {_HF_REPO_ID} on the Hugging Face Hub "
-        "(NOT the enhanced CPS, which embeds prior QRF imputations).",
-        "Adults only (age >= 18).",
-        "interest_income = taxable_interest_income + tax_exempt_interest_income; "
-        "dividend_income = qualified_dividend_income + non_qualified_dividend_income.",
-        "person_weight derived from household_weight (raw file has no per-person "
-        "weight; a person inherits its household's).",
-    )
+    adults = persons[(persons[_P_AGE] >= 18) & (persons[_P_WEIGHT] > 0)]
+    frame = pd.DataFrame(
+        {
+            "age": adults[_P_AGE],
+            "is_female": (adults[_P_SEX] == 2).astype(float),
+            "employment_income": adults[_P_WAGE] + adults[_P_SELF_EMP],
+            "interest_income": adults[_P_INTEREST],
+            "dividend_income": adults[_P_DIVIDEND],
+            "person_weight": adults[_P_WEIGHT] / _WEIGHT_DIVISOR,
+        }
+    ).astype("float64")
+    frame = frame.dropna().reset_index(drop=True)
     return TaskFrame(
         name="cps_components",
         frame=frame,
-        predictors=_CPS_COMPONENTS_PREDICTORS,
-        targets=_CPS_COMPONENTS_TARGETS,
-        weight_column=_PERSON_WEIGHT,
-        notes=notes,
+        predictors=("age", "is_female", "employment_income"),
+        targets=("interest_income", "dividend_income"),
+        weight_column="person_weight",
+        notes=(
+            f"Census ASEC {year} public-use person file (pppub{year % 100:02d}"
+            f".csv) from census.gov; income reference year {year - 1}; adults "
+            "18+; MARSUPWT/100 person weights (two implied decimals)."
+        ),
     )
 
 
-def load_cps_households(year: int = 2023) -> pd.DataFrame:
-    """Build the household receiver table for the SCF->CPS wealth harness.
+def _households_one_year(year: int, profile: str) -> pd.DataFrame:
+    """The receiver table for a single ASEC year (see load_cps_households)."""
+    person_cols = [_P_HH_SEQ, _P_AGE, _P_SEX, _P_MARITAL, _P_REL, _P_WAGE]
+    household_cols = [_H_SEQ, _H_TOTAL_INCOME, _H_WEIGHT]
+    if profile == "populace-scale":
+        person_cols += [_P_EDUCATION, _P_HISPANIC, _P_RACE, _P_LABOR_FORCE]
+        household_cols.append(_H_TENURE)
+    persons = _asec_member(year, "pppub", person_cols)
+    households = _asec_member(year, "hhpub", household_cols)
+    households = households[households[_H_WEIGHT] > 0]
 
-    One row per household, with columns matching the SCF predictor semantics as
-    closely as the CPS allows (the shared predictor set is
-    :data:`_HOUSEHOLD_SHARED_PREDICTORS`, i.e. the SCF predictors minus
-    ``edcl``, which has no clean CPS analogue in this file). Household-level
-    aggregates are built from the person table:
+    reference = (
+        persons[persons[_P_REL].isin((1, 2))]
+        .drop_duplicates(subset=_P_HH_SEQ)
+        .set_index(_P_HH_SEQ)
+    )
+    per_household = persons.groupby(_P_HH_SEQ).agg(
+        kids=(_P_AGE, lambda ages: float((ages < 18).sum())),
+        wageinc=(_P_WAGE, "sum"),
+    )
 
-    * ``age`` -- the household head's age (``is_household_head``), falling back to
-      the eldest adult if a household has no flagged head;
-    * ``hhsex`` -- the head's sex recoded to SCF's ``1 = male / 2 = female``;
-    * ``married`` -- ``1`` if the head sits in a 2-person marital unit, else
-      ``2`` (SCF coding), derived from ``person_marital_unit_id``;
-    * ``kids`` -- count of household members under 18;
-    * ``income`` -- household total income (sum over persons of employment,
-      self-employment, interest and dividend income);
-    * ``wageinc`` -- household employment income (sum over persons);
-    * ``household_weight`` -- the household's weight.
+    reference_cols = [_P_AGE, _P_SEX, _P_MARITAL]
+    if profile == "populace-scale":
+        reference_cols += [_P_EDUCATION, _P_HISPANIC, _P_RACE, _P_LABOR_FORCE]
+    merged = (
+        households.set_index(_H_SEQ)
+        .join(reference[reference_cols], how="inner")
+        .join(per_household, how="left")
+    )
+    columns = {
+        "age": merged[_P_AGE],
+        "hhsex": merged[_P_SEX],
+        "married": merged[_P_MARITAL].isin((1, 2)).map({True: 1.0, False: 2.0}),
+        "kids": merged["kids"].fillna(0.0),
+        "income": merged[_H_TOTAL_INCOME],
+        "wageinc": merged["wageinc"].fillna(0.0),
+        "household_weight": merged[_H_WEIGHT] / _WEIGHT_DIVISOR,
+    }
+    if profile == "populace-scale":
+        # SCF edcl classes: <39 no diploma; 39 HS/GED; 40-42 some college or
+        # associate degree; 43+ bachelor's or higher.
+        education = merged[_P_EDUCATION]
+        columns["edcl"] = (
+            1.0 * (education < 39)
+            + 2.0 * (education == 39)
+            + 3.0 * education.between(40, 42)
+            + 4.0 * (education >= 43)
+        )
+        # SCF race classes: Hispanic overrides (3); white 1, Black 2, Asian 4;
+        # everything else (incl. multi-race combinations) -> other (5).
+        race = merged[_P_RACE]
+        columns["race"] = (
+            pd.Series(5.0, index=merged.index)
+            .mask(race == 1, 1.0)
+            .mask(race == 2, 2.0)
+            .mask(race == 4, 4.0)
+            .mask(merged[_P_HISPANIC] == 1, 3.0)
+        )
+        columns["housecl"] = merged[_H_TENURE].eq(1).map({True: 1.0, False: 2.0})
+        columns["lf"] = merged[_P_LABOR_FORCE].isin((1, 2)).astype(float)
+    frame = pd.DataFrame(columns).astype("float64")
+    return frame.dropna().reset_index(drop=True)
+
+
+def load_cps_households(
+    years: int | tuple[int, ...] = 2025, *, profile: str = "minimal"
+) -> pd.DataFrame:
+    """One row per household: the SCF->CPS receiver, from the ASEC files.
+
+    Columns mirror the SCF summary-extract predictor semantics:
+
+    * ``age``, ``hhsex`` -- the reference person's age and sex (``A_EXPRRP``
+      in {1, 2}; sex is 1/2 coded like SCF ``hhsex``).
+    * ``married`` -- SCF-style 1/2 from the reference person's ``A_MARITL``:
+      married with spouse present (codes 1-2) maps to 1, all else to 2. The
+      SCF's code 1 also includes cohabiting partners, which ``A_MARITL``
+      cannot see -- a documented approximation of the shared predictor.
+    * ``kids`` -- household members under 18.
+    * ``income`` -- ``HTOTVAL``, total household income (prior calendar year).
+    * ``wageinc`` -- household sum of wage-and-salary income.
+    * ``household_weight`` -- ``HSUP_WGT``/100 (zero-weight shell records in
+      the household file are dropped).
+
+    The ``"populace-scale"`` profile adds the widened SCF-shared predictors:
+    ``edcl`` (from ``A_HGA``), ``race`` (Hispanic overrides; white/Black/Asian
+    mapped, combinations to other -- SCF race classes), ``housecl`` (owned vs
+    not from ``H_TENURE``), and ``lf`` (employed from ``A_LFSR``).
 
     Args:
-        year: CPS data year. Only 2023 (``cps_2023.h5``) is exercised.
+        years: One ASEC survey year, or a tuple of years to pool. Pooling
+            mirrors the populace support spine's multi-year design: each
+            year's household weights are divided by the number of pooled
+            years, so the pooled file still represents one US household
+            population.
+        profile: ``"minimal"`` or ``"populace-scale"``.
 
     Returns:
-        A household-level :class:`~pandas.DataFrame` with the shared predictor
-        columns plus ``household_weight``, float64, NaN-free, ``RangeIndex``.
+        The receiver DataFrame (float64 columns, no NaNs).
     """
-    import h5py
-
-    if year != 2023:  # pragma: no cover - single supported file
-        raise ValueError(f"Only the 2023 raw CPS file is supported, got {year}.")
-
-    path = _download_raw_cps()
-    with h5py.File(path, "r") as store:
-        persons = pd.DataFrame(
-            {
-                "household_id": store[_V_PERSON_HOUSEHOLD_ID][:],
-                "age": store[_V_AGE][:].astype(np.float64),
-                "is_female": store[_V_IS_FEMALE][:].astype(bool),
-                "is_head": store[_V_IS_HOUSEHOLD_HEAD][:].astype(bool),
-                "employment_income": store[_V_EMPLOYMENT_INCOME][:].astype(np.float64),
-                "self_employment_income": store[_V_SELF_EMPLOYMENT_INCOME][:].astype(
-                    np.float64
-                ),
-                "interest_income": sum(
-                    store[p][:].astype(np.float64) for p in _V_INTEREST_PARTS
-                ),
-                "dividend_income": sum(
-                    store[p][:].astype(np.float64) for p in _V_DIVIDEND_PARTS
-                ),
-                "married_code": _married_from_marital_unit(
-                    store[_V_PERSON_MARITAL_UNIT_ID][:]
-                ),
-            }
+    if profile not in ("minimal", "populace-scale"):
+        raise ValueError(
+            f"Unknown profile {profile!r}; expected 'minimal' or 'populace-scale'."
         )
-        household_id = store[_V_HOUSEHOLD_ID][:]
-        household_weight = store[_V_HOUSEHOLD_WEIGHT][:].astype(np.float64)
-
-    persons["total_income"] = (
-        persons["employment_income"]
-        + persons["self_employment_income"]
-        + persons["interest_income"]
-        + persons["dividend_income"]
-    )
-
-    heads = _select_household_heads(persons)
-    aggregates = _aggregate_household_totals(persons)
-
-    weights = pd.DataFrame(
-        {"household_id": household_id, "household_weight": household_weight}
-    )
-    household = (
-        weights.merge(heads, on="household_id", how="inner")
-        .merge(aggregates, on="household_id", how="inner")
-        .loc[
-            :,
-            [
-                "age",
-                "hhsex",
-                "married",
-                "kids",
-                "income",
-                "wageinc",
-                "household_weight",
-            ],
-        ]
-    )
-    return household.astype(np.float64).dropna().reset_index(drop=True)
-
-
-def _select_household_heads(persons: pd.DataFrame) -> pd.DataFrame:
-    """Pick one head row per household and derive head-level SCF predictors.
-
-    Uses the ``is_head`` flag; for any household without a flagged head, falls
-    back to its eldest person. Returns ``household_id, age, hhsex, married``
-    (the last two in SCF coding).
-    """
-    flagged = persons.loc[persons["is_head"]]
-    # Households with no flagged head: fall back to the eldest member.
-    headless = set(persons["household_id"]) - set(flagged["household_id"])
-    if headless:
-        fallback = (
-            persons.loc[persons["household_id"].isin(headless)]
-            .sort_values(["household_id", "age"], ascending=[True, False])
-            .groupby("household_id", as_index=False)
-            .first()
-        )
-        flagged = pd.concat([flagged, fallback], ignore_index=True)
-    # One row per household (defensive against multi-head households).
-    flagged = flagged.groupby("household_id", as_index=False).first()
-
-    return pd.DataFrame(
-        {
-            "household_id": flagged["household_id"].to_numpy(),
-            "age": flagged["age"].to_numpy(),
-            # SCF hhsex: 1 = male, 2 = female. CPS is_female is a bool.
-            "hhsex": np.where(flagged["is_female"].to_numpy(), 2.0, 1.0),
-            "married": flagged["married_code"].to_numpy().astype(np.float64),
-        }
-    )
-
-
-def _aggregate_household_totals(persons: pd.DataFrame) -> pd.DataFrame:
-    """Aggregate person rows to household ``kids``, ``income`` and ``wageinc``."""
-    persons = persons.assign(is_kid=(persons["age"] < _ADULT_AGE).astype(np.float64))
-    grouped = persons.groupby("household_id", as_index=False).agg(
-        kids=("is_kid", "sum"),
-        income=("total_income", "sum"),
-        wageinc=("employment_income", "sum"),
-    )
-    return grouped
+    year_tuple = (years,) if isinstance(years, int) else tuple(years)
+    frames = [_households_one_year(year, profile) for year in year_tuple]
+    pooled = pd.concat(frames, ignore_index=True)
+    pooled["household_weight"] = pooled["household_weight"] / len(year_tuple)
+    return pooled

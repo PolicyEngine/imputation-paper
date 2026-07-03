@@ -28,8 +28,8 @@ __all__ = ["load_scf"]
 #: The Fed summary-extract public-data Stata zip, by survey year.
 _SCF_ZIP_URL = "https://www.federalreserve.gov/econres/files/scfp{year}s.zip"
 
-#: Predictors: household head demographics plus income (all standard SCFP
-#: summary-extract variable names, lowercase in the extract).
+#: Minimal-profile predictors: household head demographics plus income (all
+#: standard SCFP summary-extract variable names, lowercase in the extract).
 _PREDICTORS: tuple[str, ...] = (
     "age",  # age of the household head/reference person
     "hhsex",  # sex of the head (1 = male, 2 = female)
@@ -40,10 +40,29 @@ _PREDICTORS: tuple[str, ...] = (
     "wageinc",  # household wage and salary income
 )
 
-#: Targets: the sign/zero regimes the paper's gates are meant to capture.
+#: Rich-profile additions (all mappable onto Census ASEC variables, so the
+#: SCF->CPS shared set keeps them): race class, homeownership, labor force.
+_RICH_EXTRA_PREDICTORS: tuple[str, ...] = (
+    "race",  # 1 white non-Hisp, 2 Black, 3 Hispanic, 4 Asian, 5 other
+    "housecl",  # 1 = owns (incl. mortgaged), 2 = otherwise
+    "lf",  # 1 = working in some way, 0 = not working
+)
+
+#: Minimal-profile targets: the sign/zero regimes the paper's gates capture.
 _TARGETS: tuple[str, ...] = (
     "debt",  # total debt: zero-inflated, nonnegative
     "networth",  # net worth: sign-mixed (negative for underwater households)
+)
+
+#: Rich-profile targets, in chain order. The extract satisfies
+#: networth == fin + nfin - debt exactly, so a chained imputer can in
+#: principle draw a self-consistent balance sheet while independent
+#: imputation cannot -- the populace-scale chaining test.
+_RICH_TARGETS: tuple[str, ...] = (
+    "fin",  # financial assets: nonnegative, mildly zero-inflated
+    "nfin",  # nonfinancial assets: nonnegative, zero for non-owners
+    "debt",  # total debt: zero-inflated, nonnegative
+    "networth",  # net worth: sign-mixed; identically fin + nfin - debt
 )
 
 #: SCF weight column in the summary extract.
@@ -54,7 +73,7 @@ _IMPLICATE_ID = "y1"
 _CASE_ID = "yy1"
 
 
-def load_scf(year: int = 2022) -> TaskFrame:
+def load_scf(year: int = 2022, *, profile: str = "minimal") -> TaskFrame:
     """Load the SCF wealth task (implicate 1 of the summary extract).
 
     Downloads and caches the Fed summary-extract Stata zip, reads the single
@@ -71,6 +90,10 @@ def load_scf(year: int = 2022) -> TaskFrame:
     Args:
         year: SCF survey year. Only 2022 is exercised by the paper; other years
             share the summary-extract schema but are not tested here.
+        profile: ``"minimal"`` (seven predictors, two targets) or
+            ``"populace-scale"`` (ten predictors, four chain-ordered targets
+            whose balance-sheet identity networth == fin + nfin - debt holds
+            exactly in the extract).
 
     Returns:
         A :class:`~imputation_paper.data.base.TaskFrame` named ``"scf_wealth"``.
@@ -79,6 +102,16 @@ def load_scf(year: int = 2022) -> TaskFrame:
         KeyError: If an expected summary-extract column is absent.
         ValueError: If the zip does not contain exactly one ``.dta``.
     """
+    if profile == "minimal":
+        predictors, targets = _PREDICTORS, _TARGETS
+    elif profile == "populace-scale":
+        predictors = (*_PREDICTORS, *_RICH_EXTRA_PREDICTORS)
+        targets = _RICH_TARGETS
+    else:
+        raise ValueError(
+            f"Unknown profile {profile!r}; expected 'minimal' or 'populace-scale'."
+        )
+
     url = _SCF_ZIP_URL.format(year=year)
     zip_path = download(url, f"scfp{year}s.zip")
 
@@ -91,7 +124,7 @@ def load_scf(year: int = 2022) -> TaskFrame:
         with archive.open(dta_names[0]) as member:
             raw = pd.read_stata(io.BytesIO(member.read()), convert_categoricals=False)
 
-    needed = (_IMPLICATE_ID, _CASE_ID, _WEIGHT_COLUMN, *_PREDICTORS, *_TARGETS)
+    needed = (_IMPLICATE_ID, _CASE_ID, _WEIGHT_COLUMN, *predictors, *targets)
     missing = [c for c in needed if c not in raw.columns]
     if missing:
         raise KeyError(
@@ -103,7 +136,7 @@ def load_scf(year: int = 2022) -> TaskFrame:
     implicate = raw[_IMPLICATE_ID].astype("int64") - raw[_CASE_ID].astype("int64") * 10
     first_implicate = raw.loc[implicate == 1]
 
-    used = [*_PREDICTORS, *_TARGETS, _WEIGHT_COLUMN]
+    used = [*predictors, *targets, _WEIGHT_COLUMN]
     frame = first_implicate.loc[:, used].astype(np.float64)
     frame = frame.dropna().reset_index(drop=True)
 
@@ -116,10 +149,10 @@ def load_scf(year: int = 2022) -> TaskFrame:
         "nonnegative; networth is sign-mixed.",
     )
     return TaskFrame(
-        name="scf_wealth",
+        name="scf_wealth" if profile == "minimal" else "scf_wealth_rich",
         frame=frame,
-        predictors=_PREDICTORS,
-        targets=_TARGETS,
+        predictors=predictors,
+        targets=targets,
         weight_column=_WEIGHT_COLUMN,
-        notes=notes,
+        notes=(*notes, f"Profile: {profile}."),
     )

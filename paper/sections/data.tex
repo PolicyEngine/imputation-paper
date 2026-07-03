@@ -24,8 +24,10 @@ regime gates, and their strong mutual dependence exercises chaining.
 \label{sec:task-harness}
 
 Each method fits wealth conditionals on an SCF donor split and imputes them
-onto real \cps{} ASEC households \citep{census2024} sharing the predictor
-set. The candidate population --- \cps{} demographics plus imputed wealth,
+onto real \cps{} ASEC households sharing the predictor set --- one row per
+household from the Census Bureau's ASEC 2025 public-use files
+\citep{census2025}, read directly from \texttt{census.gov} so that no task
+input flows through any PolicyEngine processing. The candidate population --- \cps{} demographics plus imputed wealth,
 under \cps{} household weights --- is then scored through the harness of
 Section~\ref{sec:harness} against the \emph{held-out} SCF: the joint of
 shared predictors and wealth, under SCF weights. The
@@ -43,12 +45,21 @@ floor.
 \subsection{Task 3: zero-inflated income components in the CPS}
 \label{sec:task-cps}
 
-From the raw \cps{} ASEC microdata (the pre-enhancement
-\texttt{cps\_2023} file --- using the enhanced CPS would embed the prior
-production imputations this paper is about) we impute interest and dividend
-income for adults from age, sex, and employment income, under person weights.
-Both components are zero for most adults with heavy positive tails --- the
-regime surface where gating and weighting matter most. This task also carries
+From the Census Bureau's ASEC 2025 public-use person file (income reference
+year 2024), read directly from \texttt{census.gov} --- never a processed or
+enhanced artifact, which would embed the production imputations this paper is
+about --- we impute interest and dividend income for adults from age, sex,
+and employment income, under the ASEC person supplement weights. (Survey
+files publish per-person design weights; \populace{}'s production convention
+deliberately carries calibrated \emph{household} weights onto persons, since
+its calibration operates at household grain. The task fixes the survey's own
+published weights, and because every method shares whatever weights the task
+fixes, the method comparison does not turn on this choice.) Both components
+are zero for most adults (41.7 and 85.2 percent, respectively) with heavy
+positive tails --- the regime surface where gating and weighting matter
+most. Public-use ASEC amounts are topcoded, which truncates the
+extreme tail relative to an administrative or SCF-style source; the fragility
+comparisons of Section~\ref{sec:results-cps} are therefore conservative. This task also carries
 the reweighting stress test of Section~\ref{sec:metrics}: prior
 \policyengine{} production experience motivates it, where an unweighted fit
 broadcast rare high-value donor records across a receiver file as

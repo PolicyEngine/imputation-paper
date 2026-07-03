@@ -3,7 +3,7 @@
 This module is deliberately lightweight -- it imports only the standard library
 plus numpy/pandas -- so the whole ``data`` package can be imported (and its
 registry listed) on the base install, without the ``data`` optional extra. The
-network- and format-heavy dependencies (``huggingface_hub``, ``h5py``,
+network- and format-heavy dependencies (e.g.
 ``zipfile`` over multi-hundred-megabyte files) live *inside* the individual
 loader functions in the sibling modules, so importing this module never pulls
 them in.

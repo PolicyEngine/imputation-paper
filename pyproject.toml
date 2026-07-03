@@ -44,19 +44,6 @@ viz = [
     # (no headless-Chrome dependency); see `imp figures`.
     "matplotlib>=3.8",
 ]
-# Real-data loaders for the paper's tasks (SCF, CPS, OpenML). Kept out of the
-# base install so CI (which never downloads real microdata) resolves without
-# them; the loaders in `data/` import huggingface_hub/h5py lazily inside their
-# bodies, so the registry imports on the base install and only a called loader
-# raises if its extra is absent. scikit-learn (fetch_openml) is already a base
-# dependency, so it is not repeated here.
-data = [
-    # Pulls the raw CPS h5 (never the enhanced CPS) from the PolicyEngine data
-    # repo on the Hugging Face Hub.
-    "huggingface_hub>=0.24",
-    # Reads the PolicyEngine h5 microdata (variable/period-keyed datasets).
-    "h5py>=3.11",
-]
 
 [dependency-groups]
 dev = [

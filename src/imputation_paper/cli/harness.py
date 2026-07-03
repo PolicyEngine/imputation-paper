@@ -37,20 +37,32 @@ from imputation_paper.experiments.views import SurveyView, harness_scorecard
 REFERENCE_KEY = "scf_sample_reference"
 
 
+#: Receiver ASEC years per profile. The populace-scale profile pools three
+#: vintages, mirroring the production support spine's multi-year design.
+PROFILE_RECEIVER_YEARS: dict[str, tuple[int, ...]] = {
+    "minimal": (2025,),
+    "populace-scale": (2023, 2024, 2025),
+}
+
+
 def run_harness(
     *,
-    out: Path = Path("runs/scf-to-cps-harness"),
+    out: Path | None = None,
     methods: list[str] | None = None,
     n_seeds: int = 10,
     max_receiver_rows: int = 20_000,
+    profile: str = "minimal",
 ) -> int:
     """Run the SCF->CPS population-view experiment; write ``harness_long.csv``.
 
     Args:
-        out: Run directory to create/write.
+        out: Run directory to create/write (default depends on ``profile``).
         methods: Registry keys to run; ``None`` runs every registered method.
         n_seeds: Number of repeated SCF donor/holdout splits.
         max_receiver_rows: Deterministic cap on the CPS receiver sample.
+        profile: ``"minimal"`` (seven-predictor donor task, single-year
+            receiver) or ``"populace-scale"`` (ten predictors, four
+            chain-ordered wealth targets, three pooled receiver vintages).
 
     Returns:
         Process exit code (``0`` if at least one method produced rows).
@@ -58,8 +70,20 @@ def run_harness(
     from imputation_paper.data.cps import load_cps_households
     from imputation_paper.data.scf import load_scf
 
-    scf = load_scf()
-    receiver_full = load_cps_households()
+    if profile not in PROFILE_RECEIVER_YEARS:
+        raise SystemExit(
+            f"Unknown profile {profile!r}; expected one of "
+            f"{sorted(PROFILE_RECEIVER_YEARS)}."
+        )
+    if out is None:
+        out = Path(
+            "runs/scf-to-cps-harness"
+            if profile == "minimal"
+            else "runs/scf-to-cps-harness-scale"
+        )
+    receiver_years = PROFILE_RECEIVER_YEARS[profile]
+    scf = load_scf(profile=profile)
+    receiver_full = load_cps_households(receiver_years, profile=profile)
     shared = [p for p in scf.predictors if p in receiver_full.columns]
     dropped = [p for p in scf.predictors if p not in receiver_full.columns]
     targets = list(scf.targets)
@@ -140,6 +164,8 @@ def run_harness(
         writer.writerows(skipped)
     manifest = {
         "experiment": "scf_to_cps_population_view",
+        "profile": profile,
+        "receiver_asec_years": list(receiver_years),
         "shared_predictors": shared,
         "donor_only_predictors_dropped": dropped,
         "targets": targets,

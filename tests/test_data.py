@@ -1,9 +1,9 @@
 """Real-data loader tests: each loader returns a sweep-ready, invariant TaskFrame.
 
-These tests hit the network and the on-disk cache (Fed SCF download, Hugging
-Face CPS download, OpenML fetch), so the whole module is skipped unless the
-``data`` extra is installed -- CI's base install has no ``huggingface_hub`` and
-skips here rather than trying to download microdata. Run locally with::
+These tests hit the network and the on-disk cache (Fed SCF download, Census
+ASEC download, OpenML fetch), so the whole module is local-only: it skips
+under ``CI=true`` rather than downloading survey microdata in CI. Run locally
+with::
 
     uv run python -m pytest tests/test_data.py -q
 
@@ -19,12 +19,16 @@ produce frames the harness can actually score.
 
 from __future__ import annotations
 
+import os
+
 import numpy as np
 import pandas as pd
 import pytest
 
-pytest.importorskip("huggingface_hub", reason="data extra not installed")
-pytest.importorskip("h5py", reason="data extra not installed")
+# Network data tests are local-only: they download real survey files (the
+# Census ASEC bundle is ~150MB) and never run in CI.
+if os.environ.get("CI") == "true":  # pragma: no cover
+    pytest.skip("network data tests are local-only", allow_module_level=True)
 
 from imputation_paper.data import (  # noqa: E402 - after importorskip guard
     OPENML_TASKS,
@@ -72,7 +76,7 @@ def scf_task() -> TaskFrame:
 
 @pytest.fixture(scope="module")
 def cps_task() -> TaskFrame:
-    return load_cps(2023)
+    return load_cps(2025)
 
 
 def test_load_scf(scf_task: TaskFrame) -> None:
@@ -115,6 +119,11 @@ def test_load_cps_components(cps_task: TaskFrame) -> None:
     # Adults only.
     assert (cps_task.frame["age"] >= 18).all()
 
+    # Weight scale: adult person weights should sum to the adult US population
+    # (~260M), pinning the ASEC implied-decimal handling.
+    adult_population = cps_task.frame["person_weight"].sum()
+    assert 2.0e8 < adult_population < 3.2e8, f"{adult_population:,.0f}"
+
     for target in cps_task.targets:
         column = cps_task.frame[target]
         zero_share = float((column == 0).mean())
@@ -134,7 +143,7 @@ def test_load_cps_components(cps_task: TaskFrame) -> None:
 
 def test_load_cps_households() -> None:
     """The SCF->CPS receiver: one household row per household, SCF-coded columns."""
-    households = load_cps_households(2023)
+    households = load_cps_households(2025)
     shared = ["age", "hhsex", "married", "kids", "income", "wageinc"]
     assert list(households.columns) == [*shared, "household_weight"]
 
@@ -142,6 +151,9 @@ def test_load_cps_households() -> None:
     assert not households.isna().any().any()
     assert (households["household_weight"] > 0).all()
     assert len(households) > _MIN_ROWS
+    # Weight scale: ~120-145M US households.
+    household_population = households["household_weight"].sum()
+    assert 1.1e8 < household_population < 1.5e8, f"{household_population:,.0f}"
     assert households.index.equals(pd.RangeIndex(len(households)))
 
     # SCF codings: hhsex in {1, 2}, married in {1, 2}; kids nonnegative.

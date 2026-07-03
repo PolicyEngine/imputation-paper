@@ -15,7 +15,7 @@ Loader                  Task name                  Source
 ======================  =========================  ==============================
 
 **Lazy by construction.** Loaders import their network/format dependencies
-(``huggingface_hub``, ``h5py``) *inside their own bodies*, so ``import
+(none today beyond the network) *inside their own bodies*, so ``import
 imputation_paper.data`` and the names below resolve on the base install without
 the ``data`` extra -- a loader only raises :class:`ModuleNotFoundError` if it is
 *called* without its dependency present. The re-exports here go through a
