@@ -1,0 +1,55 @@
+{
+  "experiment": "scf_to_cps_population_view",
+  "profile": "populace-scale",
+  "receiver_asec_years": [
+    2023,
+    2024,
+    2025
+  ],
+  "shared_predictors": [
+    "age",
+    "hhsex",
+    "edcl",
+    "married",
+    "kids",
+    "income",
+    "wageinc",
+    "race",
+    "housecl",
+    "lf"
+  ],
+  "donor_only_predictors_dropped": [],
+  "targets": [
+    "fin",
+    "nfin",
+    "debt",
+    "networth"
+  ],
+  "receiver_rows_used": 20000,
+  "receiver_rows_available": 168852,
+  "donor_rows": 4595,
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+  ],
+  "methods_requested": [
+    "populace_fit",
+    "populace_fit_unweighted",
+    "populace_fit_unchained",
+    "plain_qrf",
+    "microimpute_qrf",
+    "microimpute_ols",
+    "microimpute_quantreg",
+    "statmatch_hotdeck",
+    "weighted_marginal"
+  ],
+  "reference_key": "scf_sample_reference"
+}

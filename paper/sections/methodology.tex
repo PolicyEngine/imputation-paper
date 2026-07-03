@@ -74,7 +74,7 @@ Cross-survey consistency is never required --- the candidate is only asked to
 explain each view in its own idiom --- which keeps the harness usable even
 though surveys disagree with one another about the population they share.
 
-Each view carries three complementary axes. The \emph{weighted energy
+Each view carries four complementary blocks. The \emph{weighted energy
 distance} \citep{szekely2013energy} is the sample form of a strictly proper
 scoring rule \citep{gneiting2007strictly}: the true distribution uniquely
 minimizes its expectation, so a candidate hedged toward modal households
@@ -86,10 +86,20 @@ through its support, it is invariant to any reweighting of the candidate,
 making it the calibration-blind block of the scorecard. A \emph{weighted
 classifier two-sample test} (cross-validated AUC of a gradient-boosted
 classifier at equal class mass; $0.5$ is indistinguishable) is the omnibus
-check. Holdouts are used nowhere upstream, so the harness is a
-non-self-referential test surface; a sampling-noise floor --- the donor split
-itself scored as a candidate --- anchors what "as good as another sample of
-the survey" means on each axis.
+check. The fourth block exists because we caught the first three missing a
+real failure: pairwise sample-geometry metrics run on capped subsamples, and
+a candidate whose imputed wealth 99th percentile is double the holdout's can
+tie on energy distance because the discrepant mass is a sliver of
+standardized pairwise space. Economic variables live in heavy right tails, so
+each \emph{imputed} column also carries a \emph{tail block}, computed on the
+full weighted samples with no cap: its weighted Wasserstein-1 distance to the
+holdout (scaled by the holdout's weighted standard deviation) and its
+weighted q90 and q99 ratios (candidate over holdout; 1 is a perfect tail).
+Holdouts are used nowhere upstream, so the harness is a non-self-referential
+test surface; a sampling-noise floor --- the donor split itself scored as a
+candidate --- anchors what "as good as another sample of the survey" means on
+each axis, including how much a tail ratio wobbles under sampling noise
+alone.
 
 \subsection{Marginal and stress metrics}
 \label{sec:metrics}

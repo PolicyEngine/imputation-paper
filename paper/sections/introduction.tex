@@ -56,8 +56,11 @@ variable subsets, designs, measurement idioms --- and score any candidate
 weighted file by projecting it through each view against that survey's
 holdout, using a strictly proper joint score \citep{gneiting2007strictly,
 szekely2013energy}, a support-based coverage axis that is invariant to
-reweighting of the candidate \citep{naeem2020reliable}, and a weighted
-classifier two-sample test. The harness is generator-agnostic and
+reweighting of the candidate \citep{naeem2020reliable}, a weighted
+classifier two-sample test, and an uncapped tail block on imputed columns
+--- added after demonstrating that capped sample-geometry metrics are blind
+to twofold errors in the extreme tail, where economic variables carry their
+policy weight. The harness is generator-agnostic and
 non-self-referential (holdouts appear nowhere upstream), and it cleanly
 separates what record generation must get right from what calibration can
 later change.

@@ -5,52 +5,64 @@ The results attribute the estimator's behavior to its design choices with a
 regularity worth stating plainly. \emph{Weighting is the dominant choice
 wherever the design is informative}: on the \scf{}, whose list sample
 oversamples wealthy households, removing the weighted bootstrap costs a
-factor of six on net-worth marginal fit and a factor of 2.3 on the
-population-view energy distance --- larger than the gap between the candidate
-and any competing method. On the \cps{} components task, whose derived person
-weights carry little outcome information, weighting is approximately free.
-An estimator cannot know in advance which regime it is in, which is the
-argument for weighting by construction rather than by option. \emph{Gating
-carries the zero-inflation surface} (0.6 versus 4.5 percentage points of
-dividend zero-share error against the same forest ungated), and
-\emph{chaining} contributes a consistent, smaller improvement on dependent
-targets (17 percent of net-worth $W_1$). None of the three hurts where it
+factor of six on net-worth marginal fit within the donor survey and inflates
+the imputed 99th percentile on the population view by a factor of 1.9 to 2.3
+--- larger than the gap between the candidate and any competing method. On
+the \cps{} components task, whose person weights carry little outcome
+information, weighting is approximately free. An estimator cannot know in
+advance which regime it is in, which is the argument for weighting by
+construction rather than by option. \emph{Gating carries the zero-inflation
+surface} (0.6 versus 4.4 percentage points of dividend zero-share error
+against the same forest ungated, and 5.6 AUC points on the populace-scale
+population view). \emph{Chaining is a joint property that binds at scale}:
+invisible with two targets, it is worth 5.8 AUC points when the four imputed
+components must satisfy a balance-sheet identity --- and only the omnibus
+classifier sees the violation, because a balance sheet that does not add up
+has perfectly reasonable marginals. None of the three choices hurts where it
 does not help.
 
-The evaluation findings are as load-bearing as the method findings. Marginal
-metrics saturate: with weak predictors, an unconditional weighted draw from
-the donor marginal ties or beats every conditional method on pinball loss and
-Wasserstein distance --- on the OpenML suite it attains the best mean rank
---- while carrying no conditional structure at all. The population-view
-harness is what separates it: the classifier two-sample test detects its
-broken demographics--wealth coupling (AUC 0.903 against the candidate's
-0.843), and the coverage/energy decomposition localizes \emph{which}
-ingredient of a candidate fails --- support or measure --- with direct
-consequences for whether downstream calibration can repair it. The fragility
-diagnostic adds the complementary caution: the goal is the truth's own tail
-exposure, not minimal exposure, and the one method that minimizes it (OLS)
-does so by failing to generate realistic tails at all.
+The evaluation findings are as load-bearing as the method findings, and one
+of them corrected this paper's own harness. Marginal metrics saturate: with
+weak predictors, an unconditional weighted draw from the donor marginal ties
+or beats every conditional method on pinball loss and Wasserstein distance
+--- on the OpenML suite it attains the best mean rank --- while carrying no
+conditional structure at all; at populace scale the classifier separates it
+almost perfectly (AUC 0.968 against 0.761). But the joint metrics have their
+own blind spot: capped pairwise geometry tied the unweighted ablation with
+the candidate while its imputed net-worth 99th percentile was double the
+holdout's, because the discrepant mass is a sliver of standardized pairwise
+space. We caught this by comparing weighted quantiles directly, added the
+uncapped tail block to the harness, and report it as a general lesson:
+sample-geometry evaluations of heavy-tailed economic microdata need an
+explicit tail axis, with a sampling floor to calibrate its noise (the floor's
+own q99 ratio wobbles to 1.10). The fragility diagnostic adds the
+complementary caution --- the target is the truth's own tail exposure, not
+minimal exposure, and the one method that minimizes it (OLS, at factors of 7
+to 11 below truth) does so by failing to generate realistic tails at all.
 
 Several limitations bound the claims. First, the population-view experiment
-runs one view pair: the common \cps{}--\scf{} offset (differing income and
-demographic measurement, the dropped education predictor) is shared by all
-methods but bounds how close any candidate can come to the floor; a
-multi-view instantiation (adding \sipp{} and \psid{}) would tighten the
-identification and is the production release-gate use of the harness.
-Second, the pairwise joint metrics run on weight-proportional subsamples
-(2,048 points per side), which bounds their resolution; the C2ST, which uses
-all rows, is the axis least affected. Third, baseline quantile models are
-converted to samplers through a 99-level quantile grid, which truncates
-draws beyond the 1st and 99th conditional percentiles; populace-fit samples
-continuous quantiles, so extreme-tail comparisons slightly favor it by
-construction, though the affected mass is under 2 percent. Fourth, the
-\microimpute{} forest's internal randomness is not seedable through its
-public constructor, so its paired-seed dispersion includes forest noise the
-candidate's does not. Fifth, comparisons hold shared forest backends and
-default hyperparameters fixed rather than tuning each method per task; the
-ablations are exact controls, the cross-family comparisons are
-defaults-versus-defaults. Finally, we evaluate single imputations
-distributionally and do not propagate imputation uncertainty in the
-multiple-imputation sense \citep{rubin1987multiple}; for the population
+runs one view pair: the common \cps{}--\scf{} offset (differing income
+concepts, ASEC topcoding, and income reference years spanning 2021 to 2024
+across the pooled vintages) is shared by all methods but bounds how close any
+candidate can come to the floor; a multi-view instantiation (adding \sipp{}
+and \psid{}) would tighten the identification and is the production
+release-gate use of the harness. Second, the joint-geometry blocks still run
+on weight-proportional subsamples (2,048 points per side); the tail block and
+the C2ST, which use all rows, are the axes least affected. Third, no
+conditional method gets the extreme tail right: forest draws do not
+extrapolate beyond training support, so imputed q99 ratios sit at 0.70--0.81
+for the candidate and its forest relatives, where donation-based draws sit
+near 1 --- a genuine advantage of hot-deck matching that the tail block keeps
+visible, and a caution against reading the candidate's wins as uniform.
+Baseline quantile models are additionally converted to samplers through a
+99-level grid, truncating draws beyond the 1st and 99th conditional
+percentiles. Fourth, the \microimpute{} forest's internal randomness is not
+seedable through its public constructor, so its paired-seed dispersion
+includes forest noise the candidate's does not. Fifth, comparisons hold
+shared forest backends and default hyperparameters fixed rather than tuning
+each method per task; the ablations are exact controls, the cross-family
+comparisons are defaults-versus-defaults. Finally, we evaluate single
+imputations distributionally and do not propagate imputation uncertainty in
+the multiple-imputation sense \citep{rubin1987multiple}; for the population
 statistics microsimulation consumes, the distributional view is the relevant
 one, but inference from imputed files would require the fuller treatment.

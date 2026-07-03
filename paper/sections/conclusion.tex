@@ -9,16 +9,18 @@ forests, directly weighted regime gates, sequential chaining, and an
 interface that refuses a silent unweighted fit --- and a population-view
 harness that evaluates any candidate population against held-out survey
 views with a strictly proper joint score, a reweighting-invariant coverage
-axis, and a classifier two-sample test. Empirically, the interface rule is
-the paper's largest single effect: on a survey whose design is informative,
-the identical estimator fit without weights is six times worse on net-worth
-marginal fit and 2.3 times worse on the population view, an error mode the
-harness localizes to the weighted measure (repairable downstream) rather
-than the support (not). Conditional methods preserve the demographics--wealth
-joint that hot-deck matching's conditional-independence gluing attenuates,
-zero-inflated components require gating that plain forests and linear
-quantile models miss by 4 to 27 percentage points of zero mass, and marginal
-metrics --- the field's default --- cannot see any of this, ranking an
-unconditional marginal draw at or near the top throughout. The estimator is
-available standalone as \populacefit{}; the harness, task configurations, and
-every number in this paper regenerate from the accompanying repository.
+axis, a classifier two-sample test, and an uncapped tail block. Empirically,
+the interface rule is the paper's largest single effect: on a survey whose
+design is informative, the identical estimator fit without weights is six
+times worse on net-worth marginal fit, and on the population view it inflates
+the imputed 99th percentile by a factor of 1.9 to 2.3 --- a failure that
+capped joint geometry certifies and only the tail block catches, which is
+itself the paper's central lesson about evaluating imputed files. Chaining
+binds where targets are jointly constrained (5.8 AUC points on a
+balance-sheet identity at populace scale), gating carries zero-inflated
+components that plain forests and linear quantile models miss by 4 to 27
+percentage points of zero mass, and marginal metrics --- the field's default
+--- rank an unconditional marginal draw at or near the top throughout while
+the harness separates it decisively. The estimator is available standalone
+as \populacefit{}; the harness, task configurations, and every number in
+this paper regenerate from the accompanying repository.

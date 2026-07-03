@@ -114,7 +114,12 @@ def _tabular(
         if contenders.empty:
             continue
         means = contenders.map(lambda cell: cell[0])
-        if metric == "c2st_auc":
+        if metric.startswith(("q90_ratio", "q99_ratio")):
+            # Tail ratios target 1 (candidate tail = holdout tail).
+            target_metric_best = means.loc[(means - 1.0).abs().idxmin()]
+        elif metric.startswith("w1_over_sd"):
+            target_metric_best = means.min()
+        elif metric == "c2st_auc":
             # Indistinguishability is the target: best is closest to 0.5,
             # not the extremum.
             target_metric_best = means.loc[(means - 0.5).abs().idxmin()]
@@ -409,11 +414,13 @@ def make_tables(
                 [
                     ("scf", "energy_distance", "Energy distance"),
                     ("scf", "prdc_coverage", "Coverage"),
-                    ("scf", "prdc_recall", "Recall"),
                     ("scf", "c2st_auc", "C2ST AUC"),
+                    ("scf", "w1_over_sd.networth", r"NW $W_1$/sd"),
+                    ("scf", "q99_ratio.networth", "NW q99 ratio"),
                 ],
                 f"SCF->CPS population view vs held-out SCF, mean (sd) over 10 "
-                f"donor splits. AUC of 0.5 is indistinguishable. {note}",
+                f"donor splits. AUC of 0.5 is indistinguishable; q99 ratio of "
+                f"1 is a perfect tail. {note}",
             )
         )
         written.append(out_name)

@@ -14,28 +14,35 @@ an unweighted fit impossible to request by accident. To evaluate it we formalize
 \emph{population-view harness}: one latent population observed through survey
 views, with any candidate weighted file scored by projecting it through each
 view against that survey's holdout --- a strictly proper joint score, a
-coverage axis invariant to reweighting of the candidate, and a classifier
-two-sample test. Under this harness and paired repeated holdouts we benchmark
+coverage axis invariant to reweighting of the candidate, a classifier
+two-sample test, and an uncapped tail block on the imputed columns, which we
+add after showing that subsampled joint geometry certifies files whose top
+percentile is wrong by a factor of two. Under this harness and paired repeated holdouts we benchmark
 the estimator against standard survey-imputation methods --- unweighted and
 weighted quantile regression forests, ordinary least squares, linear quantile
 regression, and nearest-neighbour hot-deck statistical matching --- on
 within-\scf{} wealth, \scf{}-onto-\cps{} population synthesis, zero-inflated
-\cps{} income components, and six cross-domain datasets. Ablations attribute performance to each design choice.
-Where the survey design is informative, weighting dominates: the identical
-estimator fit unweighted is six times worse on net-worth marginal fit and 2.3
-times worse on the population view --- an error the harness localizes to the
-weighted measure (repairable by downstream reweighting) rather than the
-support (not). Regime gating carries zero-inflated components (0.6 versus 4.5
+\cps{} income components, and six cross-domain datasets. Ablations attribute performance to each design choice,
+and the experiment runs at two scopes: a minimal six-predictor instantiation
+and a populace-scale one (ten shared predictors, a four-component chained
+balance sheet, three pooled receiver vintages). Where the survey design is
+informative, weighting dominates: the identical estimator fit unweighted is
+six times worse on net-worth marginal fit within the donor survey, and on the
+population view its imputed net-worth 99th percentile is 1.9 to 2.3 times the
+holdout's --- an inflation the geometry metrics tie on and only the tail
+block detects. Regime gating carries zero-inflated components (0.6 versus 4.4
 percentage points of dividend zero-share error against the same forest
-ungated, and 25--85 points against linear and Gaussian baselines), and
-chaining adds 17 percent on a dependent target's marginal fit. Hot-deck
-matching nearly matches the candidate on marginals but attenuates the
-demographics--wealth joint; marginal metrics alone rank an unconditional
-weighted draw at or near the top throughout, and only the harness's joint
-axes separate it. A closed-form reweighting stress test shows every
-tail-capable method matching the held-out truth's own concentration while
-Gaussian-residual imputation understates it by a factor of six --- missing
-tails, not robustness. Wealth imputation is what
+ungated, and 25--84 points against linear and Gaussian baselines). Chaining
+is a joint property that binds at scale: with two targets it is
+indistinguishable, while on the four-component balance sheet fitting targets
+independently costs 5.8 points of two-sample AUC --- the classifier detects
+balance sheets that do not add up. Hot-deck matching is a genuine near-peer
+on the population view; marginal metrics alone rank an unconditional weighted
+draw at or near the top throughout, and at populace scale the classifier
+separates it almost perfectly (AUC 0.97 versus the candidate's 0.76). A
+closed-form reweighting stress test shows every tail-capable method matching
+the held-out truth's own concentration while Gaussian-residual imputation
+understates it by factors of 7 to 11 --- missing tails, not robustness. Wealth imputation is what
 makes asset-tested programs such as Supplemental Security Income simulable on
 the \cps{} at all, and the population-view results identify which methods
 preserve the demographics--wealth joint that such simulation depends on. The
