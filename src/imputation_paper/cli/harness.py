@@ -111,6 +111,7 @@ def run_harness(
         name="scf",
         columns=(*shared, *targets),
         weight_column=scf.weight_column,
+        target_columns=tuple(targets),
     )
 
     rows: list[dict[str, object]] = []

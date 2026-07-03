@@ -69,9 +69,14 @@ table, not drift.
    the candidate (CPS demographics + imputed wealth, CPS household weights) is
    scored against the *held-out SCF* through the SCF view (shared predictors +
    wealth, jointly). `scf_sample_reference` — the donor split scored as a
-   candidate — anchors the sampling-noise floor. This is the paper's
-   instantiation of the harness and the direct test of the hypothesis that
-   conditional-distribution methods beat matching on joint structure.
+   candidate — anchors the sampling-noise floor. Two profiles: **minimal**
+   (6 shared predictors, 2 targets, ASEC 2025 receiver — the controlled
+   instantiation) and **populace-scale** (10 shared predictors incl. edcl/
+   race/housecl/lf, pooled ASEC 2023–2025 receiver mirroring the production
+   spine, 4 chain-ordered targets with the exact balance-sheet identity
+   networth = fin + nfin − debt). The scale profile tests whether the joint
+   margins over matching widen with conditioning richness — the same
+   empirical question as populace#297 (education as auxiliary).
 3. **`cps_components`** — within-CPS imputation of interest and dividend
    income for adults, from the Census ASEC 2025 public-use files pulled
    directly from census.gov (never any processed or enhanced artifact: the

@@ -20,6 +20,14 @@ Per view the scorecard carries three complementary axes:
 * :func:`~imputation_paper.experiments.metrics.classifier_two_sample_auc` --
   the omnibus distinguishability check.
 
+Sample-geometry metrics under a subsample cap are weak exactly where economic
+variables live: deep in a heavy right tail. A candidate whose imputed wealth
+q99 is twice the holdout's can tie on energy distance because the discrepant
+mass is a sliver of standardized pairwise space. Views therefore carry a
+fourth, tail-sensitive block on the *imputed target* columns: per-target
+weighted Wasserstein-1 (scaled by the holdout's weighted sd) and weighted
+q90/q99 ratios (candidate over holdout; 1 is perfect).
+
 The holdouts must never have been used upstream (fitting or calibration), so
 the harness is the stack's non-self-referential test surface. Design emulation
 is by weighting in this version: a view compares *weighted* measures on both
@@ -52,11 +60,15 @@ class SurveyView:
         weight_column: The weight column carried by tables seen through this
             view (the survey's weights on its holdout; the candidate supplies
             its own weight column separately).
+        target_columns: The subset of ``columns`` that were *imputed* (the
+            rest are carried real data). The tail-sensitive block scores these
+            columns marginally; empty means no tail block.
     """
 
     name: str
     columns: tuple[str, ...]
     weight_column: str
+    target_columns: tuple[str, ...] = ()
 
 
 def project_view(
@@ -106,6 +118,7 @@ def score_view(
     k: int = 5,
     max_points: int = 2048,
     seed: int = 0,
+    target_dims: dict[str, int] | None = None,
 ) -> dict[str, float]:
     """Score one projected candidate against one view's holdout.
 
@@ -117,10 +130,15 @@ def score_view(
         k: PRDC neighbour rank.
         max_points: Pairwise-metric size cap (seeded resample above it).
         seed: Seed for resampling and the C2ST folds.
+        target_dims: Imputed-column name -> dimension index; each gets the
+            tail-sensitive block (``w1_over_sd``, ``q90_ratio``,
+            ``q99_ratio``), computed on the full weighted samples (no
+            subsample cap), because the tail is exactly what caps blur.
 
     Returns:
-        Metric name -> value: ``energy_distance``, ``c2st_auc``, and the four
-        ``prdc_*`` components.
+        Metric name -> value: ``energy_distance``, ``c2st_auc``, the four
+        ``prdc_*`` components, and per-target tail metrics
+        ``{w1_over_sd,q90_ratio,q99_ratio}.<target>``.
     """
     scores: dict[str, float] = {
         "energy_distance": metrics.energy_distance(
@@ -149,6 +167,26 @@ def score_view(
         seed=seed,
     )
     scores.update({f"prdc_{name}": value for name, value in prdc_scores.items()})
+
+    for name, dim in (target_dims or {}).items():
+        candidate_col = candidate_points[:, dim]
+        holdout_col = holdout_points[:, dim]
+        moments = metrics._weighted_moments(holdout_col[:, None], holdout_weights)
+        holdout_sd = float(moments[1][0])
+        w1 = metrics.weighted_wasserstein1(
+            candidate_col,
+            holdout_col,
+            imputed_weights=candidate_weights,
+            donor_weights=holdout_weights,
+        )
+        scores[f"w1_over_sd.{name}"] = w1 / holdout_sd if holdout_sd > 0 else w1
+        quantiles = np.array([0.90, 0.99])
+        candidate_q = metrics._weighted_quantile(
+            candidate_col, candidate_weights, quantiles
+        )
+        holdout_q = metrics._weighted_quantile(holdout_col, holdout_weights, quantiles)
+        for level, c_q, h_q in zip(("q90", "q99"), candidate_q, holdout_q, strict=True):
+            scores[f"{level}_ratio.{name}"] = float(c_q / h_q) if h_q != 0 else np.nan
     return scores
 
 
@@ -198,6 +236,9 @@ def harness_scorecard(
         holdout_points, holdout_weights = project_view(
             holdouts[view.name], view.columns, view.weight_column
         )
+        target_dims = {
+            name: list(view.columns).index(name) for name in view.target_columns
+        }
         scores = score_view(
             candidate_points,
             candidate_weights,
@@ -206,6 +247,7 @@ def harness_scorecard(
             k=k,
             max_points=max_points,
             seed=seed,
+            target_dims=target_dims,
         )
         rows.extend(
             {"view": view.name, "metric": metric, "value": value}

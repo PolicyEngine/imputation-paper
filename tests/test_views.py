@@ -86,3 +86,33 @@ def test_projection_validates_columns() -> None:
         project_view(table, ["a", "label"], "weight")
     with pytest.raises(KeyError, match="No holdout"):
         harness_scorecard(table, "weight", VIEWS, {"cps": table})
+
+
+def test_tail_block_scores_imputed_targets() -> None:
+    """Views with target_columns emit tail metrics that see tail inflation.
+
+    A candidate whose target tail is inflated 3x must show a q99_ratio near 3
+    even if its body matches -- the failure mode sample-geometry metrics blur.
+    """
+    holdout = _population(seed=8, n=4000)
+    inflated = _population(seed=9, n=4000)
+    # Inflate the top decile of `c` only: the body is untouched.
+    top = inflated["c"] > inflated["c"].quantile(0.9)
+    inflated.loc[top, "c"] = inflated.loc[top, "c"] * 3.0
+
+    view = SurveyView(
+        name="scf", columns=("a", "c"), weight_column="weight", target_columns=("c",)
+    )
+    rows = harness_scorecard(inflated, "weight", [view], {"scf": holdout}, seed=0)
+    by_metric = {r["metric"]: r["value"] for r in rows}
+    assert {"w1_over_sd.c", "q90_ratio.c", "q99_ratio.c"} <= set(by_metric)
+    assert by_metric["q99_ratio.c"] > 1.5
+    assert by_metric["w1_over_sd.c"] > 0.0
+
+    faithful = _population(seed=10, n=4000)
+    faithful_rows = harness_scorecard(
+        faithful, "weight", [view], {"scf": holdout}, seed=0
+    )
+    faithful_by_metric = {r["metric"]: r["value"] for r in faithful_rows}
+    assert 0.8 < faithful_by_metric["q99_ratio.c"] < 1.25
+    assert faithful_by_metric["w1_over_sd.c"] < by_metric["w1_over_sd.c"]

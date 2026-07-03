@@ -386,11 +386,24 @@ def make_tables(
     else:
         print("  cps-components: no run found; tables skipped")
 
-    harness = _long_to_summary(
-        runs_dir / "scf-to-cps-harness", "harness_long.csv", "view"
-    )
-    if harness is not None:
-        (out_dir / "harness.tex").write_text(
+    for run_name, out_name, note in (
+        (
+            "scf-to-cps-harness",
+            "harness.tex",
+            "Minimal profile: 6 shared predictors, 2 targets, ASEC 2025 receiver.",
+        ),
+        (
+            "scf-to-cps-harness-scale",
+            "harness_scale.tex",
+            "Populace-scale profile: 10 shared predictors, 4 chained targets, "
+            "pooled ASEC 2023-2025 receiver.",
+        ),
+    ):
+        harness = _long_to_summary(runs_dir / run_name, "harness_long.csv", "view")
+        if harness is None:
+            print(f"  {run_name}: no run found; table skipped")
+            continue
+        (out_dir / out_name).write_text(
             _tabular(
                 harness,
                 [
@@ -399,13 +412,11 @@ def make_tables(
                     ("scf", "prdc_recall", "Recall"),
                     ("scf", "c2st_auc", "C2ST AUC"),
                 ],
-                "SCF->CPS population view vs held-out SCF, mean (sd) over 10 "
-                "donor splits. AUC of 0.5 is indistinguishable.",
+                f"SCF->CPS population view vs held-out SCF, mean (sd) over 10 "
+                f"donor splits. AUC of 0.5 is indistinguishable. {note}",
             )
         )
-        written.append("harness.tex")
-    else:
-        print("  scf-to-cps-harness: no run found; table skipped")
+        written.append(out_name)
 
     _openml_table(runs_dir, out_dir, written)
     _ablation_table(runs_dir, out_dir, written)

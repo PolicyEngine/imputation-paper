@@ -24,10 +24,24 @@ regime gates, and their strong mutual dependence exercises chaining.
 \label{sec:task-harness}
 
 Each method fits wealth conditionals on an SCF donor split and imputes them
-onto real \cps{} ASEC households sharing the predictor set --- one row per
-household from the Census Bureau's ASEC 2025 public-use files
-\citep{census2025}, read directly from \texttt{census.gov} so that no task
-input flows through any PolicyEngine processing. The candidate population --- \cps{} demographics plus imputed wealth,
+onto real \cps{} ASEC households sharing the predictor set --- households
+built from the Census Bureau's ASEC public-use files \citep{census2025}, read
+directly from \texttt{census.gov} so that no task input flows through any
+PolicyEngine processing. The experiment runs in two profiles. The
+\emph{minimal} profile --- six shared predictors, the two wealth targets of
+Section~\ref{sec:task-scf}, a single receiver vintage (ASEC 2025) --- is the
+controlled instantiation in which every mechanism is legible. The
+\emph{populace-scale} profile mirrors the production stack's shape: the
+shared predictor set widens to everything the two surveys genuinely share
+(ten variables, adding education class, race, homeownership, and labor-force
+status, each mapping verified against both files' codebooks), the receiver
+pools three ASEC vintages (2023--2025, weights scaled to one household
+population, 168,852 households) as the production support spine does, and
+the targets widen to a four-component chained balance sheet --- financial
+assets, nonfinancial assets, debt, then net worth --- whose accounting
+identity $\text{networth} = \text{fin} + \text{nfin} - \text{debt}$ holds
+exactly in the extract, so chaining's contribution is directly
+interpretable. The candidate population --- \cps{} demographics plus imputed wealth,
 under \cps{} household weights --- is then scored through the harness of
 Section~\ref{sec:harness} against the \emph{held-out} SCF: the joint of
 shared predictors and wealth, under SCF weights. The
