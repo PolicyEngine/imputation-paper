@@ -1,0 +1,40 @@
+{
+  "task": "cps_components",
+  "rows_used": 20000,
+  "rows_available": 39686,
+  "row_cap_applied": true,
+  "max_rows": 20000,
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+  ],
+  "methods_requested": [
+    "populace_fit",
+    "populace_fit_unweighted",
+    "populace_fit_unchained",
+    "plain_qrf",
+    "microimpute_qrf",
+    "microimpute_ols",
+    "microimpute_quantreg",
+    "statmatch_hotdeck",
+    "weighted_marginal"
+  ],
+  "predictors": [
+    "age",
+    "is_female",
+    "employment_income"
+  ],
+  "targets": [
+    "interest_income",
+    "dividend_income"
+  ],
+  "weight_column": "person_weight"
+}

@@ -15,8 +15,15 @@ __pycache__/
 dist/
 build/
 
-# Experiment outputs (results, metrics CSVs, per-target diagnostics, figures)
-runs/
+# Experiment outputs: large artifacts stay out, but the small long-format
+# metric files, skip accounting, and manifests are committed -- the paper's
+# honesty rule is that every claimed number cites a committed run.
+runs/**
+!runs/*/
+!runs/*/metrics_long.csv
+!runs/*/harness_long.csv
+!runs/*/skipped.csv
+!runs/*/manifest.json
 demo-run/
 results/
 benchmarks/results/

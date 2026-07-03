@@ -5,10 +5,20 @@ Imputation sits upstream of every population statistic a microsimulation
 model produces, and the files it produces are reweighted by consumers the
 imputer never sees. We presented an estimator that treats survey weights as a
 structural obligation rather than an option --- weighted bootstrap into the
-forests, directly-weighted regime gates, sequential chaining, and an
-interface that refuses a silent unweighted fit --- and evaluated it against
-standard survey-imputation methods with ablations that attribute performance
-to each design choice. \todo{One-sentence headline finding.} \todo{One
-sentence on the fragility result.} The estimator is available standalone as
-\populacefit{}; the benchmark harness, task configs, and every table in this
-paper regenerate from the accompanying repository.
+forests, directly weighted regime gates, sequential chaining, and an
+interface that refuses a silent unweighted fit --- and a population-view
+harness that evaluates any candidate population against held-out survey
+views with a strictly proper joint score, a reweighting-invariant coverage
+axis, and a classifier two-sample test. Empirically, the interface rule is
+the paper's largest single effect: on a survey whose design is informative,
+the identical estimator fit without weights is six times worse on net-worth
+marginal fit and 2.3 times worse on the population view, an error mode the
+harness localizes to the weighted measure (repairable downstream) rather
+than the support (not). Conditional methods preserve the demographics--wealth
+joint that hot-deck matching's conditional-independence gluing attenuates,
+zero-inflated components require gating that plain forests and linear
+quantile models miss by 4 to 27 percentage points of zero mass, and marginal
+metrics --- the field's default --- cannot see any of this, ranking an
+unconditional marginal draw at or near the top throughout. The estimator is
+available standalone as \populacefit{}; the harness, task configurations, and
+every number in this paper regenerate from the accompanying repository.

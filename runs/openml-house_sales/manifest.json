@@ -1,0 +1,48 @@
+{
+  "task": "openml_house_sales",
+  "rows_used": 20000,
+  "rows_available": 21613,
+  "row_cap_applied": true,
+  "max_rows": 20000,
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+  ],
+  "methods_requested": [
+    "populace_fit",
+    "populace_fit_unweighted",
+    "populace_fit_unchained",
+    "plain_qrf",
+    "microimpute_qrf",
+    "microimpute_ols",
+    "microimpute_quantreg",
+    "statmatch_hotdeck",
+    "weighted_marginal"
+  ],
+  "predictors": [
+    "sqft_living",
+    "grade",
+    "sqft_above",
+    "sqft_living15",
+    "bathrooms",
+    "view",
+    "sqft_basement",
+    "bedrooms",
+    "lat",
+    "waterfront",
+    "floors",
+    "yr_renovated"
+  ],
+  "targets": [
+    "price"
+  ],
+  "weight_column": "weight"
+}

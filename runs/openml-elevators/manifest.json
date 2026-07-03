@@ -1,0 +1,48 @@
+{
+  "task": "openml_elevators",
+  "rows_used": 16599,
+  "rows_available": 16599,
+  "row_cap_applied": false,
+  "max_rows": 20000,
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+  ],
+  "methods_requested": [
+    "populace_fit",
+    "populace_fit_unweighted",
+    "populace_fit_unchained",
+    "plain_qrf",
+    "microimpute_qrf",
+    "microimpute_ols",
+    "microimpute_quantreg",
+    "statmatch_hotdeck",
+    "weighted_marginal"
+  ],
+  "predictors": [
+    "SaTime1",
+    "SaTime3",
+    "SaTime2",
+    "Sa",
+    "SaTime4",
+    "absRoll",
+    "q",
+    "climbRate",
+    "diffClb",
+    "p",
+    "diffDiffClb",
+    "curRoll"
+  ],
+  "targets": [
+    "Goal"
+  ],
+  "weight_column": "weight"
+}

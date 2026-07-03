@@ -1,0 +1,44 @@
+{
+  "task": "openml_brazilian_houses",
+  "rows_used": 10692,
+  "rows_available": 10692,
+  "row_cap_applied": false,
+  "max_rows": 20000,
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+  ],
+  "methods_requested": [
+    "populace_fit",
+    "populace_fit_unweighted",
+    "populace_fit_unchained",
+    "plain_qrf",
+    "microimpute_qrf",
+    "microimpute_ols",
+    "microimpute_quantreg",
+    "statmatch_hotdeck",
+    "weighted_marginal"
+  ],
+  "predictors": [
+    "area",
+    "rooms",
+    "bathroom",
+    "parking_spaces",
+    "hoa_(BRL)",
+    "rent_amount_(BRL)",
+    "property_tax_(BRL)",
+    "fire_insurance_(BRL)"
+  ],
+  "targets": [
+    "total_(BRL)"
+  ],
+  "weight_column": "weight"
+}

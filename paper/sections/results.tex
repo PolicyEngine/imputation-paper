@@ -172,7 +172,45 @@ better, coverage higher is better, C2ST AUC of 0.5 is indistinguishable.}
 \label{tab:harness}
 \end{table}
 
-\todo{Harness results narration once runs/scf-to-cps-harness lands: read
-methods against the scf\_sample\_reference floor; test the central hypothesis
-(conditional methods vs hot deck vs the marginal draw on energy/coverage);
-connect back to the marginal-metric saturation shown above.}
+Table~\ref{tab:harness} reports the population-view experiment. The floor
+behaves as designed: the \scf{} donor split scored against the holdout gives
+energy distance 0.009, coverage 0.987, and C2ST AUC 0.496 --- another sample
+of the same survey is statistically indistinguishable. Every imputed
+candidate sits well above that floor (energy $\geq 0.144$, AUC
+$\geq 0.84$); most of that common offset is the \cps{}--\scf{} survey gap
+itself --- the two surveys measure demographics and income differently ---
+which every method shares because every candidate carries the same real
+\cps{} demographic block. Between-method differences are therefore the
+meaningful comparison, and three stand out.
+
+First, the weighting result generalizes from marginals to the population
+view, and the scorecard's two blocks localize the failure. The unweighted
+ablation is the worst credible method on the weight-sensitive axis --- energy
+distance 0.326, 2.3 times the candidate and worse than OLS --- while posting
+the \emph{highest} coverage (0.949) of any method. Its records populate the
+right region of the demographics--wealth space; the weighted measure it puts
+on them is wrong. Because coverage is invariant to reweighting of the
+candidate and energy is not, the table says precisely which repairs are
+available downstream: a later calibration could in principle re-weight an
+unweighted fit's records toward the correct measure, whereas OLS's collapsed
+support (coverage 0.714) is unrepairable by any reweighting.
+
+Second, the central hypothesis --- that conditional-distribution methods
+preserve joint structure that matching's gluing loses --- holds, but the
+margin is honest rather than dramatic on this task. The candidate edges
+hot-deck matching on every joint axis (energy 0.144 vs.\ 0.147, coverage
+0.947 vs.\ 0.944, recall 0.929 vs.\ 0.909), with the recall gap --- how much
+of the imputed file's mass the real manifold accounts for --- the clearest
+separation.
+
+Third, the omnibus classifier finishes the argument the marginal metrics
+could not. The unconditional weighted marginal draw ties the candidate on
+energy distance (0.144) --- at this task's signal-to-noise, even a proper
+joint score is dominated by marginals plus the survey gap --- but the C2ST
+separates them cleanly (AUC 0.903 vs.\ 0.843): a classifier finds the broken
+demographics--wealth coupling that a method with no conditional structure
+necessarily has. Linear quantile regression (0.947) and OLS (0.991) are
+nearly perfectly distinguishable from real \scf{} households. Reading the
+three axes together --- energy for the weighted measure, coverage for
+support, C2ST for anything the other two miss --- is the point of the
+harness: no single number, marginal or joint, tells this story.
