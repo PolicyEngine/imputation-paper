@@ -1,0 +1,23 @@
+\begin{table}[H]
+\centering
+{\tablefont
+\resizebox{\ifdim\width>\linewidth \linewidth\else \width\fi}{!}{%
+\begin{tabular}{lrr}
+\toprule
+Comparison & Loss difference (pp) & Relative loss change \\
+\midrule
+Informed $L_0$ + refit vs. dense no-$L_0$ & $-0.33$ & $-6.4\%$ \\
+Informed $L_0$ + refit vs. random + reweight & $-2.81$ & $-37.2\%$ \\
+Informed $L_0$ + refit vs. raw gated $L_0$ & $-5.12$ & $-51.9\%$ \\
+Dense random scaled sample vs. dense no-$L_0$ & $+19.17$ & $+378.3\%$ \\
+\bottomrule
+\end{tabular}
+}
+}
+\caption{Matched loss comparisons for the full-surface probe. Negative values favour the method named
+first. Differences are in percentage points of the capped, target-weighted Populace objective loss.}
+\label{sp:tab:paired_comparison}
+\tablenote{This table is descriptive because the current matched full-surface run uses one seed and one
+normalized $L_0$ penalty. Dense no-$L_0$, the post-$L_0$ refit, and random + reweight all use 1{,}500
+optimizer epochs, but dense no-$L_0$ is still slowly declining at the end of that budget.}
+\end{table}

@@ -1,0 +1,157 @@
+\appendix
+
+\section{Calibration targets}
+\label{sp:app:targets}
+
+This study calibrates to the full materialized target surface \populace{} currently constructs for the
+US fiscal build. Every target is a source-backed fact from PolicyEngine Ledger \citep{ledger2026}, the
+\texttt{arch-data} fact store that holds the source publications and preserves the provenance of each
+published value; Populace composes calibration targets from those facts. The surface combines national,
+state, and congressional-district aggregates across the major tax and transfer families
+(Table~\ref{sp:tab:target_sources}). It is reported here in full so the empirical claims can be read against
+the exact target system used rather than against a pipeline-wide inventory.
+
+Table~\ref{sp:tab:target_sources} lists each family with its administrative source. The system holds
+32{,}633 targets across eleven families and three geographic levels: 24{,}340 congressional-district,
+7{,}815 state, and 478 national targets. The \texttt{irs\_soi} family supplies 31{,}350 of them (96\%),
+so any error summary aggregated over all targets is dominated by IRS income-tax aggregates.
+
+\begin{table}[H]
+\centering
+{\tablefont
+\begin{tabular}{@{}p{0.24\textwidth}p{0.40\textwidth}p{0.13\textwidth}r@{}}
+\toprule
+Family & Administrative source & Levels & Targets \\
+\midrule
+\texttt{irs\_soi} & IRS Statistics of Income: Historic Table 2 state totals and congressional-district tables & National, state, district & 31{,}350 \\
+\texttt{census\_pep} & Census Bureau annual state resident population estimates & National, state & 936 \\
+\texttt{cms\_medicaid} & CMS Medicaid and CHIP applications, eligibility, and enrollment reports & National, state & 102 \\
+\texttt{cms\_aca} & CMS open-enrollment-period state-level public use file & State & 102 \\
+\texttt{usda\_snap} & USDA FNS SNAP monthly state participation and benefit summaries & National, state & 52 \\
+\texttt{census\_stc} & Census Bureau State Tax Collections (STC), item T40 individual income taxes & State & 44 \\
+\texttt{hhs\_acf\_tanf} & HHS ACF federal TANF and state MOE financial data & National, state & 30 \\
+\texttt{ssa\_supplement} & SSA Annual Statistical Supplement, OASDI beneficiaries and benefits & National & 6 \\
+\texttt{jct} & JCT estimates of federal tax expenditures & National & 5 \\
+\texttt{cbo} & CBO revenue projections by category & National & 5 \\
+\texttt{cms\_medicare} & CMS Medicare Trustees Report & National & 1 \\
+\midrule
+\textbf{Total} & & & \textbf{32{,}633} \\
+\bottomrule
+\end{tabular}
+}
+\caption{Calibration target families and their administrative sources. Counts and sources are read from
+the full-surface target registry used by the run. In the headline experiment all listed families are fit
+and scored (Section~\ref{sp:sec:oos}).}
+\label{sp:tab:target_sources}
+\end{table}
+
+\section{Optimization hyperparameters}
+\label{sp:app:hyperparameters}
+
+Table~\ref{sp:tab:hyperparameters_full} lists the hyperparameters of the $L_0$ optimization with their
+roles. The gate parameters follow the Hard Concrete construction of \citet{louizos2018}. The
+sparsity penalty $\lambda_{L_0}$ and the epoch count are set per build to reach a target dataset
+size and are reported with each run.
+
+\begin{table}[H]
+\centering
+{\tablefont
+\begin{tabular}{@{}l l p{0.46\textwidth}@{}}
+\toprule
+Parameter & Value & Role \\
+\midrule
+Gate temperature $\beta$ & 0.25 & Sharpness of the 0/1 gate transition \\
+Left stretch $\gamma$ & $-0.1$ & Enables exact-zero gates after clipping \\
+Right stretch $\zeta$ & 1.1 & Enables exact-one gates after clipping \\
+Initial keep probability & 0.8 & Records start mostly active while leaving room for the sparsity penalty to close gates \\
+Weight jitter SD & 0.05 & Log-space noise on weights at initialization \\
+Logit jitter SD & 0.01 & Log-space noise on gate logits at initialization \\
+Learning rate & 0.02 & Adam optimizer step size \\
+Epochs & 1{,}500 & Training iterations in the reported fixed-penalty probe \\
+Target loss cap $c$ & 1 & Caps a single target's contribution to $\mathcal{L}_{\text{cal}}$; the runs reported here use Populace's production US-fiscal value $c=1$ \\
+$\lambda_{\mathrm{share}}$ & 0.8 & Normalized sparsity share in $\lambda_{\mathrm{share}}\sum_i\bar{z}_i/n$; raw $\lambda_{L_0}=2.37\times10^{-6}$ for 337{,}704 records \\
+$\lambda_{L_2}$ & $0$ & Soft concentration penalty on $(w_i/w_{0,i})^2$ (mean over records); held at zero in the reported full-surface run \\
+Budget bisection steps & None & The reported full-surface probe uses one fixed normalized penalty; a future frontier should sweep this value \\
+\texttt{max\_weight\_ratio} & None (uncapped) & Hard per-record weight cap: $w_i \leq \text{ratio}\times w_{0,i}$, clamped each step \\
+\bottomrule
+\end{tabular}
+}
+\caption{Hyperparameters for the $L_0$ optimization. Gate parameters follow \citet{louizos2018}.
+Source: the \texttt{l0-python} Hard Concrete implementation used by \populace{}.}
+\label{sp:tab:hyperparameters_full}
+\end{table}
+
+\section{Algorithm pseudocode}
+\label{sp:app:algorithm}
+
+Algorithm~\ref{sp:alg:l0} presents the $L_0$-regularized calibration procedure.
+
+\begin{algorithm}[H]
+\caption{$L_0$-regularized calibration with Hard Concrete gates}
+\label{sp:alg:l0}
+\begin{algorithmic}[1]
+\Require Calibration matrix $\mathbf{M} \in \R^{m \times n}$, targets $\mathbf{t} \in \R^m$, initial weights $\mathbf{w}_0 \in \R^n$, per-target loss weights $\boldsymbol{\omega} \in \R^m$
+\Require Hyperparameters: $\lambda_{L_0}$, $\lambda_{L_2}$, weight cap $r$ (\texttt{max\_weight\_ratio}; $\infty$ if uncapped), $\beta$, $\gamma$, $\zeta$, learning rate $\eta$, epochs $E$
+\Ensure Calibrated sparse weight vector $\hat{\mathbf{w}} \in \R^n$
+
+\State Initialize $\log w_i \gets \log w_{0,i} + \mathcal{N}(0, 0.05^2)$ for all $i$
+\State Initialize $\log \alpha_i \gets \text{logit}(0.8) + \mathcal{N}(0, 0.01^2)$ for all $i$
+\State Initialize Adam optimizer with parameters $\{\log w_i, \log \alpha_i\}$ and learning rate $\eta$
+
+\For{epoch $= 1$ to $E$}
+    \State \textbf{Sample Hard Concrete gates (training):}
+    \For{$i = 1$ to $n$}
+        \State $u_i \sim \text{Uniform}(\epsilon, 1-\epsilon)$
+        \State $s_i \gets \sigma\!\left(\frac{\log u_i - \log(1-u_i) + \log \alpha_i}{\beta}\right)$
+        \State $\bar{s}_i \gets s_i(\zeta - \gamma) + \gamma$
+        \State $z_i \gets \min(1, \max(0, \bar{s}_i))$
+    \EndFor
+    \State $w_i^{\text{eff}} \gets \exp(\log w_i) \cdot z_i$ for all $i$
+    \State $\hat{t}_j \gets \sum_i M_{ji} \cdot w_i^{\text{eff}}$ for all $j$
+    \State $\mathcal{L}_{\text{cal}} \gets \dfrac{\sum_{j=1}^{m}\omega_j\,\min\!\left(\left|\frac{\hat{t}_j - t_j}{s_j}\right|, c\right)}{\sum_{j=1}^{m}\omega_j}$
+    \State $\mathcal{L}_{L_0} \gets \sum_{i=1}^{n} \sigma\!\left(\log \alpha_i - \beta \log \frac{-\gamma}{\zeta}\right)$
+    \State $\mathcal{L}_{L_2} \gets \frac{1}{n}\sum_{i=1}^{n}\left(\frac{\exp(\log w_i)}{w_{0,i}}\right)^2$ \Comment{soft concentration; informed $L_0$ only}
+    \State $\mathcal{L} \gets \mathcal{L}_{\text{cal}} + \lambda_{L_0} \mathcal{L}_{L_0} + \lambda_{L_2} \mathcal{L}_{L_2}$
+    \State Backpropagate $\nabla_{\log w, \log \alpha} \mathcal{L}$
+    \State Adam step
+    \State Clamp $\log w_i \gets \min\!\left(\log w_i,\; \log(r \cdot w_{0,i})\right)$ for all $i$ \Comment{per-record cap; no-op if $r=\infty$}
+\EndFor
+
+\State \textbf{Deterministic inference:}
+\For{$i = 1$ to $n$}
+    \State $z_i^{\text{det}} \gets \min\!\left(1, \max\!\left(0,\; \sigma(\log \alpha_i)(\zeta - \gamma) + \gamma\right)\right)$
+    \State $\hat{w}_i \gets \exp(\log w_i) \cdot z_i^{\text{det}}$
+\EndFor
+\State \Return $\hat{\mathbf{w}}$
+\end{algorithmic}
+\end{algorithm}
+
+\section{Dataset assembly details}
+\label{sp:app:assembly}
+
+After optimization the fitted weight vector is mapped back to record form and used to assemble the
+deployable dataset. The assembly step keeps the active records, reconstructs their person and
+tax-unit memberships, derives geography from the stored assignment, and recomputes
+geography-dependent quantities. Two details matter for fidelity. Geography is derived from the same
+assignment used to build the calibration matrix, so the assembled dataset matches the universe the
+optimizer saw. Take-up draws are regenerated with the same deterministic seeds used during matrix
+construction, so take-up-dependent targets stay consistent between the calibration problem and the
+assembled dataset.
+
+\section{Cost diagnostics}
+\label{sp:app:cost}
+
+Figure~\ref{sp:fig:cost_accuracy} is retained as a supplemental cost diagnostic from the earlier budget
+sweep. The matched full-surface probe's current runtimes are reported in Section~\ref{sp:sec:results}: dense
+no-$L_0$ took 38.7 minutes for 1{,}500 epochs, $L_0$ selection plus refit took 48.9 minutes combined, and
+random + reweight took 7.3 minutes.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{figures/f5_cost_accuracy}
+    \caption{Supplemental historical cost against accuracy: wall-clock runtime (log scale) against
+    full-surface median ARE (log scale), each point labelled by its requested record budget. This figure
+    predates the fixed normalized-penalty full-surface probe and is used only to motivate reporting runtime
+    alongside accuracy.}
+    \label{sp:fig:cost_accuracy}
+\end{figure}

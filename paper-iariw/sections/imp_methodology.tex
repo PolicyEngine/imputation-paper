@@ -1,0 +1,133 @@
+\section{Stage one: weighted, regime-gated, chained imputation}
+\label{imp:sec:methodology}
+
+\subsection{The estimator}
+\label{imp:sec:estimator}
+
+\populacefit{} models $P(\text{targets} \mid \text{predictors})$ with a
+quantile-regression-forest estimator \citep{meinshausen2006quantile,
+zillow2024quantile} wrapped in three mechanisms.
+
+\paragraph{Weighted bootstrap.} Random forests cannot honor a per-record
+\texttt{sample\_weight} in their predictive distribution: a fully grown leaf
+holds individual training rows, and weighting the impurity criterion does not
+change which values a quantile query reads out. \populacefit{} therefore
+materializes weights into the data: before each forest is grown, training rows
+are resampled with replacement with probability proportional to weight, so
+leaf distributions reflect the weighted population. Draws from the fitted
+forest then sample the \emph{weighted} conditional.
+
+\paragraph{Regime gates.} A numeric target's sign support --- which of
+$\{\text{negative}, \text{zero}, \text{positive}\}$ occur --- defines its
+regime. A single regressor over a zero-inflated or sign-mixed target either
+drops a tail or interpolates across the empty gap at zero; hurdle-style
+two-part models are the classical remedy \citep{mullahy1986specification,
+lambert1992zero}. \populacefit{} fits a classifier that gates each row into a
+sign class and a separate magnitude forest within each nonzero sign. Regime
+detection is structural (it reads the unweighted support, since which signs
+\emph{exist} is a fact about the variable, not the weighting), while the gate
+itself is weighted directly through its \texttt{sample\_weight} --- not by
+resampling, which would delete a rare sign class whose total weight share is
+negligible. Draws sample the gate's predicted class probabilities rather than
+taking the modal class, preserving the zero mass.
+
+\paragraph{Sequential chaining.} Targets are imputed in order, each
+conditioning on the predictors plus the targets already drawn
+\citep{raghunathan2003multiple, vanbuuren2011mice}, so dependence among
+imputed variables survives.
+
+\paragraph{Interface contract.} Fitting over a \populace{} frame reads the
+frame's typed survey weights by default; fitting over a plain data frame ---
+the standalone path --- requires the weights explicitly (a weight column name,
+a weight vector, or the literal \texttt{"none"}), and omitting them is an
+error rather than a silent unweighted fit. The contract makes the
+weight-blindness failure mode of Section~2.3 unrepresentable by accident.
+
+\subsection{Ablations and baselines}
+\label{imp:sec:ablations}
+
+Each design choice is evaluated by knocking it out with everything else held
+fixed: the full estimator versus itself with \texttt{weights="none"} (the
+weighted bootstrap's contribution), versus fitting each target independently
+(chaining's contribution), and versus a single ungated forest at matched
+hyperparameters (gating's contribution). Baselines are standard practice:
+quantile-regression-forest, ordinary-least-squares, and linear
+quantile-regression imputers from \microimpute{}
+\citep{policyengine2025microimpute}, and nearest-neighbour-distance hot-deck
+statistical matching from \pystatmatch{} \citep{dorazio2021statistical}. The
+candidate and the plain-forest baselines share the same underlying forest
+implementation \citep{zillow2024quantile}, so their differences isolate the
+design choices rather than implementation quality.
+
+\subsection{The population-view harness}
+\label{imp:sec:harness}
+
+Per-variable metrics cannot adjudicate the question this paper cares about,
+because the methods differ most in how they treat the \emph{joint}. We
+therefore evaluate within a framework we call the population-view harness. One
+latent population distribution produces individuals; each survey $s$ is a
+\emph{view} $V_s$ of it --- a variable subset, a sampling design, a
+measurement idiom --- and the survey's holdout is a weighted sample from
+$V_s(P)$ \citep{lohr2017combining}. A candidate weighted file $Q$ (any
+generator's) is scored by projecting it through each view and comparing
+$V_s(Q)$ to that view's holdout \emph{in the view's own variable space}.
+Cross-survey consistency is never required --- the candidate is only asked to
+explain each view in its own idiom --- which keeps the harness usable even
+though surveys disagree with one another about the population they share.
+
+Each view carries four complementary blocks. The \emph{weighted energy
+distance} \citep{szekely2013energy} is the sample form of a strictly proper
+scoring rule \citep{gneiting2007strictly}: the true distribution uniquely
+minimizes its expectation, so a candidate hedged toward modal households
+scores strictly worse than one matching the full distribution. \emph{\prdc{}
+coverage} \citep{naeem2020reliable} --- the weighted fraction of holdout
+points with a candidate point inside their $k$-nearest-neighbour radius ---
+is the explicit anti-collapse axis; because it depends on the candidate only
+through its support, it is invariant to any reweighting of the candidate,
+making it the calibration-blind block of the scorecard. A \emph{weighted
+classifier two-sample test} (cross-validated AUC of a gradient-boosted
+classifier at equal class mass; $0.5$ is indistinguishable) is the omnibus
+check. The fourth block exists because we caught the first three missing a
+real failure: pairwise sample-geometry metrics run on capped subsamples, and
+a candidate whose imputed wealth 99th percentile is double the holdout's can
+tie on energy distance because the discrepant mass is a sliver of
+standardized pairwise space. Economic variables live in heavy right tails, so
+each \emph{imputed} column also carries a \emph{tail block}, computed on the
+full weighted samples with no cap: its weighted Wasserstein-1 distance to the
+holdout (scaled by the holdout's weighted standard deviation) and its
+weighted q90 and q99 ratios (candidate over holdout; 1 is a perfect tail).
+Holdouts are used nowhere upstream, so the harness is a non-self-referential
+test surface; a sampling-noise floor --- the donor split itself scored as a
+candidate --- anchors what "as good as another sample of the survey" means on
+each axis, including how much a tail ratio wobbles under sampling noise
+alone.
+
+\subsection{Marginal and stress metrics}
+\label{imp:sec:metrics}
+
+All metrics are computed under survey weights, on held-out receiver rows.
+\emph{Weighted pinball loss}, averaged over a decile grid, scores conditional
+distributional calibration \citep{koenker2005quantile}. \emph{Weighted
+Wasserstein-1 distance} to the weighted donor distribution scores marginal
+fit. \emph{Zero-share error} scores preservation of the exact-zero mass of
+zero-inflated targets. Finally, \emph{reweighting fragility} formalizes the
+landmine diagnostic: over the family of bounded multiplicative reweightings
+$w_i \mapsto m_i w_i$ with $m_i \in [1/\kappa, \kappa]$ (the hard weight-ratio
+bounds production calibration guards use), the worst-case single-record share
+of a target aggregate has the closed form
+$\kappa^2 c^* / (\kappa^2 c^* + S - c^*)$, where $c^*$ is the largest baseline
+contribution $w_i |a_i|$ and $S$ their sum. We report it at $\kappa = 5$ for
+every method next to the held-out truth's own fragility --- the exposure a
+method should not exceed.
+
+\subsection{Protocol}
+\label{imp:sec:protocol}
+
+Every task uses an 80/20 donor/receiver holdout repeated over ten seeds, with
+splits paired across methods: the split is a pure function of the seed, so
+every method fits and is scored on identical partitions. Task inputs are
+frozen once and pinned by hash; only the method varies within a sweep. All
+results tables are generated from the sweep artifacts by the repository's
+command line; no result is hand-entered. Where a method is unavailable or a
+metric undefined for a task, the cell is reported as absent rather than
+omitted.

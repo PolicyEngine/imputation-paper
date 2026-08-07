@@ -1,0 +1,31 @@
+\begin{table}[H]
+\centering
+{\tablefont
+\begin{tabular}{@{}p{0.52\textwidth}l r@{}}
+\toprule
+Target family & Geographic level & Targets \\
+\midrule
+IRS Statistics of Income (\texttt{irs\_soi}) & National, state, district & 31{,}350 \\
+Census population estimates (\texttt{census\_pep}) & National, state & 936 \\
+Medicaid and CHIP, CMS (\texttt{cms\_medicaid}) & National, state & 102 \\
+ACA marketplace, CMS (\texttt{cms\_aca}) & State & 102 \\
+SNAP, USDA (\texttt{usda\_snap}) & National, state & 52 \\
+State tax collections, Census STC (\texttt{census\_stc}) & State & 44 \\
+TANF, HHS ACF (\texttt{hhs\_acf\_tanf}) & National, state & 30 \\
+Social Security supplement, SSA (\texttt{ssa\_supplement}) & National & 6 \\
+JCT tax expenditures (\texttt{jct}) & National & 5 \\
+CBO revenue projections (\texttt{cbo}) & National & 5 \\
+Medicare, CMS (\texttt{cms\_medicare}) & National & 1 \\
+\midrule
+\textbf{Total} & & \textbf{32{,}633} \\
+\bottomrule
+\end{tabular}
+}
+\caption{Full materialized Populace target surface used in the matched full-surface probe, by family and
+geographic level. The surface contains 24{,}340 congressional-district targets, 7{,}815 state targets, and
+478 national targets.}
+\label{sp:tab:target_subset}
+\tablenote{Counts are read from the run registry. In the headline experiment all targets, including
+\texttt{cbo}, are fit and scored; holdout variants are supplemental diagnostics (Section~\ref{sp:sec:oos}).
+The source for each family is listed in Appendix~\ref{sp:app:targets}.}
+\end{table}

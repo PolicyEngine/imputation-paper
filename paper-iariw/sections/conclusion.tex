@@ -1,0 +1,30 @@
+\section{Conclusion}
+\label{sec:conclusion}
+
+Constructing representative microdata for sub-national policy
+analysis is two estimation problems, not one: filling in what the
+base survey does not observe, and choosing --- then weighting --- the
+records that will represent the population at every geography a
+policymaker asks about. This paper presented both stages as they are
+implemented and deployed in \populace{}: a weighted, regime-gated,
+chained quantile-regression-forest imputation operator whose design
+choices are each attributed by ablation under a population-view
+harness, and a target-informed $L_0$ selection-and-calibration step
+whose 57{,}240-record support, refit after selection, outperforms
+both dense calibration and random subsampling on a 32{,}633-target
+administrative surface and ships as the certified United States
+release. A companion incidence analysis of the One Big Beautiful
+Bill Act consumes that release end to end, making the pipeline's
+choices --- and its disclosed defects --- auditable in a live
+legislative application at national, state, and district grain.
+
+The near-term agenda follows directly: promote district target
+families into the certified gate; map the penalty--concentration
+frontier and extend the dense-calibration budget; add
+multiple-imputation variance and principled tail extension to the
+fill stage; and grow the population-view harness into a standing
+release gate, scoring every candidate build against every survey
+view and administrative surface before it ships. The estimator is
+installable independently of the stack as \populacefit{}, and every
+number in both stages reproduces from committed runs in the
+accompanying repositories.

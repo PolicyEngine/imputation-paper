@@ -1,0 +1,89 @@
+\section{Discussion}
+\label{sp:sec:discussion}
+
+\subsection{What the matched comparison establishes}
+
+The matched full-surface probe supports the central version of the $L_0$ hypothesis, with an important
+qualification. If the claim is that the raw gated weights returned by the joint $L_0$ optimization should
+be the final publication weights, the evidence does not support it: the thresholded gated weights have a
+9.86\% Populace loss. If the claim is instead that target-informed gates can select a useful support for
+ordinary calibration, the evidence is positive. After the gates choose 57{,}240 records, an ordinary
+calibration refit on that support reaches 4.74\% loss, below the dense no-$L_0$ calibration and the
+matched sampling baselines reported in Section~\ref{sp:sec:results}.
+
+That distinction is useful. It separates selection from weighting. The Hard Concrete gates appear valuable
+as a way to decide which records survive, but the final dataset should be produced by a post-selection
+calibration refit rather than by directly publishing the stochastic-gate weights. This is also consistent
+with how the method would be used operationally: choose a sparsity penalty, use $L_0$ to prune a
+deliberately overbuilt support, then run the standard Populace calibrator on the retained records. The
+slight edge over dense no-$L_0$ at 1{,}500 epochs should be read as a finite-optimization result: the
+dense run is still declining, so a longer dense convergence check remains necessary.
+
+\subsection{What the controls establish}
+
+The normalized sparsity scale is necessary. A raw $\lambda_{L_0}$ cannot be interpreted across candidate
+universes of different sizes: the same coefficient can be mild on a small support and overwhelming on a
+larger one. Expressing the penalty as
+$\lambda_{\mathrm{share}}\sum_i\bar{z}_i/n$ gives a dimensionless control, and
+$\lambda_{\mathrm{share}}=0.8$ selected a meaningful sparse support in the three-year ASEC build. This does
+not remove the need for a sweep, but it gives the sweep a stable axis.
+
+The concentration diagnostics are also encouraging in this probe. Dense no-$L_0$ has the highest ESS among
+the publishable fits, but it retains every record. Among the sparse 57{,}240-record fits, the post-$L_0$
+refit has higher ESS and lower maximum weight than the matched random + reweight baseline, while fitting
+the targets more closely. That does not prove the concentration issue is solved: different penalties,
+seeds, and candidate-support regimes may move the frontier. But it means the current positive result is
+not bought by making the random baseline look better-conditioned.
+
+\subsection{Trade-offs and limitations}
+
+\subsubsection{Single penalty and seed}
+
+The current result is a matched full-surface probe, not a completed frontier. It uses one normalized
+sparsity penalty and one seed. The next version should sweep $\lambda_{\mathrm{share}}$ across multiple
+retained counts and run dense no-$L_0$ to an explicit stopping rule; replicating the key points across
+seeds would harden the comparison but is secondary to mapping the penalty frontier. The present result is
+enough to justify that sweep because it shows
+a clear separation from random + reweight at one large, realistic support size and a small finite-budget
+edge over dense no-$L_0$.
+
+\subsubsection{Target surface}
+
+The target set is the current materialized Populace surface, not a hand-pruned paper subset. It is still
+conditional on what the source facts and current PolicyEngine variables can materialize, and the empirical
+claims are tied to the exact targets in each run's manifest. A different Ledger surface, PolicyEngine
+version, materialization registry, or production weighting scheme could change the comparison.
+
+\subsubsection{Random baselines}
+
+The random + reweight baseline is strong because it uses the same gradient calibrator as the post-$L_0$
+refit after drawing the subset. It is therefore not a straw baseline: it is the practical reduce-first,
+calibrate-after workflow an analyst could run today. The dense random scaled sample answers a different
+question: whether one can dense-calibrate once, keep a random subset of the dense weights, scale the
+retained mass back up, and avoid refitting. On this surface that is not competitive. A fuller paper should
+still add the probability-proportional-to-size calibrate-then-sample comparator from the literature and
+classical calibration comparators on target subsets where they are well-defined.
+
+\subsubsection{Raw error metrics}
+
+The raw mean ARE remains tail-sensitive even when the Populace loss is low. The paper therefore leads with
+the capped, target-weighted Populace objective loss and reports median/mean ARE as supplemental
+diagnostics. The raw median is useful for typical target fit; the raw mean is useful for finding the tail.
+
+\subsubsection{Computational cost}
+
+Informed $L_0$ is more expensive than the random baseline because it first has to learn the support. Dense
+no-$L_0$ is also expensive because it keeps all records active. In this matched probe, $L_0$ selection plus
+refit takes longer than the 1{,}500-epoch dense no-$L_0$ run but returns a sparse 57{,}240-record support
+with lower completed-run loss. That cost is only worth paying if the selected subset is materially better,
+or if the method delivers an operational constraint that the baselines cannot. A production build still
+needs a penalty schedule, dense convergence checks, and checkpointing that make the sweep reliable.
+
+\subsection{Generalizability}
+
+The data engineering here is specific to the United States, but the question is general. Many
+microsimulation projects combine sources into a candidate dataset larger than they can ship, and then have
+to reduce it. This run shows that target-informed sampling can be evaluated on the real production loss and
+target surface. It also clarifies the benchmark: the method should be judged by whether the selected
+support, after ordinary refit, beats random + reweight and other practical baselines at the same retained
+count.

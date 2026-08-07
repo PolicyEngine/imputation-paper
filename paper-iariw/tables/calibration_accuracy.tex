@@ -1,0 +1,23 @@
+\begin{table}[H]
+\centering
+{\tablefont
+\begin{tabular}{lrrrr}
+\toprule
+Geographic level & Targets & Median ARE (\%) & Mean ARE (\%) & Max ARE (\%) \\
+\midrule
+National & 478 & 1.30 & 20.12 & 557.29 \\
+State & 7{,}815 & 0.31 & 86.36 & 122{,}712.20 \\
+Congressional district & 24{,}340 & 1.48 & 85.29 & 162{,}495.93 \\
+\midrule
+\textbf{All scored targets} & 32{,}633 & 0.89 & 84.64 & 162{,}495.93 \\
+\bottomrule
+\end{tabular}
+}
+\caption{Calibration accuracy by geographic level for the Informed $L_0$ + refit run at 57{,}240
+records, measured as absolute relative error (ARE) across the full target surface. The median reports the
+typical target's error; the mean and maximum are tail-sensitive diagnostics.}
+\label{sp:tab:calibration_accuracy}
+\tablenote{Raw ARE is undefined for 26 IRS SOI national targets where both target and achieved values are
+zero; those rows are included in the target count and the Populace loss but omitted from the raw ARE
+summary.}
+\end{table}

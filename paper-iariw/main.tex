@@ -1,0 +1,60 @@
+% IARIW 39th General Conference paper #352 — conference edition
+% assembling the imputation (stage one) and sparse-calibration
+% (stage two) manuscripts. Section sources: sections/imp_* from
+% ../paper (imputation-paper), sections/sp_* from
+% sparsity-paper@0c97a0d; abstract/introduction/application/
+% discussion/conclusion are new for this edition.
+\documentclass[11pt]{article}
+\usepackage{ijm}
+\input{preamble}
+\providecommand{\todo}[1]{\textbf{[TODO: #1]}}
+
+\title{Constructing Representative Microdata with Sub-National
+Weights: A Two-Stage Approach Combining Machine Learning Imputation
+and Sparse Optimization\thanks{Paper \#352, 39th IARIW General
+Conference, Brussels, August 2026. Session: Reconciling Household
+Surveys with National Accounts: Methodological Approaches and Country
+Applications. Discussant: Roberto Zelli.}}
+
+% NOTE (Max): author ORDER to confirm before circulation — union of the
+% two component manuscripts' bylines (imputation: Ghenis, Juaristi;
+% sparse calibration: Juaristi, Woodruff, Ogorek, Ghenis).
+\author{
+    Max Ghenis\thanks{PolicyEngine. Corresponding author:
+    max@policyengine.org} \and
+    María Juaristi\footnotemark[2] \and
+    Nikhil Woodruff\footnotemark[2] \and
+    Ben Ogorek\footnotemark[2]
+}
+\date{August 2026 --- conference draft}
+
+\begin{document}
+
+\maketitle
+
+\input{sections/abstract}
+\input{sections/introduction}
+
+\input{sections/imp_background}
+\input{sections/imp_data}
+\input{sections/imp_methodology}
+\input{sections/imp_results}
+
+\input{sections/sp_background}
+\input{sections/sp_data}
+\input{sections/sp_methodology}
+\input{sections/sp_results}
+\input{sections/sp_future_work}
+
+\input{sections/application}
+\input{sections/discussion}
+\input{sections/conclusion}
+\input{sections/disclosures}
+
+\bibliographystyle{plainnat}
+\bibliography{bibliography/references}
+
+\appendix
+\input{sections/sp_appendix}
+
+\end{document}

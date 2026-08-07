@@ -1,0 +1,26 @@
+\begin{table}[H]
+\centering
+{\tablefont
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{p{0.25\textwidth}rrrrrr}
+\toprule
+Method & Records & Populace loss (\%) & Median ARE (\%) & Mean ARE (\%) & ESS & Max weight \\
+\midrule
+Informed $L_0$ + refit & 57{,}240 & 4.74 & 0.89 & 84.64 & 4{,}726 & 913{,}836 \\
+Dense no-$L_0$ calibration & 337{,}704 & 5.07 & 0.56 & 119.25 & 5{,}970 & 579{,}298 \\
+Random + reweight & 57{,}240 & 7.55 & 6.70 & 113.88 & 2{,}480 & 1{,}163{,}939 \\
+Informed $L_0$ gated weights & 57{,}240 & 9.86 & 11.66 & 89.84 & 6{,}879 & 546{,}455 \\
+Dense random scaled sample & 57{,}240 & 24.24 & 55.24 & 436.13 & 981 & 2{,}176{,}121 \\
+\bottomrule
+\end{tabular}
+}
+}
+\caption{Full-surface comparison after 1{,}500-epoch fits. All rows use the same 337{,}704-record
+candidate universe, 32{,}633 targets, \populace{} production US-fiscal target-loss weights, and cap
+$c=1$. ``Dense random scaled sample'' draws 57{,}240 records uniformly from the dense calibrated weights,
+keeps their dense weights, and rescales the retained weights to the dense total without refitting.}
+\label{sp:tab:sampling_comparison}
+\tablenote{The $L_0$ run uses normalized penalty share 0.8, equivalent to raw
+$\lambda_{L_0}=2.37\times10^{-6}$. Dense no-$L_0$ is still declining at epoch 1{,}500, so its row is an
+epoch-matched finite-optimization baseline rather than a convergence certificate.}
+\end{table}

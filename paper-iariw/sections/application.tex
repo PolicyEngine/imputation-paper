@@ -1,0 +1,47 @@
+\section{Application: legislative incidence at the district level}
+\label{sec:application}
+
+The pipeline's output is in production use. The 57{,}240-record sparse
+support selected in \autoref{sp:sec:results} ships, after
+post-selection refit, as the certified United States release of
+\populace{}, pinned by immutable release tag and consumed through
+\texttt{policyengine.py}'s managed data bundle alongside a pinned
+model version. A companion paper \citep{ghenis2026obbba} uses it to
+decompose the One Big Beautiful Bill Act of 2025 --- eighteen tax
+provisions and three program-participation scenarios --- against a
+TCJA-expiration counterfactual, reporting incidence at the national,
+state, and congressional-district level, with poverty and inequality
+statistics computed on the same file.
+
+Three aspects of that deployment bear directly on this paper's
+claims. First, the imputed inputs stage one exists to provide are
+load-bearing: the companion analysis's tip, overtime, auto-loan, and
+program-participation provisions run entirely on imputed or
+enhanced columns, and its health-inclusive resource measure depends
+on the modeled program dollars the enhanced file supports.
+
+Second, the value of target-informed selection is directly
+observable in the district layer. The companion paper's district
+estimates use weights calibrated against roughly 24{,}000
+district-level targets. Recomputing its district averages on
+assignment-only weights --- the same national file, with records
+assigned to districts but with no district targets in the
+calibration --- produces a minimum district cell of 34 records, a
+district with a negative average net-income change, and an
+interdecile district ratio of 3.0 against the calibrated layer's
+2.2: tail artifacts of sparse, unbalanced support rather than
+incidence. Random assignment is to district estimation what random
+subsampling is to national calibration in
+\autoref{sp:sec:results} --- the untargeted baseline that
+target-informed optimization exists to beat.
+
+Third, deployment makes data-stack sensitivity measurable.
+Rerunning the companion decomposition with identical provision
+dictionaries on the retired predecessor data stack moves the headline
+aggregate by \$66 billion and flips the sign of the deep-poverty
+response, while headline signs --- aggregate direction, a
+bottom-decile loss, a rising Gini alongside a falling top-1\% share
+--- agree across stacks. Incidence conclusions inherit the data
+pipeline; publishing the pipeline, its calibration diagnostics, and
+cross-stack comparisons alongside the policy numbers is what makes
+that inheritance auditable.

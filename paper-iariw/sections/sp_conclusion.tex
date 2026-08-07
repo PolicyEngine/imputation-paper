@@ -1,0 +1,24 @@
+\section{Conclusion}
+\label{sp:sec:conclusion}
+
+This paper studies $L_0$ regularization as a way to subsample a large microsimulation dataset down to
+a usable size. The problem arises because a pipeline built for fidelity combines many sources and
+adds record-level geographic variation, which produces more candidate records than a deployable dataset
+can hold. The reduction to a fixed budget is a sampling choice, and the paper treats it as one.
+
+The method uses Hard Concrete gates to select records and fit their weights in one optimization, with
+selection driven by the calibration targets. The current full-surface probe shows that the gates are most
+useful as a support selector. On the full Populace target surface, a normalized $L_0$ penalty retained
+57{,}240 of 337{,}704 candidate household records. Publishing the raw gated weights would leave too much
+loss, but refitting ordinary calibration weights on the selected support reduced the Populace objective to
+4.74\%. The same 1{,}500-epoch budget gives 5.07\% for dense no-$L_0$ calibration, 7.55\% for a matched
+random support followed by the same reweighting, and 24.24\% for a random sample of dense calibrated
+weights scaled back to total mass without refitting.
+
+The result is not the final frontier; it is the first presentable full-surface signal. It justifies a
+broader sweep over normalized sparsity penalties, seeds, and concentration controls, with dense
+calibration run to a stopping rule and survey-weight and classical calibration comparators from the
+literature added where they are appropriate. The contribution is therefore twofold: a target-informed sampling method
+that can select a sparse support with lower completed-run loss than the current random and dense baselines,
+and an open \populace{} pipeline that makes such support-selection experiments reproducible on the real
+production target surface.

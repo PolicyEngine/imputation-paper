@@ -1,0 +1,41 @@
+\section*{Abstract}
+
+Sub-national policy analysis needs microdata that no single survey
+provides: joint distributions rich enough to simulate tax and transfer
+rules, totals that reproduce administrative aggregates across nested
+geographies, and a file small enough to run inside a microsimulation
+model. We present a two-stage pipeline that constructs such data, as
+implemented in \populace{}, \policyengine{}'s open-source population
+data stack. Stage one attaches unobserved variables to survey records
+with a weighted, regime-gated, sequentially chained
+quantile-regression-forest estimator whose interface makes an
+unweighted fit impossible to request by accident. Evaluated in a
+\emph{population-view harness} --- one latent population observed
+through survey views, scored by strictly proper joint distances,
+reweighting-invariant coverage, classifier two-sample tests, and an
+uncapped tail block --- weighting where the design is informative
+dominates: the identical estimator fit unweighted is six times worse on
+net-worth marginal fit, and its imputed 99th percentile is 1.9 to 2.3
+times the holdout's, an inflation that joint-geometry metrics tie on
+and only the tail block detects. Regime gating carries zero-inflated
+components, and sequential chaining binds at scale, where fitting
+balance-sheet components independently costs 5.8 points of two-sample
+AUC. Stage two reduces the enhanced candidate file to a simulable
+support by treating reduction as a sampling problem: $L_0$-regularized
+selection with Hard Concrete gates jointly chooses which records to
+keep and calibrates their weights against 32{,}633 administrative
+targets --- including 24{,}340 congressional-district targets --- from
+337{,}704 candidate households. Selection is target-informed rather
+than random, and the operative finding is that gates select support
+while publication weights should be refit after selection: the refit
+57{,}240-record file scores a 4.74\% capped calibration loss against
+5.07\% for dense no-$L_0$ calibration and 7.55\% for random
+subsampling. The pipeline is deployed: the sparse support produced by
+stage two ships as the certified \populace{} United States release,
+consumed by a companion incidence analysis of the One Big Beautiful
+Bill Act at national, state, and congressional-district level.
+
+\vspace{1em}
+\noindent\textbf{Keywords:} microsimulation, imputation, survey
+calibration, $L_0$ regularization, sub-national estimation, quantile
+regression forests
