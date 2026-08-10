@@ -4,9 +4,9 @@
 \label{sp:app:targets}
 
 This study calibrates to the full materialized target surface \populace{} currently constructs for the
-US fiscal build. Every target is a source-backed fact from PolicyEngine Ledger \citep{ledger2026}, the
+US fiscal build. Every target is a source-backed fact from PolicyEngine Chronicle \citep{ledger2026}, the
 \texttt{arch-data} fact store that holds the source publications and preserves the provenance of each
-published value; Populace composes calibration targets from those facts. The surface combines national,
+published value; \populace{} composes calibration targets from those facts. The surface combines national,
 state, and congressional-district aggregates across the major tax and transfer families
 (Table~\ref{sp:tab:target_sources}). It is reported here in full so the empirical claims can be read against
 the exact target system used rather than against a pipeline-wide inventory.
@@ -68,7 +68,7 @@ Weight jitter SD & 0.05 & Log-space noise on weights at initialization \\
 Logit jitter SD & 0.01 & Log-space noise on gate logits at initialization \\
 Learning rate & 0.02 & Adam optimizer step size \\
 Epochs & 1{,}500 & Training iterations in the reported fixed-penalty probe \\
-Target loss cap $c$ & 1 & Caps a single target's contribution to $\mathcal{L}_{\text{cal}}$; the runs reported here use Populace's production US-fiscal value $c=1$ \\
+Target loss cap $c$ & 1 & Caps a single target's contribution to $\mathcal{L}_{\text{cal}}$; the runs reported here use \populace{}'s production US-fiscal value $c=1$ \\
 $\lambda_{\mathrm{share}}$ & 0.8 & Normalized sparsity share in $\lambda_{\mathrm{share}}\sum_i\bar{z}_i/n$; raw $\lambda_{L_0}=2.37\times10^{-6}$ for 337{,}704 records \\
 $\lambda_{L_2}$ & $0$ & Soft concentration penalty on $(w_i/w_{0,i})^2$ (mean over records); held at zero in the reported full-surface run \\
 Budget bisection steps & None & The reported full-surface probe uses one fixed normalized penalty; a future frontier should sweep this value \\

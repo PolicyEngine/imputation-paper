@@ -5,8 +5,7 @@ provides: joint distributions rich enough to simulate tax and transfer
 rules, totals that reproduce administrative aggregates across nested
 geographies, and a file small enough to run inside a microsimulation
 model. We present a two-stage pipeline that constructs such data, as
-implemented in \populace{}, \policyengine{}'s open-source population
-data stack. Stage one attaches unobserved variables to survey records
+implemented in \populace{}, \policyengine{}'s open-source microdata stack. Stage one attaches unobserved variables to survey records
 with a weighted, regime-gated, sequentially chained
 quantile-regression-forest estimator whose interface makes an
 unweighted fit impossible to request by accident. Evaluated in a

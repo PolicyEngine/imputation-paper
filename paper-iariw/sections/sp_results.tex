@@ -3,7 +3,7 @@
 
 The results answer the production question directly: with the candidate universe, target surface, and
 record budget fixed, which retained weight vector best fits the current \populace{} target surface? All
-methods are scored on the full set of 32{,}633 materialized targets, using the penalty-free Populace
+methods are scored on the full set of 32{,}633 materialized targets, using the penalty-free \populace{}
 objective loss in Equation~\ref{sp:eq:loss_cal}. The run reported here is a matched full-surface probe rather
 than a full budget frontier: a normalized $L_0$ penalty selects a sparse support, the same retained count
 is used for the post-$L_0$ refit and sparse baselines, and an epoch-matched dense no-$L_0$ calibration
@@ -15,7 +15,7 @@ are reported as diagnostics around the headline loss.
 Figure~\ref{sp:fig:objective_frontier} is the headline result. On the current three-year ASEC support file,
 the normalized $L_0$ penalty selects 57{,}240 of 337{,}704 candidate households, or 17.0\% of the
 candidate universe. The raw gated $L_0$ weights are not the right publication weights: scored after
-thresholding, they reach a Populace objective loss of 9.86\%. Removing the gates and refitting ordinary
+thresholding, they reach a \populace{} objective loss of 9.86\%. Removing the gates and refitting ordinary
 calibration weights on exactly the selected records lowers that loss to 4.74\%. A dense no-$L_0$
 calibration using all 337{,}704 records and the same 1{,}500-epoch optimizer budget reaches 5.07\%. A
 random subset of the same size as the $L_0$ support, followed by the same 1{,}500-epoch gradient
@@ -35,7 +35,7 @@ retained counts and concentration settings.
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.96\textwidth]{figures/f0_objective_frontier}
-    \caption{Full-surface Populace objective loss in the matched probe. The objective is the capped,
+    \caption{Full-surface \populace{} objective loss in the matched probe. The objective is the capped,
     target-weighted calibration loss in Equation~\ref{sp:eq:loss_cal}, evaluated on each method's final
     retained/sampled weight vector and excluding sparsity or concentration penalties. The $L_0$ run uses a
     normalized penalty share of 0.8, equivalent to raw $\lambda_{L_0}=2.37\times10^{-6}$ for 337{,}704
@@ -45,15 +45,15 @@ retained counts and concentration settings.
 
 Table~\ref{sp:tab:sampling_comparison} reports the same comparison with raw ARE and weight diagnostics. The
 median ARE gives a different view from the capped objective: dense no-$L_0$ has the lowest median ARE
-(0.56\%), while the post-$L_0$ refit is close (0.89\%) and has the lowest capped Populace loss. Random +
+(0.56\%), while the post-$L_0$ refit is close (0.89\%) and has the lowest capped \populace{} loss. Random +
 reweight has 6.70\% median ARE, raw gated $L_0$ has 11.66\%, and the dense random scaled sample has
 55.24\%. The mean ARE remains much larger because a small tail of difficult IRS targets can have very
-large relative misses even when the capped Populace loss is low.
+large relative misses even when the capped \populace{} loss is low.
 
 \input{tables/sampling_comparison}
 
 Table~\ref{sp:tab:paired_comparison} expresses the comparison on the headline loss scale. Relative to dense
-no-$L_0$, the post-$L_0$ refit lowers the completed-run Populace objective by 6.4\%. Relative to random +
+no-$L_0$, the post-$L_0$ refit lowers the completed-run \populace{} objective by 6.4\%. Relative to random +
 reweight, it lowers the objective by 37.2\%. Relative to the raw gated $L_0$ weights, it lowers the
 objective by 51.9\%. The comparison isolates the value of the support and the refit: keeping dense weights
 on a random retained set and merely scaling them back to total mass performs poorly, so a sparse file still
@@ -99,12 +99,12 @@ universe before pruning it.
 \subsection{Raw-error tails}
 \label{sp:sec:results-degenerate}
 
-The Populace objective is the headline score because it is capped and target weighted; raw ARE summaries
+The \populace{} objective is the headline score because it is capped and target weighted; raw ARE summaries
 are supplemental. In the matched probe, raw ARE is defined for 32{,}607 of the 32{,}633 scored targets.
 The remaining 26 rows are IRS SOI national targets with both target and achieved values equal to zero, so
 they are omitted from raw relative-error summaries but do not affect the capped loss. Among the defined
 rows, the post-$L_0$ refit has a 0.89\% median ARE and an 84.64\% mean ARE. The gap between the median and
-the mean is the reason the paper leads with the Populace loss and reports raw ARE only as a diagnostic.
+the mean is the reason the paper leads with the \populace{} loss and reports raw ARE only as a diagnostic.
 
 \subsection{Cost}
 

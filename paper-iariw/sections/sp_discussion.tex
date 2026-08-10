@@ -6,7 +6,7 @@
 The matched full-surface probe supports the central version of the $L_0$ hypothesis, with an important
 qualification. If the claim is that the raw gated weights returned by the joint $L_0$ optimization should
 be the final publication weights, the evidence does not support it: the thresholded gated weights have a
-9.86\% Populace loss. If the claim is instead that target-informed gates can select a useful support for
+9.86\% \populace{} loss. If the claim is instead that target-informed gates can select a useful support for
 ordinary calibration, the evidence is positive. After the gates choose 57{,}240 records, an ordinary
 calibration refit on that support reaches 4.74\% loss, below the dense no-$L_0$ calibration and the
 matched sampling baselines reported in Section~\ref{sp:sec:results}.
@@ -15,7 +15,7 @@ That distinction is useful. It separates selection from weighting. The Hard Conc
 as a way to decide which records survive, but the final dataset should be produced by a post-selection
 calibration refit rather than by directly publishing the stochastic-gate weights. This is also consistent
 with how the method would be used operationally: choose a sparsity penalty, use $L_0$ to prune a
-deliberately overbuilt support, then run the standard Populace calibrator on the retained records. The
+deliberately overbuilt support, then run the standard \populace{} calibrator on the retained records. The
 slight edge over dense no-$L_0$ at 1{,}500 epochs should be read as a finite-optimization result: the
 dense run is still declining, so a longer dense convergence check remains necessary.
 
@@ -49,9 +49,9 @@ edge over dense no-$L_0$.
 
 \subsubsection{Target surface}
 
-The target set is the current materialized Populace surface, not a hand-pruned paper subset. It is still
+The target set is the current materialized \populace{} surface, not a hand-pruned paper subset. It is still
 conditional on what the source facts and current PolicyEngine variables can materialize, and the empirical
-claims are tied to the exact targets in each run's manifest. A different Ledger surface, PolicyEngine
+claims are tied to the exact targets in each run's manifest. A different Chronicle surface, PolicyEngine
 version, materialization registry, or production weighting scheme could change the comparison.
 
 \subsubsection{Random baselines}
@@ -66,8 +66,8 @@ classical calibration comparators on target subsets where they are well-defined.
 
 \subsubsection{Raw error metrics}
 
-The raw mean ARE remains tail-sensitive even when the Populace loss is low. The paper therefore leads with
-the capped, target-weighted Populace objective loss and reports median/mean ARE as supplemental
+The raw mean ARE remains tail-sensitive even when the \populace{} loss is low. The paper therefore leads with
+the capped, target-weighted \populace{} objective loss and reports median/mean ARE as supplemental
 diagnostics. The raw median is useful for typical target fit; the raw mean is useful for finding the tail.
 
 \subsubsection{Computational cost}

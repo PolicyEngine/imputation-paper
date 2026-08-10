@@ -7,7 +7,7 @@ describes how \populace{} assembles the candidate microdata and how this study s
 The pipeline is the harness that produces the calibration problem; it is not itself the object of
 evaluation.
 
-\subsection{Populace as a construction pipeline}
+\subsection{\populace{} as a construction pipeline}
 
 \populace{} builds a microsimulation dataset by passing a single weighted data structure---a sampling
 frame holding the records, their weights, and provenance---through a sequence of stages. Each stage is
@@ -38,7 +38,7 @@ For this build the candidate universe is a three-year pooled ASEC support file f
 (constructed as described below): 337{,}704 household records, one row per candidate household placement.
 We pin the exact build for
 reproducibility: \populace{} commit \texttt{558e46c1}, base H5 SHA-256 beginning
-\texttt{ec290055}, Ledger facts SHA-256 beginning \texttt{82cd9e87}, and target-registry version
+\texttt{ec290055}, Chronicle facts SHA-256 beginning \texttt{82cd9e87}, and target-registry version
 \texttt{5a22295b02b6}. The run resets household weights to a uniform prior before calibration, so the
 comparison is about support selection and reweighting rather than inherited survey weights.
 
@@ -115,7 +115,7 @@ calibration method decides which records survive.
 
 The target system combines aggregates from several administrative sources at the national, state, and
 congressional-district levels. The headline experiment uses the full materialized target surface compiled
-from the current \populace{} US fiscal registry: 37{,}053 Ledger facts produce 32{,}633 targets after
+from the current \populace{} US fiscal registry: 37{,}053 Chronicle facts produce 32{,}633 targets after
 materialization against the candidate frame. Appendix~\ref{sp:app:targets} lists the target families and
 sources. The exact counts come from the run registry rather than from a pipeline-wide inventory.
 
