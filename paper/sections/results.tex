@@ -45,11 +45,11 @@ more modestly: the ungated/unchained forest sits at 234,367 on net-worth
 $W_1$ (1.7 times the full estimator), and removing chaining raises net-worth
 $W_1$ by 17 percent (135,871 to 158,606).
 
-Against the baselines, the full estimator's margins are largest where tails and
-joints matter: hot-deck matching nearly ties it on debt marginal fit (13,770
-vs.\ 13,001) but is 3.7 times worse on net worth (509,013), OLS is
-catastrophic on both (156,295 and 3.6 million --- normal residuals cannot
-represent a wealth distribution), and linear quantile regression leaves 15
+Against the baselines, the full estimator's margins are largest where tails
+and joints matter. Hot-deck matching nearly ties it on debt marginal fit
+(13,770 vs.\ 13,001) but is 3.7 times worse on net worth (509,013). OLS is
+catastrophic on both (156,295 and 3.6 million): normal residuals cannot
+represent a wealth distribution. Linear quantile regression leaves 15
 percent of the debt zero mass unaccounted for, against at most 2 percent for
 the forest-based methods.
 
@@ -107,10 +107,10 @@ and 61 percent of the dividend aggregate at this sample size --- heavy-tailed
 capital income is genuinely fragile, and a faithful method should
 \emph{match} that exposure, not minimize it. Second, every forest- and
 donation-based method tracks the truth's fragility closely, while OLS sits
-far below it (0.06 against 0.37 and 0.61 --- understating the true exposure
-by factors of roughly 7 and 11): its aggregate is spread across many moderate
-records because the method never generates realistic tails --- the same
-failure that its zero-share and Wasserstein numbers show from other angles.
+far below it, at 0.06 against 0.37 and 0.61 --- understating the true
+exposure by factors of roughly 7 and 11. Its aggregate is spread across many
+moderate records because the method never generates realistic tails; the
+zero-share and Wasserstein numbers show the same failure from other angles.
 No method exceeds the truth's exposure materially on this within-survey task;
 the landmine pathology of Section~1 arises when unweighted cross-file fits
 meet downstream reweighting, and the direct evidence for it here is the tail

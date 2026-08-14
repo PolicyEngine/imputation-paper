@@ -18,11 +18,11 @@ population distribution, not a sample one. An imputation model fit to
 unweighted records recovers the sample conditional, which differs from the
 population conditional exactly when the design (or a prior calibration)
 correlates weights with outcomes. Second, the imputed file is not an endpoint.
-It is \emph{reweighted downstream} --- calibrated to administrative margins
+It is \emph{reweighted downstream}: calibrated to administrative margins
 \citep{deville1992calibration, hainmueller2012entropy}, filtered to
-subpopulations, stressed under reforms --- so an imputation that looks
-acceptable under the weights it shipped with can fail under weights it never
-saw. A rare donor record carrying an extreme value at near-zero weight is
+subpopulations, stressed under reforms. An imputation that looks
+acceptable under the weights it shipped with can therefore fail under weights
+it never saw. A rare donor record carrying an extreme value at near-zero weight is
 invisible in the shipped aggregates; a later reweighting that assigns it mass
 turns it into a distortion of the population total. We refer to such records
 as landmines, and we measure exposure to them directly with a reweighting
@@ -34,18 +34,18 @@ Populace. Artifact and release identifiers created before the rename keep
 the legacy \texttt{populace} prefix, and the reproducibility pins in the
 data-availability section reference the repository at a pre-rename commit.}
 \policyengine{}'s open-source microdata stack \citep{microcosm2026}. The
-estimator combines three design choices, each motivated by one of the failure
-modes above: a \emph{weighted bootstrap} that materializes survey weights into
+estimator combines three design choices, each aimed at one of the failure
+modes above. A \emph{weighted bootstrap} materializes survey weights into
 the training data of each forest, so the learned conditionals are population
-conditionals; \emph{regime gates} that classify each record's sign class
-(negative, zero, positive) before magnitudes are modeled, so zero-inflated and
-sign-mixed variables --- ubiquitous in economic microdata
-\citep{mullahy1986specification, lambert1992zero} --- retain their mass
-structure; and \emph{sequential chaining} across imputed variables, so joint
-structure among targets survives the imputation
-\citep{raghunathan2003multiple, vanbuuren2011mice}. The interface enforces the
-first choice: fits are weighted by construction, and an unweighted fit must be
-requested explicitly.
+conditionals. \emph{Regime gates} classify each record's sign class
+(negative, zero, positive) before magnitudes are modeled, so zero-inflated
+and sign-mixed variables --- ubiquitous in economic microdata
+\citep{mullahy1986specification, lambert1992zero} --- keep their mass
+structure. \emph{Sequential chaining} conditions each imputed variable on
+the ones already drawn, so joint structure among targets survives the
+imputation \citep{raghunathan2003multiple, vanbuuren2011mice}. The interface
+enforces the first choice: fits are weighted by construction, and an
+unweighted fit must be requested explicitly.
 
 We make three contributions:
 
@@ -54,20 +54,20 @@ We make three contributions:
 We describe the estimator and its interface contract, and release it as
 \populacefit{}, installable and usable on plain data frames independently of
 the rest of the \populace{} stack.
-\item \textbf{The population-view harness.} We formalize the evaluation
+\item \textbf{The population-view harness.} We frame the evaluation
 question as one latent population observed through survey \emph{views} ---
 variable subsets, designs, measurement idioms --- and score any candidate
 weighted file by projecting it through each view against that survey's
-holdout, using a strictly proper joint score \citep{gneiting2007strictly,
-szekely2013energy}, a support-based coverage axis that is invariant to
-reweighting of the candidate \citep{naeem2020reliable}, a weighted
-classifier two-sample test, and an uncapped tail block on imputed columns
---- added after demonstrating that capped sample-geometry metrics are blind
-to twofold errors in the extreme tail, where economic variables carry their
-policy weight. The harness is generator-agnostic and
-non-self-referential (holdouts appear nowhere upstream), and it cleanly
-separates what record generation must get right from what calibration can
-later change.
+holdout. The score has four blocks: a strictly proper joint score
+\citep{gneiting2007strictly, szekely2013energy}, a support-based coverage
+axis that no reweighting of the candidate can change
+\citep{naeem2020reliable}, a weighted classifier two-sample test, and an
+uncapped tail block on imputed columns. We added the tail block after
+finding that capped sample-geometry metrics are blind to twofold errors in
+the extreme tail, where economic variables carry their policy weight. The
+harness works for any generator, is non-self-referential (holdouts appear
+nowhere upstream), and cleanly separates what record generation must get
+right from what calibration can later change.
 \item \textbf{A benchmark against standard practice with attribution, plus a
 reweighting stress test.} We compare the estimator against unweighted and
 weighted quantile regression forests \citep{meinshausen2006quantile},
@@ -75,8 +75,8 @@ ordinary least squares imputation \citep{vonhippel2007should}, linear
 quantile regression \citep{koenker1978regression}, and nearest-neighbour
 hot-deck statistical matching \citep{andridge2010review,
 dorazio2021statistical}, under a paired, repeated holdout protocol. Ablations
-knock out one design choice at a time, attributing performance to weighting,
-gating, and chaining separately, and a closed-form fragility diagnostic
+knock out one design choice at a time, so weighting, gating, and chaining
+each get their own attribution. A closed-form fragility diagnostic
 measures each method's worst-case single-record exposure under bounded
 reweightings of the imputed file --- the landmine failure mode.
 \end{enumerate}
@@ -85,7 +85,7 @@ The policy stakes are concrete. Supplemental Security Income conditions
 eligibility on countable resources \citep{ssa2024ssi}, so simulating its
 baseline caseload on the \cps{} --- or reforms such as the SSI Savings Penalty
 Elimination Act, which would raise the resource limits
-\citep{ssi_spea_2025} --- is impossible without imputed wealth, and the
+\citep{ssi_spea_2025} --- is impossible without imputed wealth. The
 composition of the simulated caseload is exactly a functional of the imputed
 demographics--wealth joint. This paper does not simulate the SSI caseload;
 it measures the property any such simulation depends on. The

@@ -15,9 +15,9 @@ fitted conditional model --- ordinary least squares with residual draws
 imputation for uncertainty propagation \citep{rubin1987multiple,
 kennickell1998multiple}. \emph{Tree-ensemble} methods, in particular quantile
 regression forests \citep{meinshausen2006quantile, breiman2001random},
-estimate full conditional distributions nonparametrically and have become the
+estimate full conditional distributions nonparametrically. They are the
 default in \policyengine{}'s data pipelines \citep{ghenis2018quantile,
-woodruff2024enhancing} for their ability to capture nonlinear structure without
+woodruff2024enhancing} because they capture nonlinear structure without
 per-variable specification. The \microimpute{} package
 \citep{policyengine2025microimpute} implements these families under one
 interface and selects among them by cross-validation; its central finding ---
@@ -49,8 +49,8 @@ weights and outcomes within predictor cells propagates into the imputed
 population distribution. Tree ensembles add a mechanical subtlety: a
 fully-grown forest's \emph{predictive distribution} is a leaf-membership
 distribution, which per-record \texttt{sample\_weight} arguments do not
-reweight, so honoring weights requires materializing them into the training
-data --- the weighted bootstrap of Section~3. Zero-inflated targets add a
+reweight. Honoring weights therefore requires materializing them into the
+training data --- the weighted bootstrap of Section~3. Zero-inflated targets add a
 second subtlety: weighting the zero/nonzero gate by resampling can delete a
 rare sign class outright, so the gate must be weighted directly. We are not
 aware of prior survey-imputation work that combines weight-aware forest
