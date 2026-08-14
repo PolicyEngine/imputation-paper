@@ -16,19 +16,38 @@ are resampled with replacement with probability proportional to weight, so
 leaf distributions reflect the weighted population. Draws from the fitted
 forest then sample the \emph{weighted} conditional.
 
-\paragraph{Regime gates.} A numeric target's sign support --- which of
-$\{\text{negative}, \text{zero}, \text{positive}\}$ occur --- defines its
-regime. A single regressor over a zero-inflated or sign-mixed target either
-drops a tail or interpolates across the empty gap at zero; hurdle-style
-two-part models are the classical remedy \citep{mullahy1986specification,
-lambert1992zero}. \populacefit{} fits a classifier that gates each row into a
-sign class and a separate magnitude forest within each nonzero sign. Regime
-detection is structural (it reads the unweighted support, since which signs
-\emph{exist} is a fact about the variable, not the weighting), while the gate
-itself is weighted directly through its \texttt{sample\_weight} --- not by
-resampling, which would delete a rare sign class whose total weight share is
-negligible. Draws sample the gate's predicted class probabilities rather than
-taking the modal class, preserving the zero mass.
+\paragraph{Regime gates.} Economic variables are rarely smooth. Most adults
+hold zero dividend income; net worth is negative for some households, exactly
+zero for others, and spans several orders of magnitude when positive. A
+single regressor fit across such a target either drops a tail or interpolates
+across the empty gap at zero; hurdle-style two-part models are the classical
+remedy \citep{mullahy1986specification, lambert1992zero}. \populacefit{}
+generalizes the two-part idea to the target's \emph{sign support} ---
+whichever of $\{\text{negative}, \text{zero}, \text{positive}\}$ actually
+occur --- and imputes in four steps:
+\begin{enumerate}
+\item \emph{Detect the regime.} Read which sign classes occur in the
+training data. Detection is deliberately unweighted: which signs
+\emph{exist} is a fact about the variable, not about the sampling design,
+and a rare but real class (negative net worth, say) must not vanish because
+its weight share is small.
+\item \emph{Fit the gate.} A classifier learns the probability of each sign
+class given the predictors. The gate is weighted directly through its
+\texttt{sample\_weight} argument rather than by resampling the training rows
+--- resampling could delete a rare sign class outright, exactly the failure
+step 1 exists to prevent.
+\item \emph{Fit magnitudes within each sign.} A separate quantile-regression
+forest models the magnitude of each nonzero sign class, so no forest ever
+straddles the gap at zero.
+\item \emph{Draw.} For each receiver row, sample a sign class from the
+gate's predicted probabilities --- not the modal class, which would collapse
+the zero mass --- and, if the class is nonzero, draw a magnitude from that
+class's forest.
+\end{enumerate}
+For dividend income the regime is $\{0, +\}$ and the gate is a zero hurdle;
+for net worth it is $\{-, 0, +\}$ and the gate is three-way.
+Section~\ref{sec:results-cps} measures what the gates buy on zero-inflated
+targets.
 
 \paragraph{Sequential chaining.} Targets are imputed in order, each
 conditioning on the predictors plus the targets already drawn
@@ -45,13 +64,46 @@ weight-blindness failure mode of Section~2.3 unrepresentable by accident.
 \subsection{Ablations and baselines}
 \label{sec:ablations}
 
-Each design choice is evaluated by knocking it out with everything else held
-fixed: the full estimator versus itself with \texttt{weights="none"} (the
-weighted bootstrap's contribution), versus fitting each target independently
-(chaining's contribution), and versus a single ungated forest at matched
-hyperparameters (gating's contribution). Baselines are standard practice:
-quantile-regression-forest, ordinary-least-squares, and linear
-quantile-regression imputers from \microimpute{}
+\begin{table}[t]
+\centering
+\footnotesize
+\begin{tabular}{lllll}
+\hline
+Method & Weights & Gates & Chaining & Implementation \\
+\hline
+\populacefit{} & design & yes & yes & \populacefit{} \\
+\quad -- unweighted & none & yes & yes & \populacefit{}, \texttt{weights="none"} \\
+\quad -- unchained & design & yes & no & \populacefit{}, targets fit independently \\
+\quad -- ungated/unchained forest & design & no & no & \microimpute{} QRF \\
+OLS & design & no & no & \microimpute{} \\
+Linear quantile regression & design & no & no & \microimpute{} \\
+NND hot deck & inform matching & via donation & via donation & \pystatmatch{} \\
+Weighted marginal draw & design & --- & --- & unconditional weighted draw \\
+\hline
+\end{tabular}
+\caption{The method surface. Every fit that has a weights column uses the
+survey's design weights; the one exception is the unweighted ablation, whose
+sole difference from the full estimator is \texttt{weights="none"}. The
+ungated/unchained forest is the \microimpute{} QRF baseline itself --- one
+implementation serving two roles, as both an ablation endpoint and standard
+practice --- and it \emph{retains} design weights, so it differs from the
+full estimator only in gating and chaining. Hot deck donates all target
+values from one matched donor record, which preserves zero masses and
+cross-target structure by construction rather than by modeling them.}
+\label{tab:methods}
+\end{table}
+
+Table~\ref{tab:methods} lays out the method surface. Each design choice is
+evaluated by knocking it out with everything else held fixed: the full
+estimator versus itself with \texttt{weights="none"} (the weighted
+bootstrap's contribution), versus fitting each target independently
+(chaining's contribution), and versus a single ungated, unchained forest at
+matched hyperparameters. The last knockout removes gating and chaining
+together --- \populacefit{} does not expose a gates-off switch on its own ---
+so gating's contribution is read jointly from two rows: what the plain
+forest loses beyond what removing chaining alone costs. Baselines are
+standard practice: quantile-regression-forest, ordinary-least-squares, and
+linear quantile-regression imputers from \microimpute{}
 \citep{policyengine2025microimpute}, and nearest-neighbour-distance hot-deck
 statistical matching from \pystatmatch{} \citep{dorazio2021statistical}. The
 candidate and the plain-forest baselines share the same underlying forest
@@ -63,61 +115,128 @@ design choices rather than implementation quality.
 
 Per-variable metrics cannot adjudicate the question this paper cares about,
 because the methods differ most in how they treat the \emph{joint}. We
-therefore evaluate within a framework we call the population-view harness. One
-latent population distribution produces individuals; each survey $s$ is a
-\emph{view} $V_s$ of it --- a variable subset, a sampling design, a
-measurement idiom --- and the survey's holdout is a weighted sample from
-$V_s(P)$ \citep{lohr2017combining}. A candidate weighted file $Q$ (any
-generator's) is scored by projecting it through each view and comparing
-$V_s(Q)$ to that view's holdout \emph{in the view's own variable space}.
-Cross-survey consistency is never required --- the candidate is only asked to
-explain each view in its own idiom --- which keeps the harness usable even
-though surveys disagree with one another about the population they share.
+therefore evaluate within a framework we call the population-view harness,
+sketched in Figure~\ref{fig:harness}.
 
-Each view carries four complementary blocks. The \emph{weighted energy
-distance} \citep{szekely2013energy} is the sample form of a strictly proper
-scoring rule \citep{gneiting2007strictly}: the true distribution uniquely
-minimizes its expectation, so a candidate hedged toward modal households
-scores strictly worse than one matching the full distribution. \emph{\prdc{}
-coverage} \citep{naeem2020reliable} --- the weighted fraction of holdout
-points with a candidate point inside their $k$-nearest-neighbour radius ---
-is the explicit anti-collapse axis; because it depends on the candidate only
-through its support, it is invariant to any reweighting of the candidate,
-making it the calibration-blind block of the scorecard. A \emph{weighted
-classifier two-sample test} (cross-validated AUC of a gradient-boosted
-classifier at equal class mass; $0.5$ is indistinguishable) is the omnibus
-check. The fourth block exists because we caught the first three missing a
-real failure: pairwise sample-geometry metrics run on capped subsamples, and
-a candidate whose imputed wealth 99th percentile is double the holdout's can
-tie on energy distance because the discrepant mass is a sliver of
-standardized pairwise space. Economic variables live in heavy right tails, so
-each \emph{imputed} column also carries a \emph{tail block}, computed on the
-full weighted samples with no cap: its weighted Wasserstein-1 distance to the
-holdout (scaled by the holdout's weighted standard deviation) and its
-weighted q90 and q99 ratios (candidate over holdout; 1 is a perfect tail).
-Holdouts are used nowhere upstream, so the harness is a non-self-referential
-test surface; a sampling-noise floor --- the donor split itself scored as a
-candidate --- anchors what "as good as another sample of the survey" means on
-each axis, including how much a tail ratio wobbles under sampling noise
-alone.
+\begin{figure}[t]
+\centering
+\resizebox{\textwidth}{!}{\input{figures/harness_schematic}}
+\caption{The population-view harness. One latent population is observed
+through survey views --- here the \scf{} (demographics and wealth, list
+design) and the \cps{} (demographics and income, area design). A candidate
+file assembles real \cps{} demographics with imputed wealth; the harness
+projects it through the \scf{} view and scores it against a held-out \scf{}
+sample on four blocks. The holdout appears nowhere upstream of any
+candidate, and the donor split itself is scored as a reference candidate to
+calibrate sampling noise.}
+\label{fig:harness}
+\end{figure}
+
+The framework has three ingredients. One latent population distribution $P$
+produces individuals. Each survey $s$ observes it through a \emph{view}
+$V_s$ --- a variable subset, a sampling design, a measurement idiom --- and
+the survey's holdout $H_s$ is a weighted sample from $V_s(P)$
+\citep{lohr2017combining}. A candidate weighted file $Q$ (any generator's)
+is scored by projecting it through each view and comparing $V_s(Q)$ to
+$H_s$ \emph{in the view's own variable space}. Cross-survey consistency is
+never required --- the candidate is only asked to explain each view in its
+own idiom --- which keeps the harness usable even though surveys disagree
+with one another about the population they share.
+
+Each view carries four complementary blocks, chosen so that no single
+failure mode can hide. For weighted samples
+$X = \{(x_i, a_i)\}$ from the candidate and $Y = \{(y_j, b_j)\}$ from the
+holdout (weights normalized to sum to one):
+
+\paragraph{Energy distance (joint fit; lower is better, 0 is perfect).}
+The weighted energy distance \citep{szekely2013energy}
+\[
+\mathcal{E}(X, Y) = 2 \sum_{i,j} a_i b_j \lVert x_i - y_j \rVert
+- \sum_{i,i'} a_i a_{i'} \lVert x_i - x_{i'} \rVert
+- \sum_{j,j'} b_j b_{j'} \lVert y_j - y_{j'} \rVert
+\]
+is the sample form of a strictly proper scoring rule
+\citep{gneiting2007strictly}: its expectation is uniquely minimized by the
+true distribution, so a candidate hedged toward modal households scores
+strictly worse than one matching the full joint.
+
+\paragraph{Coverage (support; higher is better, 1 is perfect).} \prdc{}
+coverage \citep{naeem2020reliable} is the weighted fraction of holdout
+points with at least one candidate point inside their
+$k$-nearest-neighbour radius --- does the candidate reach every
+neighbourhood the holdout occupies? It is the explicit anti-collapse axis,
+and because it depends on the candidate only through its \emph{support}, it
+is invariant to any reweighting of the candidate: the one block a later
+calibration cannot change.
+
+\paragraph{Classifier two-sample test (omnibus; 0.5 is indistinguishable).}
+A gradient-boosted classifier is trained to tell candidate rows from
+holdout rows at equal class mass, and we report its cross-validated AUC
+\citep{lopezpaz2017revisiting}. This is the omnibus block --- a single
+overall test sensitive to \emph{any} difference in the joint distribution,
+including dependence violations that leave every marginal intact. An AUC of
+0.5 means the classifier cannot separate the files; 1.0 means it always
+can.
+
+\paragraph{Tail block (extremes; ratio of 1 is perfect).} The fourth block
+exists because we caught the first three missing a real failure. Pairwise
+sample-geometry metrics run on capped subsamples, and a candidate whose
+imputed wealth 99th percentile is double the holdout's can still tie on
+energy distance: the discrepant mass is a sliver of standardized pairwise
+space. Economic variables live in heavy right tails, so each \emph{imputed}
+column also carries a tail block computed on the full weighted samples with
+no cap: its weighted Wasserstein-1 distance to the holdout, scaled by the
+holdout's weighted standard deviation, and its weighted 90th- and
+99th-percentile ratios (candidate over holdout).
+
+Holdouts are used nowhere upstream, so the harness is a
+non-self-referential test surface. A sampling-noise floor --- the donor
+split itself scored as a candidate --- anchors what ``as good as another
+sample of the survey'' means on each axis, including how much a tail ratio
+wobbles under sampling noise alone.
 
 \subsection{Marginal and stress metrics}
 \label{sec:metrics}
 
 All metrics are computed under survey weights, on held-out receiver rows.
-\emph{Weighted pinball loss}, averaged over a decile grid, scores conditional
-distributional calibration \citep{koenker2005quantile}. \emph{Weighted
-Wasserstein-1 distance} to the weighted donor distribution scores marginal
-fit. \emph{Zero-share error} scores preservation of the exact-zero mass of
-zero-inflated targets. Finally, \emph{reweighting fragility} formalizes the
-landmine diagnostic: over the family of bounded multiplicative reweightings
-$w_i \mapsto m_i w_i$ with $m_i \in [1/\kappa, \kappa]$ (the hard weight-ratio
-bounds production calibration guards use), the worst-case single-record share
-of a target aggregate has the closed form
-$\kappa^2 c^* / (\kappa^2 c^* + S - c^*)$, where $c^*$ is the largest baseline
-contribution $w_i |a_i|$ and $S$ their sum. We report it at $\kappa = 5$ for
-every method next to the held-out truth's own fragility --- the exposure a
-method should not exceed.
+
+\paragraph{Pinball loss.} Pinball loss --- also called quantile loss; the
+terms are interchangeable and we use \emph{pinball} throughout --- scores
+conditional distributional calibration \citep{koenker2005quantile}. For a
+predicted conditional quantile $\hat{q}_\tau$ and realized value $y$, the
+loss is $\rho_\tau(y - \hat{q}_\tau)$ with
+$\rho_\tau(u) = u\,(\tau - \mathbf{1}[u < 0])$; we average it, weighted,
+over the decile grid $\tau \in \{0.1, \ldots, 0.9\}$. It is minimized in
+expectation exactly when each predicted quantile is the true conditional
+quantile.
+
+\paragraph{Wasserstein-1 distance.} Marginal fit is scored by the weighted
+Wasserstein-1 distance to the weighted donor distribution,
+\[
+W_1(F, G) = \int_0^1 \bigl| F^{-1}(u) - G^{-1}(u) \bigr|\, du ,
+\]
+the average absolute gap between the two distributions' quantile functions
+--- equivalently, the area between their CDFs. The subscript is the order:
+$W_1$ averages absolute quantile gaps in the variable's own units (dollars
+here), where $W_2$ would square them. We use order 1 because it is
+interpretable in dollars and does not let a single extreme quantile
+dominate the score quadratically.
+
+\paragraph{Zero-share error.} The absolute difference between the
+candidate's and the donor's weighted share of exact zeros --- preservation
+of the zero mass of zero-inflated targets.
+
+\paragraph{Reweighting fragility.} Fragility formalizes the landmine
+diagnostic of Section~1: over the family of bounded multiplicative
+reweightings $w_i \mapsto m_i w_i$ with $m_i \in [1/\kappa, \kappa]$ (the
+hard weight-ratio bounds production calibration guards use), the worst-case
+single-record share of a target aggregate has the closed form
+$\kappa^2 c^* / (\kappa^2 c^* + S - c^*)$, where $c^*$ is the largest
+baseline contribution $w_i |a_i|$ and $S$ their sum. Read it as: after the
+most adversarial reweighting a calibrator could apply, what share of the
+aggregate can one record carry? We report it at $\kappa = 5$ for every
+method next to the held-out truth's own fragility --- the exposure a
+faithful method should \emph{match}, not minimize.
 
 \subsection{Protocol}
 \label{sec:protocol}
