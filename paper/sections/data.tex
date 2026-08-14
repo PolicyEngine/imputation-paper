@@ -14,8 +14,8 @@ recorded in the run manifests.
 
 The Survey of Consumer Finances \citep{fed2023scf} observes household wealth
 in detail. From the 2022 summary extract (first implicate, survey weights) we
-impute \texttt{debt} --- zero-inflated and nonnegative --- and
-\texttt{networth} --- sign-mixed, with a heavy right tail --- from age, sex,
+impute \texttt{debt} (zero-inflated and nonnegative) and \texttt{networth}
+(sign-mixed, with a heavy right tail) from age, sex,
 education class, marital status, children, total income, and wage income.
 The two targets are chosen deliberately: their sign structures exercise the
 regime gates, and their strong mutual dependence exercises chaining.
@@ -31,17 +31,18 @@ PolicyEngine processing. The experiment runs in two profiles. The
 \emph{minimal} profile --- six shared predictors, the two wealth targets of
 Section~\ref{sec:task-scf}, a single receiver vintage (ASEC 2025) --- is the
 controlled instantiation in which every mechanism is legible. The
-\emph{populace-scale} profile mirrors the production stack's shape: the
-shared predictor set widens to everything the two surveys genuinely share
-(ten variables, adding education class, race, homeownership, and labor-force
-status, each mapping verified against both files' codebooks), the receiver
-pools three ASEC vintages (2023--2025, weights scaled to one household
-population, 168,852 households) as the production support spine does, and
-the targets widen to a four-component chained balance sheet --- financial
-assets, nonfinancial assets, debt, then net worth --- whose accounting
-identity $\text{networth} = \text{fin} + \text{nfin} - \text{debt}$ holds
-exactly in the extract, so chaining's contribution is directly
-interpretable. The candidate population --- \cps{} demographics plus imputed wealth,
+\emph{production-scale} profile mirrors the production stack's shape in
+three ways. The shared predictor set widens to everything the two surveys
+genuinely share: ten variables, adding education class, race,
+homeownership, and labor-force status, each mapping verified against both
+files' codebooks. The receiver pools three ASEC vintages (2023--2025,
+weights scaled to one household population, 168,852 households), as the
+production support spine does. And the targets widen to a four-component
+chained balance sheet --- financial assets, nonfinancial assets, debt, then
+net worth --- whose accounting identity
+$\text{networth} = \text{fin} + \text{nfin} - \text{debt}$ holds exactly in
+the extract, so chaining's contribution is directly interpretable. The
+candidate population --- \cps{} demographics plus imputed wealth,
 under \cps{} household weights --- is then scored through the harness of
 Section~\ref{sec:harness} against the \emph{held-out} SCF: the joint of
 shared predictors and wealth, under SCF weights. The
@@ -73,12 +74,13 @@ are zero for most adults (41.7 and 85.2 percent, respectively) with heavy
 positive tails --- the regime surface where gating and weighting matter
 most. Public-use ASEC amounts are topcoded, which truncates the
 extreme tail relative to an administrative or SCF-style source; the fragility
-comparisons of Section~\ref{sec:results-cps} are therefore conservative. This task also carries
-the reweighting stress test of Section~\ref{sec:metrics}: prior
-\policyengine{} production experience motivates it, where an unweighted fit
-broadcast rare high-value donor records across a receiver file as
-near-zero-weight point masses that later reweighting amplified. All fragility
-numbers reported here are measured under this paper's protocol.
+comparisons of Section~\ref{sec:results-cps} are therefore conservative.
+This task also carries the reweighting stress test of
+Section~\ref{sec:metrics}. The test is motivated by prior \policyengine{}
+production experience, in which an unweighted fit broadcast rare high-value
+donor records across a receiver file as near-zero-weight point masses that
+later reweighting amplified. All fragility numbers reported here are
+measured under this paper's protocol.
 
 \subsection{Task 4: cross-dataset transfer}
 \label{sec:task-openml}
@@ -90,10 +92,3 @@ the six OpenML AutoML Benchmark regression datasets used in the
 \texttt{onlinenewspopularity}, \texttt{abalone}, and \texttt{house\_sales}
 --- treating each dataset's target as the imputed column under uniform
 weights.
-
-Full multi-view synthesis --- one candidate scored simultaneously against
-\cps{}, \sipp{} \citep{census2023sipp}, and \psid{} \citep{psid2023} views ---
-is the production release-gate use of the harness and is left to future work;
-\psid{} access requires registration, and the two-view experiment of
-Section~\ref{sec:task-harness} already identifies the joint-structure
-differences the paper is about.

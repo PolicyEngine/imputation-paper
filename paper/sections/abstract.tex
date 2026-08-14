@@ -2,52 +2,28 @@
 
 Policy microsimulation models rely on imputation to attach variables one
 survey observes to records from another, and the imputed file is then
-reweighted --- calibrated to administrative totals, filtered to
-subpopulations, stressed under reform scenarios. Common imputation practice
-fits models to survey records while ignoring their design weights, which
-biases imputed conditionals toward the sample rather than the population and
-plants extreme low-weight donor values that a later reweighting can amplify.
-We present the imputation operator of \populace{}, \policyengine{}'s
-open-source microdata stack: a regime-gated, sequentially-chained,
-weighted-bootstrap quantile-regression-forest estimator whose interface makes
-an unweighted fit impossible to request by accident. To evaluate it we formalize a
-\emph{population-view harness}: one latent population observed through survey
-views, with any candidate weighted file scored by projecting it through each
-view against that survey's holdout --- a strictly proper joint score, a
-coverage axis invariant to reweighting of the candidate, a classifier
-two-sample test, and an uncapped tail block on the imputed columns, which we
-add after showing that subsampled joint geometry certifies files whose top
-percentile is wrong by a factor of two. Under this harness and paired repeated holdouts we benchmark
-the estimator against standard survey-imputation methods --- unweighted and
-weighted quantile regression forests, ordinary least squares, linear quantile
-regression, and nearest-neighbour hot-deck statistical matching --- on
-within-\scf{} wealth, \scf{}-onto-\cps{} population synthesis, zero-inflated
-\cps{} income components, and six cross-domain datasets. Ablations attribute performance to each design choice,
-and the experiment runs at two scopes: a minimal six-predictor instantiation
-and a populace-scale one (ten shared predictors, a four-component chained
-balance sheet, three pooled receiver vintages). Where the survey design is
-informative, weighting dominates: the identical estimator fit unweighted is
-six times worse on net-worth marginal fit within the donor survey, and on the
-population view its imputed net-worth 99th percentile is 1.9 to 2.3 times the
-holdout's --- an inflation the geometry metrics tie on and only the tail
-block detects. Regime gating carries zero-inflated components (0.6 versus 4.4
-percentage points of dividend zero-share error against the same forest
-ungated, and 25--84 points against linear and Gaussian baselines). Chaining
-is a joint property that binds at scale: with two targets it is
-indistinguishable, while on the four-component balance sheet fitting targets
-independently costs 5.8 points of two-sample AUC --- the classifier detects
-balance sheets that do not add up. Hot-deck matching is a genuine near-peer
-on the population view; marginal metrics alone rank an unconditional weighted
-draw at or near the top throughout, and at populace scale the classifier
-separates it almost perfectly (AUC 0.97 versus the candidate's 0.76). A
-closed-form reweighting stress test shows every tail-capable method matching
-the held-out truth's own concentration while Gaussian-residual imputation
-understates it by factors of 7 to 11 --- missing tails, not robustness. Wealth imputation is what
-makes asset-tested programs such as Supplemental Security Income simulable on
-the \cps{} at all, and the population-view results identify which methods
-preserve the demographics--wealth joint that such simulation depends on. The
-estimator is available as \populacefit{}, installable independently of the
-rest of the stack.
+reweighted downstream: calibrated to administrative totals, filtered to
+subpopulations, stressed under reform scenarios. Common practice fits
+imputation models to survey records while ignoring their design weights,
+which biases imputed conditionals toward the sample rather than the
+population. We present the imputation operator of \populace{},
+\policyengine{}'s open-source microdata stack: a regime-gated, sequentially
+chained, weighted-bootstrap quantile-regression-forest estimator whose
+interface makes an unweighted fit impossible to request by accident. To
+evaluate it we formalize a \emph{population-view harness}: one latent
+population observed through survey views, with any candidate weighted file
+scored by projecting it through each view against that survey's holdout.
+Benchmarked against standard survey-imputation methods on four task
+families, each design choice earns its place where its failure mode lives.
+Fit without weights, the identical estimator is six times worse on
+net-worth marginal fit and imputes a 99th percentile 1.9 to 2.3 times the
+holdout's --- an inflation that capped joint-geometry metrics miss entirely
+and only an uncapped tail axis detects. Regime gating holds dividend
+zero-share error to 0.6 percentage points against 4.4 for the same forest
+ungated. Chaining is worth 5.8 points of classifier two-sample AUC once
+four imputed components must satisfy a balance-sheet identity. The
+estimator is available standalone as \populacefit{}, and every number in
+the paper regenerates from the accompanying repository.
 
 \vspace{1em}
 \noindent\textbf{Keywords:} microsimulation, imputation, survey weights,

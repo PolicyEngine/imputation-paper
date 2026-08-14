@@ -1,0 +1,68 @@
+% The population-view harness, schematically. Hand-authored (a design
+% description, not a results exhibit); pdflatex-compatible TikZ only.
+\begin{tikzpicture}[
+    font=\footnotesize,
+    node distance=0.55cm and 0.9cm,
+    box/.style={draw, rounded corners=1.5pt, align=center,
+                inner sep=4pt, minimum height=2.4em},
+    faint/.style={draw=black!60, text=black!70},
+    flow/.style={-{Stealth[length=2mm]}, thick},
+    faintflow/.style={-{Stealth[length=2mm]}, thick, black!55, dashed},
+    lab/.style={font=\scriptsize\itshape, align=center},
+]
+
+% Latent population
+\node[box, minimum width=4.2cm] (pop)
+    {latent population $P$\\[-1pt]\scriptsize joint of demographics,
+     income, wealth, \ldots};
+
+% Two survey views
+\node[box, below left=0.9cm and -1.6cm of pop, minimum width=4.2cm] (scf)
+    {\scf{} view $V_{\text{\scf{}}}(P)$\\[-1pt]\scriptsize demographics
+     $+$ wealth; list design, \scf{} weights};
+\node[box, below right=0.9cm and -1.6cm of pop, minimum width=4.2cm] (cps)
+    {\cps{} view $V_{\text{\cps{}}}(P)$\\[-1pt]\scriptsize demographics
+     $+$ income; area design, \cps{} weights};
+
+\draw[flow] (pop) -- (scf) node[midway, left=2pt, lab] {observed\\through};
+\draw[flow] (pop) -- (cps) node[midway, right=2pt, lab] {observed\\through};
+
+% SCF splits
+\node[box, below left=0.75cm and -1.7cm of scf, minimum width=2.5cm] (donor)
+    {donor split};
+\node[box, below right=0.75cm and -1.7cm of scf, minimum width=2.5cm] (holdout)
+    {holdout $H_{\text{\scf{}}}$\\[-1pt]\scriptsize never used upstream};
+
+\draw[flow] (scf) -- (donor) node[midway, left=2pt, lab] {80\%};
+\draw[flow] (scf) -- (holdout) node[midway, right=2pt, lab] {20\%};
+
+% Candidate assembly
+\node[box, below=0.75cm of cps, minimum width=4.2cm] (cand)
+    {candidate file $Q$\\[-1pt]\scriptsize real \cps{} demographics
+     $+$ imputed wealth,\\[-2pt]\scriptsize under \cps{} weights};
+
+\draw[flow] (cps) -- (cand);
+\draw[flow] (donor.south) to[out=-90, in=180]
+    node[pos=0.35, below=2pt, lab] {fit wealth\\conditionals}
+    (cand.west);
+
+% Scorecard
+\node[box, below=2.1cm of donor, anchor=north west, xshift=-0.3cm,
+      minimum width=9.6cm] (score) at (donor.south -| donor.west)
+    {score $V_{\text{\scf{}}}(Q)$ against $H_{\text{\scf{}}}$, in the
+     \scf{} view's own variables\\[1pt]
+     \scriptsize energy distance (joint) \;$\cdot$\; coverage (support)
+     \;$\cdot$\; classifier AUC (omnibus) \;$\cdot$\; tail block
+     (uncapped $W_1$/sd, q90/q99 ratios)};
+
+\draw[flow] (cand.south) to[out=-90, in=20]
+    node[pos=0.4, left=3pt, lab] {projected through\\$V_{\text{\scf{}}}$}
+    (score.east);
+\draw[flow] (holdout) -- (holdout |- score.north);
+
+% Sampling-noise floor
+\draw[faintflow] (donor) -- (donor |- score.north)
+    node[midway, left=2pt, lab, text=black!55]
+    {donor split scored as a\\reference candidate\\(sampling-noise floor)};
+
+\end{tikzpicture}
