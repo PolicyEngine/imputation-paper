@@ -28,8 +28,12 @@ turns it into a distortion of the population total. We refer to such records
 as landmines, and we measure exposure to them directly with a reweighting
 stress test (Section~\ref{sec:results-cps}, Table~\ref{tab:fragility}).
 
-This paper presents and evaluates the imputation operator of \populace{},
-\policyengine{}'s open-source microdata stack \citep{populace2026}. The
+This paper presents and evaluates the imputation operator of
+\populace{},\footnote{\populace{} was first released under the name
+Populace. Artifact and release identifiers created before the rename keep
+the legacy \texttt{populace} prefix, and the reproducibility pins in the
+data-availability section reference the repository at a pre-rename commit.}
+\policyengine{}'s open-source microdata stack \citep{microcosm2026}. The
 estimator combines three design choices, each motivated by one of the failure
 modes above: a \emph{weighted bootstrap} that materializes survey weights into
 the training data of each forest, so the learned conditionals are population
