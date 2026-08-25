@@ -30,11 +30,12 @@ targets rather than by random subsampling.
 \begin{figure}[t]
   \centering
   \includegraphics[width=0.92\textwidth]{figures/populace_pipeline}
-  \caption{The two-stage pipeline. Survey and administrative sources
-  feed a weighted, gated, chained imputation stage; the enhanced
-  candidate file then passes through target-informed $L_0$ selection
-  and calibration to produce a sparse, simulable, geography-consistent
-  release.}
+  \caption{The two-stage pipeline. In the configuration used here,
+  source surveys are loaded and combined into a weighted frame; stage
+  one imputes missing variables; and stage two assigns geography,
+  constructs administrative calibration targets, and applies
+  target-informed $L_0$ selection and calibration to produce a sparse,
+  simulable, geography-consistent release.}
   \label{fig:pipeline}
 \end{figure}
 

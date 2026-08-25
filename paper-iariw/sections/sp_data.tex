@@ -21,18 +21,8 @@ This modular structure makes the candidate universe a property of the configurat
 accident of the code: the source-loading and imputation stages set what information each record
 carries, and calibration sets which records survive and at what weight. \populace{} follows a
 generate-then-prune design, assembling the candidate universe once and pruning it to a deployable
-budget at the calibration stage.
-
-\begin{figure}[H]
-    \centering
-    \makebox[\textwidth][c]{%
-        \includegraphics[width=1.18\textwidth]{figures/populace_pipeline}%
-    }
-    \caption{\populace{} pipeline for the configuration used in this paper: load and combine the
-    source surveys, impute missing variables, assign geography, construct the calibration targets,
-    and calibrate. The calibration stage is the focus of this paper.}
-    \label{sp:fig:pipeline}
-\end{figure}
+budget at the calibration stage. Figure~\ref{fig:pipeline} summarizes this sequence for the
+configuration studied here.
 
 For this build the candidate universe is a three-year pooled ASEC support file for period 2024
 (constructed as described below): 337{,}704 household records, one row per candidate household placement.
