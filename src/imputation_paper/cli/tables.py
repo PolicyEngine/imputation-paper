@@ -17,14 +17,14 @@ import pandas as pd
 #: Display order and names. The reference floor row leads the harness table.
 METHOD_ORDER: tuple[tuple[str, str], ...] = (
     ("scf_sample_reference", "SCF sample (floor)"),
-    ("populace_fit", "populace-fit"),
+    ("populace_fit", r"\populacefit{}"),
     ("populace_fit_unweighted", r"\quad -- unweighted"),
     ("populace_fit_unchained", r"\quad -- unchained"),
     ("plain_qrf", r"\quad -- ungated/unchained forest"),
-    ("microimpute_qrf", "QRF (microimpute)"),
+    ("microimpute_qrf", r"QRF (\microimpute{})"),
     ("microimpute_ols", "OLS"),
     ("microimpute_quantreg", "Quantile regression"),
-    ("statmatch_hotdeck", "NND hot deck (py-statmatch)"),
+    ("statmatch_hotdeck", r"NND hot deck (\pystatmatch{})"),
     ("weighted_marginal", "Weighted marginal draw"),
 )
 _DISPLAY = dict(METHOD_ORDER)
@@ -400,7 +400,7 @@ def make_tables(
         (
             "scf-to-cps-harness-scale",
             "harness_scale.tex",
-            "Populace-scale profile: 10 shared predictors, 4 chained targets, "
+            r"\populace{}-scale profile: 10 shared predictors, 4 chained targets, "
             "pooled ASEC 2023-2025 receiver.",
         ),
     ):

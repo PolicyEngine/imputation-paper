@@ -15,8 +15,8 @@ uv run --extra data --extra viz l0 paper \
 
 The manuscript currently references:
 
-- `fig:pipeline` (Data): Populace pipeline overview for this build's configuration.
-- `fig:objective_frontier` (Results): full-surface Populace objective loss vs. retained-record budget.
+- `fig:pipeline` (Data): Microcosm pipeline overview for this build's configuration.
+- `fig:objective_frontier` (Results): full-surface Microcosm objective loss vs. retained-record budget.
 - `fig:budget_frontier` (Results): supplemental raw mean/median ARE vs. retained-record budget.
 - `fig:usability` (Results): weight concentration and effective-sample-size diagnostics.
 - `fig:cost_accuracy` (Results): runtime and accuracy tradeoff.

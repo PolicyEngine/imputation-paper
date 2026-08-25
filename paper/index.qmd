@@ -28,7 +28,7 @@ circulation or submission. -->
 \title{Weight-aware imputation for policy microsimulation}
 
 \author{
-    Max Ghenis\thanks{PolicyEngine. Corresponding author: max@policyengine.org} \and
+    Max Ghenis\thanks{\policyengine{}. Corresponding author: max@policyengine.org} \and
     María Juaristi\footnotemark[1]
 }
 \date{}
