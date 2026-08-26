@@ -41,32 +41,32 @@ plt.rcParams.update(
 STAGES = [
     (
         "Sources",
-        "MICROCOSM-DATA",
+        "microcosm-data",
         ["CPS ASEC (spine)", "IRS PUF, ACS,", "other surveys"],
     ),
     (
         "Combine",
-        "MICROCOSM-FRAME",
+        "microcosm-frame",
         ["entity tables", "+ typed weights", "+ strata"],
     ),
     (
         "Impute",
-        "MICROCOSM-FIT",
+        "microcosm.fit",
         ["weighted QRF", "chained draws", "fills tax / assets"],
     ),
     (
         "Geography",
-        "MICROCOSM-BUILD",
+        "microcosm-build",
         ["assign sub-national", "areas; records may", "appear in many"],
     ),
     (
         "Build targets",
-        "MICROCOSM-CALIBRATE",
+        "microcosm-calibrate",
         ["admin totals →", "sparse matrix M", "(PE simulation)"],
     ),
     (
         "Calibrate",
-        "MICROCOSM-CALIBRATE",
+        "microcosm-calibrate",
         ["L0 / Hard-Concrete", "gates + log-weights", "generate-big-then-prune"],
     ),
 ]
@@ -94,7 +94,7 @@ def box_x(i: int) -> float:
 ax.text(
     fig_w / 2,
     fig_h - 0.42,
-    "The MICROCOSM pipeline",
+    "The Microcosm pipeline",
     ha="center",
     va="center",
     fontsize=22,
@@ -222,7 +222,7 @@ ax.add_patch(spine)
 ax.text(
     (spine_x0 + spine_x1) / 2,
     spine_y + 0.13,
-    "MICROCOSM FRAME  —  one weighted sampling frame carried through every stage",
+    "microcosm.frame.Frame  —  one weighted sampling frame carried through every stage",
     ha="center",
     va="center",
     fontsize=12.2,
