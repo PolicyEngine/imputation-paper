@@ -44,8 +44,8 @@ unsupported extrapolation.
 
 For sparse calibration, the matched probe should become a frontier.
 The next empirical step is to sweep the normalized sparsity share
-across retained counts and run dense no-$L_0$ calibration to an
-explicit stopping rule. Holdout panels should remain separate
+across retained counts and extend the existing 1{,}500-epoch dense
+no-$L_0$ baseline to an explicit stopping rule. Holdout panels should remain separate
 robustness checks: which target families or geographies generalize
 when withheld, which targets dominate the loss, and how sensitive the
 result is to the production target weights and cap.
@@ -78,6 +78,7 @@ is the natural calibrate-then-reduce counterpart to random + reweight
 and belongs in the next frontier as a literature comparator. Raking,
 GREG, balanced sampling, and combinatorial optimization remain
 relevant reference methods, but the cleaner comparison is on simpler
-categorical-margin subsets where their assumptions hold cleanly. The
+categorical-margin subsets where their assumptions hold cleanly, in
+the spirit of \citet{tanton2014co}. The
 production frontier should continue to use the \populace{} loss over
 the complete fiscal surface.
