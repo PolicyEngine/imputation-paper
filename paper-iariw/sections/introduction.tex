@@ -18,7 +18,7 @@ geographies --- national, state, and district --- while remaining
 small enough to simulate interactively.
 
 This paper presents the two-stage pipeline that answers both demands
-in \populace{},\footnote{\populace{} was first released under the name Populace; frozen artifact, release, and schema identifiers retain the legacy \texttt{populace-}/\texttt{ledger-} prefixes, and this paper cites those identifiers verbatim.} \policyengine{}'s open-source microdata stack
+in \populace{},\footnote{\populace{} was first released under the name \textsc{Populace}; frozen artifact, release, and schema identifiers retain the legacy \texttt{populace-}/\texttt{ledger-} prefixes, and this paper cites those identifiers verbatim.} \policyengine{}'s open-source microdata stack
 (\autoref{fig:pipeline}). Stage one is a weighted, regime-gated,
 sequentially chained quantile-regression-forest imputation operator.
 Stage two is a target-informed record-selection and calibration step:
@@ -74,7 +74,7 @@ support, then refit publication weights on it.
 The pipeline is not a proposal but a deployed system. The
 57{,}240-record support produced by stage two ships as the certified
 \populace{} United States release, distributed with pinned model and
-data versions through \texttt{policyengine.py}; a companion paper
+data versions through \policyenginepy{}; a companion paper
 \citep{ghenis2026obbba} consumes it for provision-level incidence
 analysis of the One Big Beautiful Bill Act at national, state, and
 congressional-district level, and \autoref{sec:application} reports

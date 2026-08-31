@@ -77,7 +77,7 @@ microdata file the practical solver is stochastic gradient descent: the weights 
 stay positive, typically in log space; a loss measures the relative discrepancy between the weighted
 estimates and the targets; and an optimizer such as Adam \citep{kingma2015} minimizes it, which
 scales to thousands of mixed, hierarchical targets without inverting a matrix. \citet{woodruff2024}
-calibrate PolicyEngine's enhanced CPS in exactly this way.
+calibrate \policyengine{}'s enhanced CPS in exactly this way.
 
 These estimators answer a calibration question rather than a sampling one: given a fixed set of
 records, they find weights that match the targets. The method studied here selects records and fits

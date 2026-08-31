@@ -1,8 +1,8 @@
-"""Generate the Populace pipeline overview figure.
+"""Generate the Microcosm pipeline overview figure.
 
-A "snapshot of what Populace can do": the stages a microdata population goes
+A "snapshot of what Microcosm can do": the stages a microdata population goes
 through prior to and including calibration, the package that owns each stage,
-and the single ``populace.frame.Frame`` carried through all of them.
+and the single ``microcosm.frame.Frame`` carried through all of them.
 
 Outputs (written next to this file):
 - ``populace_pipeline.png`` (slide-ready, 200 dpi)
@@ -41,32 +41,32 @@ plt.rcParams.update(
 STAGES = [
     (
         "Sources",
-        "populace-data",
+        "microcosm-data",
         ["CPS ASEC (spine)", "IRS PUF, ACS,", "other surveys"],
     ),
     (
         "Combine",
-        "populace-frame",
+        "microcosm-frame",
         ["entity tables", "+ typed weights", "+ strata"],
     ),
     (
         "Impute",
-        "populace-fit",
+        "microcosm.fit",
         ["weighted QRF", "chained draws", "fills tax / assets"],
     ),
     (
         "Geography",
-        "populace-build",
+        "microcosm-build",
         ["assign sub-national", "areas; records may", "appear in many"],
     ),
     (
         "Build targets",
-        "populace-calibrate",
+        "microcosm-calibrate",
         ["admin totals →", "sparse matrix M", "(PE simulation)"],
     ),
     (
         "Calibrate",
-        "populace-calibrate",
+        "microcosm-calibrate",
         ["L0 / Hard-Concrete", "gates + log-weights", "generate-big-then-prune"],
     ),
 ]
@@ -94,7 +94,7 @@ def box_x(i: int) -> float:
 ax.text(
     fig_w / 2,
     fig_h - 0.42,
-    "The Populace pipeline",
+    "The Microcosm pipeline",
     ha="center",
     va="center",
     fontsize=22,
@@ -222,7 +222,7 @@ ax.add_patch(spine)
 ax.text(
     (spine_x0 + spine_x1) / 2,
     spine_y + 0.13,
-    "populace.frame.Frame  —  one weighted sampling frame carried through every stage",
+    "microcosm.frame.Frame  —  one weighted sampling frame carried through every stage",
     ha="center",
     va="center",
     fontsize=12.2,

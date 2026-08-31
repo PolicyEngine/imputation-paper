@@ -24,7 +24,7 @@ regression, and nearest-neighbour hot-deck statistical matching --- on
 within-\scf{} wealth, \scf{}-onto-\cps{} population synthesis, zero-inflated
 \cps{} income components, and six cross-domain datasets. Ablations attribute performance to each design choice,
 and the experiment runs at two scopes: a minimal six-predictor instantiation
-and a populace-scale one (ten shared predictors, a four-component chained
+and a \populace{}-scale one (ten shared predictors, a four-component chained
 balance sheet, three pooled receiver vintages). Where the survey design is
 informative, weighting dominates: the identical estimator fit unweighted is
 six times worse on net-worth marginal fit within the donor survey, and on the
@@ -38,7 +38,7 @@ indistinguishable, while on the four-component balance sheet fitting targets
 independently costs 5.8 points of two-sample AUC --- the classifier detects
 balance sheets that do not add up. Hot-deck matching is a genuine near-peer
 on the population view; marginal metrics alone rank an unconditional weighted
-draw at or near the top throughout, and at populace scale the classifier
+draw at or near the top throughout, and at \populace{} scale the classifier
 separates it almost perfectly (AUC 0.97 versus the candidate's 0.76). A
 closed-form reweighting stress test shows every tail-capable method matching
 the held-out truth's own concentration while Gaussian-residual imputation
