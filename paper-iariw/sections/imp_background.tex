@@ -1,7 +1,7 @@
-\section{Background: imputation for microsimulation}
+\subsection{Background: imputation for microsimulation}
 \label{imp:sec:background}
 
-\subsection{Imputation methods in survey practice}
+\subsubsection{Imputation methods in survey practice}
 
 Survey agencies and microsimulation teams draw on a small set of imputation
 families. \emph{Hot-deck and statistical matching} methods donate observed
@@ -25,7 +25,7 @@ interface and selects among them by cross-validation; its central finding ---
 no family dominates across datasets --- motivates empirical comparison on
 each new task rather than a prescribed method.
 
-\subsection{Chained imputation and joint structure}
+\subsubsection{Chained imputation and joint structure}
 
 Imputing several variables one at a time, each conditional only on shared
 predictors, destroys the dependence among imputed variables; sequential
@@ -37,7 +37,7 @@ marginals but attenuate cross-source correlations \citep{dorazio2006statistical,
 meinfelder2011simulation}. Synthetic-data generation faces the identical
 trade-off at whole-file scale \citep{rubin1993statistical}.
 
-\subsection{Weights in imputation}
+\subsubsection{Weights in imputation}
 
 Design weights enter imputation practice unevenly. The model-based literature
 often treats weights as a nuisance --- if the model is correctly specified and
@@ -58,7 +58,7 @@ aware of prior survey-imputation work that combines weight-aware forest
 training, sign-regime gating, and chaining in one estimator; documenting and
 testing that combination is the gap this paper fills.
 
-\subsection{Evaluating imputed files}
+\subsubsection{Evaluating imputed files}
 
 Because an imputation is a draw from an estimated conditional distribution,
 pointwise accuracy metrics understate quality; the relevant question is

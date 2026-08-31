@@ -16,6 +16,7 @@ Conference, Brussels, August 2026. Session: Reconciling Household
 Surveys with National Accounts: Methodological Approaches and Country
 Applications. Discussant: Roberto Zelli.}}
 
+% NOTE (Ben, 8/24): consider retitling ("machine learning imputation" -> descriptive phrase); Max to decide.
 % NOTE (Max): author ORDER to confirm before circulation — union of the
 % two component manuscripts' bylines (imputation: Ghenis, Juaristi;
 % sparse calibration: Juaristi, Woodruff, Ogorek, Ghenis).
@@ -26,7 +27,7 @@ Applications. Discussant: Roberto Zelli.}}
     Nikhil Woodruff\footnotemark[2] \and
     Ben Ogorek\footnotemark[2]
 }
-\date{August 2026 --- conference draft}
+\date{August 2026 --- working paper, revised after the conference}
 
 \begin{document}
 
@@ -34,14 +35,28 @@ Applications. Discussant: Roberto Zelli.}}
 
 \input{sections/abstract}
 \input{sections/introduction}
+\input{sections/construction}
+
+\section{Stage one: filling the file}
+\label{imp:sec:stage}
+
+Stage one attaches the variables the base survey lacks. This section reviews the imputation
+background, sets out four evaluation task families, presents the estimator, and reports results
+under the population-view harness.
 
 \input{sections/imp_background}
 \input{sections/imp_data}
 \input{sections/imp_methodology}
 \input{sections/imp_results}
 
+\section{Stage two: representing the population}
+\label{sp:sec:stage}
+
+Stage two reduces the enhanced candidate universe to a simulable support and calibrates its
+weights. This section reviews calibration and record-selection background, presents the
+target-informed $L_0$ method, and reports the full-surface results.
+
 \input{sections/sp_background}
-\input{sections/sp_data}
 \input{sections/sp_methodology}
 \input{sections/sp_results}
 
@@ -55,5 +70,8 @@ Applications. Discussant: Roberto Zelli.}}
 
 \appendix
 \input{sections/sp_appendix}
+\input{sections/app_reduction}
+\input{sections/app_hardconcrete}
+\input{sections/app_openml}
 
 \end{document}

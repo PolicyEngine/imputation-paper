@@ -1,0 +1,44 @@
+\section{The Hard Concrete construction}
+\label{sp:app:hardconcrete}
+
+\citet{louizos2018} make the penalty differentiable by attaching a stochastic gate $z_i \in [0, 1]$
+to each parameter and optimizing the expected $L_0$ norm. The gate is drawn from a Hard Concrete
+distribution: a binary concrete (continuous-relaxation) variable stretched beyond the unit interval
+and then clipped back into it. With a learned location parameter $\log \alpha_i$ and a fixed
+temperature $\beta$, draw $u \sim \mathrm{Uniform}(0, 1)$ and set
+\begin{align}
+    s_i      &= \sigma\!\left(\frac{\log u - \log(1 - u) + \log \alpha_i}{\beta}\right), \\
+    \bar{s}_i &= s_i (\zeta - \gamma) + \gamma, \\
+    z_i      &= \min\!\big(1, \max(0, \bar{s}_i)\big),
+    \label{sp:eq:hardconcrete}
+\end{align}
+where $\sigma$ is the logistic function and $\gamma < 0 < 1 < \zeta$ are fixed stretch bounds.
+Stretching $s_i$ from $(0, 1)$ to $(\gamma, \zeta)$ and clipping to $[0, 1]$ places point masses at
+exactly $0$ and exactly $1$, so a gate can switch a record fully off or fully on while staying
+differentiable in between.
+
+Because the gate has a closed-form probability of being non-zero, the expected $L_0$ norm is
+differentiable. The probability that gate $i$ is active is
+\begin{equation}
+    \Pr(z_i \neq 0) = \sigma\!\left(\log \alpha_i - \beta \log \frac{-\gamma}{\zeta}\right),
+    \label{sp:eq:l0penalty}
+\end{equation}
+and the $L_0$ penalty is the sum of these probabilities over all records,
+$\sum_i \Pr(z_i \neq 0)$, which is the expected number of retained records; minimizing it pushes
+gates toward zero. At test time the noise is removed and the gate is evaluated deterministically,
+\begin{equation}
+    \hat{z}_i
+    =
+    \min\!\left(
+        1,
+        \max\!\left(
+            0,\,
+            \sigma(\log \alpha_i)(\zeta - \gamma) + \gamma
+        \right)
+    \right),
+    \label{sp:eq:deterministic_gate}
+\end{equation}
+which returns an exact zero for any record driven far enough off and an exact one for any record driven
+far enough on, with intermediate values in between. The exact zeros make the weight vector exactly
+sparse; a record left with an intermediate gate is retained with its fitted weight scaled by the gate.
+

@@ -8,11 +8,11 @@ model. We present a two-stage pipeline that constructs such data, as
 implemented in \populace{}, \policyengine{}'s open-source microdata stack. Stage one attaches unobserved variables to survey records
 with a weighted, regime-gated, sequentially chained
 quantile-regression-forest estimator whose interface makes an
-unweighted fit impossible to request by accident. Evaluated in a
-\emph{population-view harness} --- one latent population observed
+unweighted fit impossible to request by accident. We evaluate stage one in a
+\emph{population-view harness}: one latent population observed
 through survey views, scored by strictly proper joint distances,
 reweighting-invariant coverage, classifier two-sample tests, and an
-uncapped tail block --- weighting where the design is informative
+uncapped tail block. There, weighting where the design is informative
 dominates: the identical estimator fit unweighted is six times worse on
 net-worth marginal fit, and its imputed 99th percentile is 1.9 to 2.3
 times the holdout's, an inflation that joint-geometry metrics tie on

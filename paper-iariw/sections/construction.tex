@@ -1,11 +1,13 @@
-\section{Data and target surface for the calibration stage}
+\section{The production setting: pipeline, microdata, and targets}
+\label{sec:construction}
 \label{sp:sec:data}
 
-The calibration problem is defined by two inputs: the household microdata that form the candidate
-universe, and the administrative targets the calibrated dataset must reproduce. This section
-describes how \populace{} assembles the candidate microdata and how this study selects its targets.
-The pipeline is the harness that produces the calibration problem; it is not itself the object of
-evaluation.
+Both stages of the method operate on one production data structure, so we describe the setting once,
+up front, to make the methods that follow concrete: how \populace{} assembles the candidate
+microdata, which donor sources contribute which variables, how geographic identity attaches, and what
+the administrative target surface contains. Stage one (\autoref{imp:sec:stage}) fills this frame;
+stage two (\autoref{sp:sec:stage}) selects and weights its records. The pipeline is the harness that
+produces both problems; it is not itself the object of evaluation.
 
 \subsection{\populace{} as a construction pipeline}
 

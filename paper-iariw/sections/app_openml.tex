@@ -1,0 +1,41 @@
+\section{Cross-dataset transfer benchmark}
+\label{imp:app:openml}
+\label{imp:sec:task-openml}
+\label{imp:sec:results-openml}
+
+\subsection{Design}
+
+
+To test behavior beyond economic microdata, we run the method surface over
+the six OpenML AutoML Benchmark regression datasets used in the
+\microimpute{} manuscript's appendix \citep{vanschoren2014openml} ---
+\texttt{space\_ga}, \texttt{elevators}, \texttt{brazilian\_houses},
+\texttt{onlinenewspopularity}, \texttt{abalone}, and \texttt{house\_sales}
+--- treating each dataset's target as the imputed column under uniform
+weights.
+
+
+\subsection{Results}
+
+
+\begin{table}[t]
+\centering
+\footnotesize
+\resizebox{\textwidth}{!}{\input{tables/openml}}
+\caption{Wasserstein-1 to the donor distribution across the six OpenML
+regression datasets (uniform weights), mean over ten paired seeds, with mean
+rank across datasets.}
+\label{imp:tab:openml}
+\end{table}
+
+Table~\ref{imp:tab:openml} runs the surface over the six OpenML regression
+datasets under uniform weights. Two observations. First, with weights
+uninformative by construction, the candidate and its unweighted ablation are
+statistically the same method, and they rank near the top (mean ranks 3.8 and
+3.3) alongside the unconditional marginal draw (3.3); the linear methods rank
+last (7.8 and 8.8). Second --- and more important for this paper's argument --- the best
+mean rank on a \emph{marginal} distance is achieved by a method with no
+conditional structure at all. Marginal metrics saturate: they reward drawing
+from the right marginal and cannot rank what imputation is actually for.
+The population-view harness exists because of exactly this ceiling.
+

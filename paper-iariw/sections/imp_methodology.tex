@@ -1,7 +1,7 @@
-\section{Stage one: weighted, regime-gated, chained imputation}
+\subsection{Stage one: weighted, regime-gated, chained imputation}
 \label{imp:sec:methodology}
 
-\subsection{The estimator}
+\subsubsection{The estimator}
 \label{imp:sec:estimator}
 
 \populacefit{} models $P(\text{targets} \mid \text{predictors})$ with a
@@ -43,7 +43,7 @@ a weight vector, or the literal \texttt{"none"}), and omitting them is an
 error rather than a silent unweighted fit. The contract makes the
 weight-blindness failure mode of Section~2.3 unrepresentable by accident.
 
-\subsection{Ablations and baselines}
+\subsubsection{Ablations and baselines}
 \label{imp:sec:ablations}
 
 Each design choice is evaluated by knocking it out with everything else held
@@ -59,7 +59,7 @@ candidate and the plain-forest baselines share the same underlying forest
 implementation \citep{zillow2024quantile}, so their differences isolate the
 design choices rather than implementation quality.
 
-\subsection{The population-view harness}
+\subsubsection{The population-view harness}
 \label{imp:sec:harness}
 
 Per-variable metrics cannot adjudicate the question this paper cares about,
@@ -102,7 +102,7 @@ candidate --- anchors what "as good as another sample of the survey" means on
 each axis, including how much a tail ratio wobbles under sampling noise
 alone.
 
-\subsection{Marginal and stress metrics}
+\subsubsection{Marginal and stress metrics}
 \label{imp:sec:metrics}
 
 All metrics are computed under survey weights, on held-out receiver rows.
@@ -120,7 +120,7 @@ contribution $w_i |a_i|$ and $S$ their sum. We report it at $\kappa = 5$ for
 every method next to the held-out truth's own fragility --- the exposure a
 method should not exceed.
 
-\subsection{Protocol}
+\subsubsection{Protocol}
 \label{imp:sec:protocol}
 
 Every task uses an 80/20 donor/receiver holdout repeated over ten seeds, with

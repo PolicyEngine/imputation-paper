@@ -1,10 +1,10 @@
-\section{Stage two: target-informed sparse selection}
+\subsection{Stage two: target-informed sparse selection}
 \label{sp:sec:methodology}
 
 This section describes the calibration method that selects and weights records, and then the design
 of the experiment that evaluates the method as a sampler.
 
-\subsection{The shared calibrator}
+\subsubsection{The shared calibrator}
 
 The calibration matrix $\mathbf{M} \in \R^{m \times n}$ maps $n$ candidate records to $m$ targets.
 Entry $M_{ji}$ is the contribution of candidate $i$ to target $j$: an indicator or count for count
@@ -51,7 +51,7 @@ rescaled to contribute equal total weight, so the far more numerous dollar cells
 targets. A final step sets the mean weight to one. Because the loss divides by $\sum_j \omega_j$, only
 the relative weights enter the objective and their absolute scale does not.
 
-\subsection{Selection and weighting as one optimization}
+\subsubsection{Selection and weighting as one optimization}
 
 Informed $L_0$ sampling adds two terms to the shared calibrator that turn weight fitting into record
 selection. Each candidate $i$ carries a Hard Concrete gate $z_i \in [0, 1]$ \citep{louizos2018}, the
@@ -99,14 +99,14 @@ selection is informed by the targets: a record survives when keeping it helps ma
 would otherwise be missed. This is the sense in which the method is a target-informed sampler rather
 than a reweighting of a fixed random draw.
 
-\subsection{From fitted weights to a dataset}
+\subsubsection{From fitted weights to a dataset}
 
 After optimization the gates are evaluated deterministically, so the retained-record count is read
 from the solution rather than chosen by a post-hoc cutoff. The retained records and their weights are
 assembled into a dataset for \policyengine{}. Appendix~\ref{sp:app:assembly} summarizes the assembly
 step, which matters operationally but is not the object of the experiment.
 
-\subsection{Sampling experiment design}
+\subsubsection{Sampling experiment design}
 \label{sp:sec:experiment_design}
 
 The experiment evaluates whether informed selection produces a better dataset than the alternative
@@ -156,7 +156,7 @@ reweight baselines each use a 1{,}500-epoch optimizer budget; the sparse baselin
 57{,}240-record count. Sweeps across penalties and concentration controls are the next
 robustness panel rather than part of the headline evidence here.
 
-\subsection{Full-surface scoring}
+\subsubsection{Full-surface scoring}
 \label{sp:sec:oos}
 
 The production motivation is to construct a deployable dataset that fits the full target surface 
@@ -174,7 +174,7 @@ because targets nest within a family (a national total is the sum of its state c
 would leak, with a held-out cell nearly determined by its retained siblings; we leave that family-level
 holdout robustness to future work (\autoref{sp:sec:future_work}).
 
-\subsection{Evaluation metrics}
+\subsubsection{Evaluation metrics}
 \label{sp:sec:metrics}
 
 Each run reports the metrics in Table~\ref{sp:tab:metrics} for the scored targets. They fall into two

@@ -1,4 +1,4 @@
-\section{Calibration results}
+\subsection{Calibration results}
 \label{sp:sec:results}
 
 The results answer the production question directly: with the candidate universe, target surface, and
@@ -10,7 +10,7 @@ is used for the post-$L_0$ refit and sparse baselines, and an epoch-matched dens
 anchors the comparison. Raw absolute-relative-error (ARE) summaries, effective sample size, and max weight
 are reported as diagnostics around the headline loss.
 
-\subsection{The full-surface matched probe}
+\subsubsection{The full-surface matched probe}
 
 Figure~\ref{sp:fig:objective_frontier} is the headline result. On the current three-year ASEC support file,
 the normalized $L_0$ penalty selects 57{,}240 of 337{,}704 candidate households, or 17.0\% of the
@@ -61,7 +61,7 @@ needs a reweighting step.
 
 \input{tables/paired_comparison}
 
-\subsection{Size and concentration}
+\subsubsection{Size and concentration}
 \label{sp:sec:results-controls}
 
 The normalized penalty gives a usable size control in this probe. We parameterize the sparsity price as a
@@ -86,7 +86,7 @@ again, with ESS 981 and maximum weight 2{,}176{,}121. The raw gated $L_0$ weight
     \label{sp:fig:usability}
 \end{figure}
 
-\subsection{Accuracy by geography}
+\subsubsection{Accuracy by geography}
 
 Table~\ref{sp:tab:calibration_accuracy} breaks the post-$L_0$ refit diagnostics down by geography. The fit is
 strongest at the state level, where median ARE is 0.31\%, followed by national targets at 1.30\% and
@@ -96,7 +96,7 @@ universe before pruning it.
 
 \input{tables/calibration_accuracy}
 
-\subsection{Raw-error tails}
+\subsubsection{Raw-error tails}
 \label{sp:sec:results-degenerate}
 
 The \populace{} objective is the headline score because it is capped and target weighted; raw ARE summaries
@@ -106,9 +106,9 @@ they are omitted from raw relative-error summaries but do not affect the capped 
 rows, the post-$L_0$ refit has a 0.89\% median ARE and an 84.64\% mean ARE. The gap between the median and
 the mean is the reason the paper leads with the \populace{} loss and reports raw ARE only as a diagnostic.
 
-\subsection{Cost}
+\subsubsection{Cost}
 
-The matched probe took 39.4 minutes for the $L_0$ selection run. The post-$L_0$ refit then added about
+The matched probe took 39.4 minutes for the $L_0$ selection run.\footnote{Wall-clock figures are single-workstation runs; the run manifests pin software versions and seeds but did not record hardware profiles --- a replication gap we disclose here.} The post-$L_0$ refit then added about
 9.5 minutes, for a combined 48.9 minutes reported in the artifact. Dense no-$L_0$ took 38.7 minutes for
 1{,}500 epochs, random + reweight took 7.3 minutes, and the dense random scaled sample required no extra
 optimization beyond the dense fit. The selector is therefore computationally expensive, and the dense run
