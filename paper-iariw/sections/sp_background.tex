@@ -144,7 +144,7 @@ otherwise miss. The administrative targets enter only through the upstream weigh
 preserves that calibrated distribution instead of re-optimising against the targets. We therefore treat
 it as a related literature method rather than a
 target-fitting baseline run here, and note it as a natural calibrate-then-reduce comparator for a future
-sweep (Section~\ref{sp:sec:future_work}). A raking-then-TRS variant is the corresponding classical baseline
+sweep (\autoref{sp:sec:future_work}). A raking-then-TRS variant is the corresponding classical baseline
 on a categorical margin surface, but it does not naturally extend to the full mixed production target
 surface without replacing IPF with a broader calibration solver.
 
@@ -268,7 +268,7 @@ norm that zeroes small weights also pulls the surviving ones toward zero, so for
 heavy shrinkage on the records that remain. This coupling is why we expect $L_1$ to be a weaker selector
 than $L_0$: the Hard Concrete gates separate the decision to keep a record from the weight it carries,
 whereas a single $L_1$ penalty cannot. We therefore do not implement $L_1$ in this study and treat it as
-an analogous penalty method worth testing directly in future work (Section~\ref{sp:sec:future_work}), where
+an analogous penalty method worth testing directly in future work (\autoref{sp:sec:future_work}), where
 running it against $L_0$ on the same surface would show whether the coupling actually costs it.
 
 \subsection{Microsimulation dataset engines}

@@ -15,7 +15,7 @@ uv run --extra data --extra viz l0 paper \
 
 The manuscript currently references:
 
-- `fig:pipeline` (Data): Microcosm pipeline overview for this build's configuration.
+- `fig:pipeline` (Introduction): Microcosm pipeline overview for this build's configuration.
 - `fig:objective_frontier` (Results): full-surface Microcosm objective loss vs. retained-record budget.
 - `fig:budget_frontier` (Results): supplemental raw mean/median ARE vs. retained-record budget.
 - `fig:usability` (Results): weight concentration and effective-sample-size diagnostics.

@@ -16,21 +16,69 @@ population, viewed through surveys for evaluating fill and through
 administrative aggregates for evaluating representation.
 
 The limitations are those of each stage plus one that emerges at
-the seam. Stage one's results are single-imputation; imputation
-variance and multiple-imputation inference are future work, and the
-tail-extension question --- how far beyond the donor support imputed
-tails should extend --- is deliberately left open. Stage two's
-dense-calibration baseline was still improving at its optimization
-budget, so the sparse-versus-dense comparison is a
-finite-optimization result on a fixed support, not a convergence
-claim; concentration controls and normalized-penalty sweeps remain
-to be mapped. At the seam, certification currently gates the
+the seam. Stage one's results are single-imputation, so reported fit
+summarizes one completed dataset rather than an imputation
+distribution. Stage two's dense-calibration baseline was still
+improving at its optimization budget, so the sparse-versus-dense
+comparison is a finite-optimization result on a fixed support, not a
+convergence claim. At the seam, certification currently gates the
 national and state target families while congressional-district
-targets ship as diagnostics --- the assignment-only contrast in
-\autoref{sec:application} is the measured cost of that gap, and
-promoting district families into the certified gate is the
-pipeline's next milestone. Finally, the companion deployment shows
-that residual data defects propagate into named policy provisions
-(a tip-income carrier undercount halves a tip-exemption estimate);
-the discipline the pipeline enables is not defect-free data but
-disclosed, provision-level accounting of which defects bind where.
+targets ship as diagnostics; the assignment-only contrast in
+\autoref{sec:application} is the measured cost of that gap. Finally,
+the companion deployment shows that residual data defects propagate
+into named policy provisions (a tip-income carrier undercount halves a
+tip-exemption estimate); the discipline the pipeline enables is not
+defect-free data but disclosed, provision-level accounting of which
+defects bind where.
+
+\subsection{Future work}
+\label{sp:sec:future_work}
+
+The next imputation step is to move from single-imputation point
+estimates to multiple-imputation inference, and to test how far
+imputed tails should extend beyond donor support. Those questions
+belong in the population-view harness because the same top-percentile
+and classifier diagnostics that reveal weight and chaining failures
+can also show whether tail extensions improve the estimand or add
+unsupported extrapolation.
+
+For sparse calibration, the matched probe should become a frontier.
+The next empirical step is to sweep the normalized sparsity share
+across retained counts and extend the existing 1{,}500-epoch dense
+no-$L_0$ baseline to an explicit stopping rule. Holdout panels should remain separate
+robustness checks: which target families or geographies generalize
+when withheld, which targets dominate the loss, and how sensitive the
+result is to the production target weights and cap.
+
+A related thread varies the penalties the headline run deliberately
+holds fixed. The reported experiments set $\lambda_{L_2}=0$ and leave
+the weight cap off, so the comparison isolates the effect of the
+$L_0$ gates on sparsification; this leaves concentration controls as
+a separate axis to study. Three experiments follow: compare the
+convex $L_1$ selector of Section~\ref{sp:sec:l1_background} with
+$L_0$ on the same surface, sweep the soft concentration penalty
+$\lambda_{L_2}$ and the hard \texttt{max\_weight\_ratio} cap against
+$\lambda_{L_0}$, and use that sweep to trace the
+effective-sample-size against accuracy trade-off.
+
+The build-large-then-prune regime is the remaining production stress
+test. The current three-year support file is a step toward a pipeline
+that assembles a candidate universe far larger than it can ship, then
+prunes it to a deployable budget under the calibration targets. More
+aggressive support expansion would show whether target-informed
+selection adds more when a random draw from a tight budget is less
+likely to span the target system. The same production line also needs
+to promote congressional-district families from diagnostics into the
+certified gate, since the application shows the district-level cost of
+assignment-only weights.
+
+The full-surface design also clarifies which classical comparators are
+worth adding. Survey-weight, probability-proportional-to-size sampling
+is the natural calibrate-then-reduce counterpart to random + reweight
+and belongs in the next frontier as a literature comparator. Raking,
+GREG, balanced sampling, and combinatorial optimization remain
+relevant reference methods, but the cleaner comparison is on simpler
+categorical-margin subsets where their assumptions hold cleanly, in
+the spirit of \citet{tanton2014co}. The
+production frontier should continue to use the \populace{} loss over
+the complete fiscal surface.
