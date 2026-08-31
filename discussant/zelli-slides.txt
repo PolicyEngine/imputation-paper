@@ -1,0 +1,279 @@
+
+===== SLIDE 1 =====
+“Constructing Representative Microdata with Sub-National Weights:
+A Two-Stage Approach Combining Machine Learning Imputation and Sparse Optimization”
+Max Ghenis, Mar ´ ıa Juaristi, Nikhil Woodruff, Ben Ogorek
+39th IARIW General Conference
+Presented by:
+Roberto Zelli
+Sapienza University of Rome
+Brussels, August 2026
+Roberto Zelli Ghenis et al – Discussion 1 / 21
+===== SLIDE 2 =====
+Context & Motivation
+Policy needs: Analysis of national legislation increasingly demands answers at
+sub-national geographies (States, Congressional Districts).
+Data limitation: National surveys are rarely designed to support direct small-area
+estimation (sample sizes thin down to a few hundred households). Lack of a single survey
+that contains all the variables required to the analysis and to run microsimulation models.
+Dimensional paradox: Microsimulation models require joint distributions rich enough to
+simulate e.g. complex tax rules, but files must remain small enough to run interactively.
+Roberto Zelli Ghenis et al – Discussion 2 / 21
+===== SLIDE 3 =====
+Twofold Microdata Challenge
+The FILL Problem
+No single survey observes all required policy variables together.
+Imagine you want to test a new tax law. Survey A (e.g. a general household survey) tells
+you how many children a family has and what their jobs are, but not its financial profile.
+Survey B (e.g. a wealth survey) tells you exactly how much money a family has in the
+bank, but not its family structure.
+Need to data fusion procedure to “glue” the missing information from survey B (“donor”)
+into survey A (“recipient”), creating complete family profiles.
+The REPRESENT Problem
+Reduce the dataset size to a “manageable” dimension.
+Weight the enhanced file so it can reproduce granular administrative aggregates.
+Hierarchical & nested consistency constraints (National → State → District).
+Roberto Zelli Ghenis et al – Discussion 3 / 21
+===== SLIDE 4 =====
+Solution Proposed
+MICROCOSM (PolicyEngine) — An open-source microdata pipeline articulated in two
+stages.
+1 Stage 1 offers a compelling case study in modern data fusion , repositioning the classical
+statistical matching problem within a non-parametric machine learning framework.
+The empirical analysis fuses two primary data sources to create a comprehensive
+household dataset.
+The process involves a recipient dataset (which has the household demographic data) and
+a donor dataset (which has rich financial details).
+2 Stage 2 reduces the comprehensive dataset to a smaller certified release, ensuring that
+the remaining households match administrative aggregates (targets) across the country.
+Roberto Zelli Ghenis et al – Discussion 4 / 21
+===== SLIDE 5 =====
+Stage 1: Design-Aware Imputation Model I
+The Recipient dataset: The US Census Bureau’s Current Population Survey (CPS
+ASEC, public-use file), enhanced by PolicyEngine (eCPS) by pooling three ASEC vintages
+(2022–2024, ageing the two earlier vintages forward to the latest year): 337,704 records.
+It provides a highly representative sample of the US population with detailed information
+on demographics, labor supply, and cash incomes, but it lacks comprehensive data on
+wealth and household balance sheets.
+The Donor dataset: The Survey of Consumer Finances (SCF), administered by the
+Federal Reserve.
+The Bridging variables (Shared Features): The block of predictor variables common to
+both datasets. These include:
+Demographics: Age, educational attainment, marital status, and household size.
+Income streams: Wage income, self-employment income, capital gains, interest/dividend
+income, and social security benefits.
+Roberto Zelli Ghenis et al – Discussion 5 / 21
+===== SLIDE 6 =====
+Stage 1: Design-Aware Imputation Model II
+The Imputed variables (The Targets): The goal of Stage 1 is to predict and inject the
+missing SCF financial variables into every household profile in the eCPS.
+The “glue”: Quantile Regression Forest (QRF) . The QFR acts as a predictive model
+that estimates the full distribution of potential target values, rather than a single average.
+By retaining the entire data distribution within each decision tree node, the model
+identifies specific percentiles—such as the 10th, 50th, or 90th—to simulate realistic
+population variations.
+Why a ML approach? Traditional data fusion methods like nearest-neighbor hot-deck
+excel at maintaining the integrity of real-world data, including accurate outliers and zero
+values, because they copy existing records rather than creating synthetic data. However,
+these methods fail when using multiple, complex predictors (the curse of dimensionality),
+as finding exact matches across many variables becomes impossible. There is a trade-off
+between accurately preserving real data and managing complex, multi-dimensional
+datasets.
+Roberto Zelli Ghenis et al – Discussion 6 / 21
+===== SLIDE 7 =====
+Stage 1: Design-Aware Imputation Model I
+Three crucial improvements of MICROCOSM model to overcome standard Regression Forests
+problems:
+Weighted Bootstrap: Resamples training rows with replacement proportional to survey
+weights before growing trees. Corrects the “weight-blindness” flaw (Standard machine
+learning models ignore these weights).
+The “Gate” for Zeros (Regime Gates): Economic data is full of zeros. If you use a
+standard model to predict wealth, it tends to average things out. It might give everyone a
+tiny amount, completely wiping out the zeros. The model uses a regime gate. (In an
+econometric world: a selection model). The first step decides if the answer should be zero
+or not zero. If it decides ”not zero,” a second forest calculates the exact amount.
+Roberto Zelli Ghenis et al – Discussion 7 / 21
+===== SLIDE 8 =====
+Stage 1: Design-Aware Imputation Model II
+Sequential Chaining: Making the Balance Sheets Make Sense. If you have to guess
+multiple financial details for the same household (e.g., its debts, its assets, and its net
+worth), you cannot guess them completely separately. The model predicts the variables in
+a chain (one after the other). First, it guesses debt; then, conditioning on the debt, it
+guesses assets; finally, it calculates net worth based on the previous answers. This ensures
+accounting identities.
+Roberto Zelli Ghenis et al – Discussion 8 / 21
+===== SLIDE 9 =====
+Stage 1: Comments I
+Major strength: It demonstrates that ignoring survey weights degrades net worth
+(Wasserstein) distance sixfold. Injected bootstrap successfully resolves this.
+The non-extrapolation trap: Quantile Regression Forests cannot extrapolate beyond
+training support boundaries. As a result, the model understates the q99 extreme tail by
+20–30%. Possible to patch the QRF tree model with parametric Pareto tail distributions
+to capture the missing 20–30% top-percentile wealth mass?
+Comparisons: Empirically comparing the stage 1 imputation model with traditional
+hot-deck imputation would clearly justify the use of a more complex machine learning
+approach.
+Roberto Zelli Ghenis et al – Discussion 9 / 21
+===== SLIDE 10 =====
+Stage 1: Comments II
+Synthetic data fusion as the inevitable starting point? . We should consider the
+alternative paradigm of exact or probabilistic Record Linkage. Why not physically link the
+survey data to real administrative tax records at the individual level? The roadblock here
+has always been legal privacy and data confidentiality constraints. Yet, recent
+breakthroughs in Privacy-Preserving Record Linkage (PPRL) —using cryptographic
+techniques— now allow researchers to link distinct databases without ever exposing
+personal identifiable information.
+Roberto Zelli Ghenis et al – Discussion 10 / 21
+===== SLIDE 11 =====
+Stage 2: Target-Informed Sparse Selection
+Stage 1 has created complete profiles for the 337,704 households. The dataset is way
+too big and heavy for microsimulations .
+Stage 2 of MICROCOSM reduces the data support while forcing calibration alignment.
+Alignment to 32,633 granular administrative benchmarks (targets) for tax, benefits, and
+demographics.
+The optimization process uses hard concrete gates to retain 57,240 records that
+accurately match these government targets , ensuring the final dataset aligns with
+real-world administrative records.
+Roberto Zelli Ghenis et al – Discussion 11 / 21
+===== SLIDE 12 =====
+Stage 2: The administrative targets
+The 32,633 administrative targets represent the total number of fiscal, socioeconomic, and
+demographic aggregates (compiled from official United States institutional databases) used to
+calibrate the microsimulation model.
+These 32,633 targets are macro-level data points nested across three geographic layers in
+the United States. This “surface” consists of:
+24,340 congressional-district targets (individual electoral districts).
+7,815 state-level targets.
+478 national-level targets.
+These aggregates come from authoritative administrative sources. The vast majority
+—31,350 targets— come from the IRS Statistics of Income (SOI). The remaining targets
+are drawn from the Census Bureau (population estimates) and registries of public
+assistance programs (such as Medicaid, SNAP/food stamps, and TANF).
+They mix count constraints (e.g., the number of program recipients in a specific district)
+and dollar amount constraints (e.g., total tax revenue or expenditures).
+Roberto Zelli Ghenis et al – Discussion 12 / 21
+===== SLIDE 13 =====
+Stage 2: Target-Informed Sparse Selection
+The targets serve three core purposes:
+1 Ensuring sub-national accuracy (Spatial Reweighting): The model shifts and fine-tunes
+household weights so that the microdata aggregates scale up to match known, local
+administrative reality simultaneously at the national, state, and district levels.
+2 Driving smart data pruning (Target-Informed Selection): Instead of dropping records at
+random, the pipeline uses a sparse optimization method. The algorithm actively evaluates
+the records against the 32,633 targets: a specific household record survives the pruning
+process only if keeping it directly helps the model ”hit” a target that would otherwise be
+missed.
+3 Enabling highly detailed policy simulation : Because the final dataset is tightly
+calibrated against this massive surface of real-world benchmarks, MICROCOSM can
+accurately simulate the impact of new tax and benefit legislation (such as the One Big
+Beautiful Bill Act analyzed in a companion paper) down to the specific grain of
+individual states and congressional districts.
+Roberto Zelli Ghenis et al – Discussion 13 / 21
+===== SLIDE 14 =====
+Stage 2: The Optimization Objective (Loss Function)
+The optimizer minimizes a multi-term objective function ( L) to balance matching the targets,
+keeping the file small, and avoiding erratic weights:
+L = Lcal + λL0L0 + λL2L2
+Lcal (Calibration Loss): This measures how close the simulated totals are to the real
+administrative targets. It uses a metric called capped weighted MAPE (Mean Absolute
+Percentage Error). It calculates relative error (so a 1% miss on a small target costs the
+same as a 1% miss on a large target) but caps extreme outliers so single hard-to-fit
+targets do not corrupt the gradients.
+L0 (Sparsity Penalty): This term penalizes the number of active records to force the
+dataset to be small.
+L2 (Concentration Penalty): This prevents the optimizer from ”cheating” by placing
+massive, unrealistic weights on just a few households to hit the targets.
+Roberto Zelli Ghenis et al – Discussion 14 / 21
+===== SLIDE 15 =====
+Stage 2: Solving the L0 Problem: Stochastic Gating
+The algorithm is given a double mission. It must minimize the error against real-world
+administrative data, but it also gets ”punished” for every household switch (on/off) it
+leaves open.
+To force the algorithm to actually use those switches and delete records, the authors add
+a penalty called the L0 norm, which counts non-zero entries in a vector.
+However, the L0 norm is non-differentiable, meaning you cannot use standard gradient
+descent to solve it because you cannot calculate its derivatives.
+To bypass this, the authors implement Hard Concrete gates ( zi ∈ [0, 1]) attached to each
+household parameter: Instead of a hard ”yes/no” choice, the gate is treated as a random
+variable drawn from a Concrete distribution (a continuous relaxation of a discrete choice).
+This ”trick” allows to turn continuous optimization into discrete record selection.
+Roberto Zelli Ghenis et al – Discussion 15 / 21
+===== SLIDE 16 =====
+Stage 2: The Post-Selection Refit
+The weights generated while the switches are turning on and off are not very accurate.
+The file gets a high error score of 9.86%.
+The authors separate the process into two steps. First, they use the gates purely as a
+filter to choose the best support subset of households (57,240 record). Second, lock that
+selection in, throw away the stochastic gates, and run a standard dense Adam optimizer
+for 1,500 epochs to smoothly refit ordinary calibration weights onto those selected records.
+This drops the final error to an impressive 4.74%.
+Roberto Zelli Ghenis et al – Discussion 16 / 21
+===== SLIDE 17 =====
+Empirical Results: Full-Surface Comparison
+Table: Full-surface comparison after 1,500-epoch fits (32,633 administrative targets)
+Method Arm Records Objective Loss ↓ Median ARE ESS ↑ Max Weight
+Informed L0 + Refit 57,240 4.74% 0.89% 4,726 913,836
+Dense no- L0 Calibration 337,704 5.07% 0.56% 5,970 579,298
+Random Sampling + Reweight 57,240 7.55% 6.70% 2,480 1,163,939
+Informed L0 Gated Weights 57,240 9.86% 11.66% 6,879 546,455
+Dense Random Scaled Sample 57,240 24.24% 55.24% 981 2,176,121
+Core Success:
+L0 + Refit lowers the loss by 6.4% over
+Dense and 37.2% over Random.
+Visible Risks:
+Post-selection refit is non-negotiable.
+High maximum weight spikes.
+Roberto Zelli Ghenis et al – Discussion 17 / 21
+===== SLIDE 18 =====
+The Evaluation Breakthrough: Population-View Harness
+Traditional benchmarking checks input marginals. This paper scores candidate files by
+projecting them through multiple partial survey views against held-out samples:
+Weighted Energy Distance: Sample
+form of a strictly proper scoring rule to
+check full distributions.
+PRDC Coverage: Anti-collapse axis
+based on k-NN radius; invariant to
+candidate reweighting.
+Classifier Two-Sample Test (C2ST):
+Cross-validated AUC of a
+gradient-boosted judge trying to
+distinguish real vs. imputed rows.
+Uncapped Tail Block: Evaluates
+extreme heavy right tails ( q90 and q99
+ratios) without caps.
+Roberto Zelli Ghenis et al – Discussion 18 / 21
+===== SLIDE 19 =====
+Stage 2: Comments I
+The gated weight paradox . The authors find that the continuous weights generated
+directly during the joint optimization loop yield a poor objective loss of nearly 10%. To
+fix this, they discard those weights and run an independent, secondary post-selection refit
+exclusively on the chosen support. If the continuous relaxed gates are poor weight-setters
+on their own, how confident can we be that they are truly selecting the optimal structural
+support? Does this behavior imply that a lasso alternative or a discrete combinatorial
+search might identify an even stronger subset?
+Prove the L0 superiority. Section 6.6 of the paper critiques L1 (LASSO)
+soft-thresholding shrinkage, but no L1 empirical arm is actually run in the benchmarks.
+Run a proximal gradient L1 comparison to numerically justify using the complex Hard
+Concrete distribution.
+Roberto Zelli Ghenis et al – Discussion 19 / 21
+===== SLIDE 20 =====
+Stage 2: Comments II
+Single-Seed vulnerability: High-stakes numbers on the full target surface are derived
+from a single fixed random seed configuration. Is it possible to replace single-seed results
+with multi-seed variance blocks to demonstrate that the support selection is statistically
+stable?
+Weight inflation (Representative Fragility). Because the optimizer forces a small number
+of records (57,240) to match tens of thousands of targets, individual household weights
+skyrocket up to 913,836. Having one household represent nearly a million families, does it
+make the simulator volatile to minor policy tweaks?
+Is compressing the dataset down to 57,240 records actually necessary for modern
+microsimulation?. The authors argue that a smaller file is required for computational
+efficiency and to run interactive microsimulations. In an era of rapid development in
+processing power, wouldn’t it be far more methodologically sound to simulate policy rules
+directly on a full, unreduced dataset of 337,000 households, or even larger data sets,
+Roberto Zelli Ghenis et al – Discussion 20 / 21
+===== SLIDE 21 =====
+Stage 2: Comments III
+thereby completely avoiding the statistical trade-offs and fragility caused by forced
+sparsity?
+Roberto Zelli Ghenis et al – Discussion 21 / 21
