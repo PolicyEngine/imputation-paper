@@ -399,7 +399,7 @@ REGISTRY: dict[str, Method] = {
             "populace-fit: regime-gated, sequentially-chained, weighted-bootstrap "
             "quantile-regression-forest, weight-aware by construction."
         ),
-        citation_key="populace2026",
+        citation_key="microcosm2026",
         constructor=lambda: _populace_fit_constructor(
             weights_mode="design", chained=True
         ),
@@ -412,7 +412,7 @@ REGISTRY: dict[str, Method] = {
             "populace-fit with weights='none' (the only unweighted path): isolates "
             "the weighted-bootstrap contribution."
         ),
-        citation_key="populace2026",
+        citation_key="microcosm2026",
         constructor=lambda: _populace_fit_constructor(
             weights_mode="none", chained=True
         ),
@@ -424,7 +424,7 @@ REGISTRY: dict[str, Method] = {
             "populace-fit fitting each target independently (no sequential "
             "chaining): isolates the chaining contribution."
         ),
-        citation_key="populace2026",
+        citation_key="microcosm2026",
         constructor=lambda: _populace_fit_constructor(
             weights_mode="design", chained=False
         ),

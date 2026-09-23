@@ -1,7 +1,7 @@
 [project]
 name = "imputation-paper"
 version = "0.1.0"
-description = "Paper and benchmarks for populace's weight-aware imputation approach"
+description = "Paper and benchmarks for Microcosm's weight-aware imputation approach"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
@@ -23,9 +23,14 @@ imp = "imputation_paper.cli:main"
 # imports each package lazily inside its constructor, so the registry can be
 # imported and listed without any of these installed.
 methods = [
-    # The subject of the paper: populace-fit's regime-gated, chained, weighted
-    # QRF, plus the Frame it fits over. Git deps against the populace monorepo
-    # subdirectories (populace is not yet on PyPI).
+    # The subject of the paper: the regime-gated, chained, weighted QRF now
+    # shipped as microcosm-fit, plus the Frame it fits over. Git deps against
+    # the monorepo (renamed populace -> microcosm on 2026-08-08; the pinned
+    # SHA predates the rename, so the subdirectories, dist names, and the
+    # `populace.fit` import below it are the legacy ones, and GitHub's rename
+    # redirect keeps the URL resolving). Repointing to current main requires
+    # microcosm-fit/microcosm-frame dist names, the new #subdirectory paths,
+    # and switching methods.py to `from microcosm.fit import ...`.
     # Pinned to the DataFrame-front-door commit (populace#290); repoint to a
     # main SHA once that PR merges.
     "populace-fit @ git+https://github.com/PolicyEngine/populace.git@71b5a83b433195748e62178b34f299b065a21b37#subdirectory=packages/populace-fit",
