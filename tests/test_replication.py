@@ -342,6 +342,25 @@ def test_an_arm_judged_against_itself(arm_2022: Arm) -> None:
             assert judgement.verdict == rules.VERDICT_INCONCLUSIVE, finding.key
 
 
+def test_a_claim_unmet_in_2022_is_at_best_inconclusive(arm_2022: Arm) -> None:
+    """The criteria file's cap: 2022 seed noise cannot be replicated.
+
+    W3c (unchained worse on net-worth W1) is inconclusive on the 2022 runs
+    (7 of 10 seeds). Make it clearly met on a perturbed arm, and clearly
+    failed on another: the verdicts are inconclusive and not replicated.
+    """
+    w3c = next(f for f in FINDINGS if f.key == "W3c")
+    assert w3c.evaluate(arm_2022).status == INCONCLUSIVE
+
+    worse = _scale_method(arm_2022, rules.UNCHAINED, 3.0)
+    assert w3c.evaluate(worse).status == MET
+    assert rules.judge(w3c, arm_2022, worse).verdict == rules.VERDICT_INCONCLUSIVE
+
+    better = _scale_method(arm_2022, rules.UNCHAINED, 0.2)
+    assert w3c.evaluate(better).status == FAILED
+    assert rules.judge(w3c, arm_2022, better).verdict == rules.NOT_REPLICATED
+
+
 def _scale_method(arm: Arm, method: str, factor: float) -> Arm:
     """The 2022 arm with one method's net-worth W1 multiplied by ``factor``."""
     wealth = arm.wealth.copy()
@@ -485,7 +504,9 @@ def test_committed_report_and_tables_are_current(tmp_path: Path) -> None:
         assert path.read_bytes() == (committed_docs / path.name).read_bytes(), path.name
     committed_tables = ROOT / "paper" / "tables"
     for name in (
-        "scf2025_replication.tex",
+        "scf2025_verdicts_wealth.tex",
+        "scf2025_verdicts_view_a.tex",
+        "scf2025_verdicts_view_b.tex",
         "scf2025_numbers.tex",
         "scf_wealth_2025.tex",
         "harness_2025.tex",
@@ -522,7 +543,8 @@ def test_appendix_cites_only_generated_numbers() -> None:
     allowed = (
         r"20(21|22|23|24|25|26)",  # years and wave labels
         r"\b[WGF]\d[a-d]?\b",  # finding IDs
-        r"\b(two|three|four|five|eight|ten)\b",
+        r"\b(two|three|four|five|seven|eight|ten)\b",
+        r"Forbes 400",
         r"4789/4376",  # the Fed's re-basing factor
         r"0\.5",  # the indistinguishable AUC
         r"q99|q90|W_1",
@@ -532,3 +554,23 @@ def test_appendix_cites_only_generated_numbers() -> None:
         prose = re.sub(pattern, "", prose)
     stray = re.findall(r"\d[\d,.]*", prose)
     assert not stray, f"numbers typed into the appendix: {stray}"
+
+
+def test_unit_invariance_is_exact_for_a_pure_change_of_units(arm_2022: Arm) -> None:
+    """An arm that differs only in dollar units matches on every metric row."""
+    wealth = arm_2022.wealth.copy()
+    dollars = wealth["metric"].isin(["pinball_loss", "wasserstein1"])
+    wealth.loc[dollars, "value"] *= report_cli.REBASE_2022_TO_2025
+    rebased = Arm("rebased", wealth, arm_2022.minimal, arm_2022.scale)
+    units = report_cli.unit_invariance(arm_2022, rebased)
+    assert len(units) == len(rules.DISPLAYED_METHODS)
+    assert (units["rows_matching"] == units["rows"]).all()
+    assert units["max_w1_mean_relative_difference"].max() < 1e-12
+
+    # A real difference in one method shows up in that method only.
+    wealth.loc[wealth["method"].eq(rules.HOT_DECK) & dollars, "value"] *= 1.01
+    shifted = Arm("shifted", wealth, arm_2022.minimal, arm_2022.scale)
+    units = report_cli.unit_invariance(arm_2022, shifted).set_index("method")
+    assert units.loc[rules.HOT_DECK, "max_w1_mean_relative_difference"] > 0.009
+    others = units.drop(index=rules.HOT_DECK)
+    assert (others["rows_matching"] == others["rows"]).all()

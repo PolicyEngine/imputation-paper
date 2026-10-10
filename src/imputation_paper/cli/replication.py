@@ -9,7 +9,7 @@ reports, all of it a pure function of those runs and of the rules in
   tables for both waves, and the diagnostic arms;
 * ``findings.csv``, ``headline_numbers.csv``, ``rankings.csv``, and
   ``reproduction_check.csv`` next to it;
-* ``paper/tables/scf2025_replication.tex`` -- the verdict table the appendix
+* ``paper/tables/scf2025_verdicts_*.tex`` -- the verdict tables the appendix
   inputs -- and ``paper/tables/scf2025_numbers.tex`` -- one macro per number
   the appendix prose cites, so no number in it is typed by hand.
 
@@ -23,6 +23,7 @@ and the report says so.
 from __future__ import annotations
 
 import json
+import re
 from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
@@ -81,6 +82,9 @@ TABLES: dict[str, tuple[str, list[tuple[str, str, str]]]] = {
     "min": ("Population view, minimal profile", HARNESS_COLUMNS),
     "scale": ("Population view, populace-scale profile", HARNESS_COLUMNS),
 }
+
+#: Profile key -> the report's name for it.
+PROFILE_LABELS: dict[str, str] = {"min": "minimal", "scale": "populace-scale"}
 
 _PLAIN_HEADERS = {
     "Debt $W_1$": "Debt W1",
@@ -146,6 +150,25 @@ def _delta(other: str) -> Callable[[Arm], float]:
     return lambda arm: (
         rules.contrast(arm, "wealth", "wasserstein1", CANDIDATE, other, "networth").dbar
     )
+
+
+def _seeds_worse(
+    run: str, metric: str, other: str, target: str | None = None
+) -> Callable[[Arm], float]:
+    """Seeds (of ten) on which ``other`` scores higher than the candidate."""
+    return lambda arm: float(
+        rules.contrast(arm, run, metric, CANDIDATE, other, target).k_pos
+    )
+
+
+def _gap_in_floor_sd(run: str, metric: str, other: str) -> Callable[[Arm], float]:
+    """``other`` minus the candidate, in floor sds (signed)."""
+
+    def value(arm: Arm) -> float:
+        c = rules.contrast(arm, run, metric, CANDIDATE, other)
+        return c.dbar / c.floor_sd if c.floor_sd else float("nan")
+
+    return value
 
 
 def _max_forest_zero_share(arm: Arm) -> float:
@@ -505,6 +528,12 @@ def _headlines() -> list[Headline]:
                 _mean(run, HOT_DECK, tail),
             ),
             Headline(
+                f"{run}-tail-unchained",
+                f"Net-worth W1/sd, unchained, {name}",
+                table,
+                _mean(run, UNCHAINED, tail),
+            ),
+            Headline(
                 f"{run}-q99-candidate",
                 f"Net-worth q99 ratio, candidate, {name}",
                 table,
@@ -581,6 +610,73 @@ def _headlines() -> list[Headline]:
                     _mean("scale", method, f"q99_ratio.{target}"),
                 )
             )
+    # Seed counts and floor-sd gaps the verdicts rest on.
+    for key, label, fn in (
+        (
+            "seeds-nw-w1-unweighted",
+            "Seeds unweighted worse, net-worth W1",
+            _seeds_worse("wealth", w1, UNWEIGHTED, "networth"),
+        ),
+        (
+            "seeds-debt-w1-unweighted",
+            "Seeds unweighted worse, debt W1",
+            _seeds_worse("wealth", w1, UNWEIGHTED, "debt"),
+        ),
+        (
+            "seeds-nw-w1-forest",
+            "Seeds ungated forest worse, net-worth W1",
+            _seeds_worse("wealth", w1, PLAIN_FOREST, "networth"),
+        ),
+        (
+            "seeds-nw-w1-unchained",
+            "Seeds unchained worse, net-worth W1",
+            _seeds_worse("wealth", w1, UNCHAINED, "networth"),
+        ),
+        (
+            "seeds-nw-w1-hotdeck",
+            "Seeds hot deck worse, net-worth W1",
+            _seeds_worse("wealth", w1, HOT_DECK, "networth"),
+        ),
+        (
+            "seeds-debt-zero-forest",
+            "Seeds ungated forest worse, debt zero share",
+            _seeds_worse("wealth", zero, PLAIN_FOREST, "debt"),
+        ),
+        (
+            "seeds-scale-auc-unchained",
+            "Seeds unchained higher AUC, scale",
+            _seeds_worse("scale", auc, UNCHAINED),
+        ),
+        (
+            "seeds-scale-auc-forest",
+            "Seeds ungated forest higher AUC, scale",
+            _seeds_worse("scale", auc, PLAIN_FOREST),
+        ),
+    ):
+        items.append(Headline(key, label, "Verdict detail", fn, "count"))
+    for run, name in (("min", "minimal"), ("scale", "scale")):
+        for key, label, metric, other in (
+            ("auc-unchained", "AUC, unchained", auc, UNCHAINED),
+            ("auc-forest", "AUC, ungated forest", auc, PLAIN_FOREST),
+            ("auc-hotdeck", "AUC, hot deck", auc, HOT_DECK),
+            ("auc-unweighted", "AUC, unweighted", auc, UNWEIGHTED),
+            ("energy-unweighted", "Energy, unweighted", energy, UNWEIGHTED),
+            ("energy-hotdeck", "Energy, hot deck", energy, HOT_DECK),
+            ("coverage-unweighted", "Coverage, unweighted", coverage, UNWEIGHTED),
+            ("coverage-hotdeck", "Coverage, hot deck", coverage, HOT_DECK),
+            ("q99-unweighted", "Net-worth q99 ratio, unweighted", q99, UNWEIGHTED),
+            ("tail-hotdeck", "Net-worth W1/sd, hot deck", tail, HOT_DECK),
+            ("tail-unchained", "Net-worth W1/sd, unchained", tail, UNCHAINED),
+        ):
+            items.append(
+                Headline(
+                    f"{run}-{key}-sd",
+                    f"{label} minus candidate, floor sds, {name}",
+                    "Verdict detail",
+                    _gap_in_floor_sd(run, metric, other),
+                    "sd",
+                )
+            )
     return items
 
 
@@ -595,6 +691,10 @@ def _show(value: float, kind: str) -> str:
         return f"{value:,.0f}"
     if kind == "ratio":
         return f"{value:.2f}"
+    if kind == "count":
+        return f"{value:.0f}"
+    if kind == "sd":
+        return f"{value:+.2f}".replace("-", "−")
     if kind == "points":
         return f"{value:.1f}"
     return f"{value:.3f}" if abs(value) < 1 else f"{value:.2f}"
@@ -667,6 +767,46 @@ def reproduction_check(arm_a: Arm, arm_d: Arm) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
+def unit_invariance(arm_a: Arm, arm_c: Arm) -> pd.DataFrame:
+    """Within-SCF task: the paper's runs against the same wave in 2025 dollars.
+
+    Donor and receiver come from the same re-based file, so the change is one
+    of units only. After converting arm C's dollar metrics back to 2022
+    dollars, a method whose results do not depend on units gives identical
+    numbers. Returns, per method, the share of metric rows that match exactly
+    and the largest relative differences, per seed and in the ten-seed means
+    of the two W1 columns.
+    """
+    keys = ["method", "seed", "target", "metric"]
+    a = arm_a.wealth.set_index(keys)["value"].sort_index()
+    c = arm_c.wealth.set_index(keys)["value"].sort_index()
+    dollars = c.index.get_level_values("metric").isin(["pinball_loss", "wasserstein1"])
+    c = c.where(~dollars, c / REBASE_2022_TO_2025)
+    relative = (c - a).abs() / a.abs().clip(lower=1e-300)
+    rows = []
+    for method in [m for m in DISPLAYED_METHODS if m in a.index.get_level_values(0)]:
+        mask = a.index.get_level_values("method") == method
+        exact = np.isclose(c[mask], a[mask], rtol=1e-12, atol=0)
+        w1 = [
+            abs(
+                float(c.xs((method, target, "wasserstein1"), level=[0, 2, 3]).mean())
+                / float(a.xs((method, target, "wasserstein1"), level=[0, 2, 3]).mean())
+                - 1
+            )
+            for target in ("debt", "networth")
+        ]
+        rows.append(
+            {
+                "method": method,
+                "rows": int(mask.sum()),
+                "rows_matching": int(exact.sum()),
+                "max_seed_relative_difference": float(relative[mask].max()),
+                "max_w1_mean_relative_difference": max(w1),
+            }
+        )
+    return pd.DataFrame(rows)
+
+
 # ---------------------------------------------------------------------------
 # Report assembly
 # ---------------------------------------------------------------------------
@@ -695,6 +835,7 @@ class Report:
     rankings: pd.DataFrame
     reproduction: pd.DataFrame
     diagnostics: pd.DataFrame
+    units: pd.DataFrame
 
 
 def _band_text(judgement: Judgement) -> str:
@@ -778,6 +919,7 @@ def build_report(runs_dir: Path = Path("runs")) -> Report:
         rankings=rankings,
         reproduction=reproduction,
         diagnostics=diagnostics,
+        units=unit_invariance(arms["A"], arms["C"]) if "C" in arms else pd.DataFrame(),
     )
 
 
@@ -828,6 +970,69 @@ def _count(findings: pd.DataFrame, primary: bool) -> str:
     return f"{len(subset)} findings: " + "; ".join(
         f"{count} {verdict.lower()}" for verdict, count in counts.items()
     )
+
+
+def _percent(share: float) -> str:
+    """A weight share as a percentage: one decimal from 1 percent up, two below."""
+    if not np.isfinite(share):
+        return "--"
+    value = 100 * share
+    return f"{value:.1f}" if value >= 1 else f"{value:.2f}"
+
+
+def _reuse_section(reuse: dict | None) -> list[str]:
+    """Hot-deck donor reuse, from ``scf-hotdeck-reuse/manifest.json``."""
+    lines = ["### Hot deck's tail and donor reuse", ""]
+    if reuse is None:
+        return [
+            *lines,
+            "Not run: `runs/scf-hotdeck-reuse/manifest.json` is absent "
+            "(`imp hotdeck-reuse` writes it).",
+            "",
+        ]
+    lines += [
+        "Hot deck donates whole observed values, so a donor matched to many "
+        "receivers is copied many times. The table repeats each run's "
+        "hot-deck match and asks how much receiver weight a single donor "
+        "above the holdout's net-worth q99 accounts for. A donor matched to "
+        "more than one percent of receiver weight puts the imputed q99 at or "
+        "above its own net worth, so one such donor above the holdout's q99 "
+        "is enough to inflate the ratio. A "
+        f"seed counts as tail-inflated when its q99 ratio exceeds "
+        f"{REUSE_INFLATED_RATIO}. The recomputed q99 ratios match the "
+        "committed harness runs (largest difference "
+        f"{reuse['largest_difference_from_committed_q99_ratio']:.1g}). Weight "
+        "shares and counts only.",
+        "",
+        _md_table(
+            [
+                "Profile",
+                "Wave",
+                "Tail-inflated seeds",
+                "Top tail donor's share of receiver weight, inflated seeds",
+                "Same, other seeds (largest)",
+                "Largest share for any donor",
+                "Donors used",
+            ],
+            [
+                [
+                    PROFILE_LABELS[row.profile],
+                    str(row.scf_year),
+                    f"{row.seeds_inflated} of {row.seeds}",
+                    f"{_percent(row.inflated_min_top_tail_share)}% to "
+                    f"{_percent(row.inflated_max_top_tail_share)}%"
+                    if row.seeds_inflated
+                    else "–",
+                    f"{_percent(row.other_max_top_tail_share)}%",
+                    f"{_percent(row.max_top_donor_share)}%",
+                    f"{100 * row.mean_donors_used_share:.0f}%",
+                ]
+                for row in reuse_table(reuse).itertuples()
+            ],
+        ),
+        "",
+    ]
+    return lines
 
 
 def _checks_section(checks: dict | None) -> list[str]:
@@ -921,7 +1126,66 @@ def _checks_section(checks: dict | None) -> list[str]:
     return lines
 
 
-def render_markdown(report: Report, checks: dict | None = None) -> str:
+def _thread_note(report: Report) -> list[str]:
+    """How the new runs were executed, with what the rerun says about it."""
+    if report.reproduction.empty:
+        return []
+    exact = bool(report.reproduction["identical"].all())
+    return [
+        "- The 2025 runs and both diagnostic arms ran with one OpenMP thread "
+        "per process (`OMP_NUM_THREADS=1`) on a loaded machine. The 2022 rerun "
+        "under that setting "
+        + (
+            "matches the committed 2022 runs exactly in every displayed cell."
+            if exact
+            else "does not match the committed 2022 runs exactly; see Diagnostics."
+        )
+    ]
+
+
+def _reading_notes(report: Report) -> list[str]:
+    """Verdicts that are easy to misread, stated once in plain terms."""
+    verdicts = report.findings.set_index("id")["verdict"]
+    statuses = report.findings.set_index("id")[["status_2022", "status_2025"]]
+    notes = []
+    capped = statuses[
+        statuses["status_2022"].ne("met") & statuses["status_2025"].eq("met")
+    ]
+    if len(capped):
+        notes.append(
+            f"- **{', '.join(capped.index)}** met the rule in 2025 but not in "
+            "2022. The criteria cap such a claim at inconclusive: meeting the "
+            "rule on the new wave does not replicate a finding the old wave "
+            "never established."
+        )
+    if verdicts.get("G1") == rules.NOT_REPLICATED:
+        notes.append(
+            "- **G1** is a tie claim (no gating advantage on SCF debt zero "
+            "share in 2022). It failed because a difference appeared, and the "
+            "difference favours the gated candidate. It is still a 2022 "
+            "finding that did not recur."
+        )
+    if verdicts.get("F3c") == rules.NOT_REPLICATED:
+        notes.append(
+            "- **F3c** is a ranking claim (the candidate has the lowest AUC "
+            "among itself and the baselines). It fails on any reversal, "
+            "however small. F4b (hot deck and the candidate tied on AUC) "
+            "shows how small this one is."
+        )
+    if verdicts.get("F5b") == rules.NOT_REPLICATED:
+        notes.append(
+            "- **F5b** bundles two ties per profile. The marginal draw still "
+            "sits at the floor; the part that failed is hot deck's tail (see "
+            '"Hot deck\'s tail and donor reuse" under Diagnostics).'
+        )
+    if not notes:
+        return []
+    return ["## Notes on reading the verdicts", "", *notes, ""]
+
+
+def render_markdown(
+    report: Report, checks: dict | None = None, reuse: dict | None = None
+) -> str:
     """The comparison document."""
     findings = report.findings
     baseline = report.arms[report.baseline_letter]
@@ -940,15 +1204,16 @@ def render_markdown(report: Report, checks: dict | None = None) -> str:
         "- **2025** is the same code, environment, seeds, and receiver files "
         "with the SCF 2025 donor (2025 dollars). The receiver is unchanged: "
         "ASEC 2025 (minimal profile) and pooled ASEC 2023–2025 (scale).",
+        *_thread_note(report),
         "",
         "## Summary",
         "",
         f"- Primary ({_count(findings, True)}).",
         f"- Secondary ({_count(findings, False)}).",
         f"- Method rankings: {int(report.rankings['verdict'].eq('Replicated').sum())} "
-        f"of {len(report.rankings)} table columns replicate, "
+        f"of {len(report.rankings)} table columns replicated, "
         f"{int(report.rankings['verdict'].eq('Partly replicated').sum())} partly, "
-        f"{int(report.rankings['verdict'].eq('Not replicated').sum())} do not; the "
+        f"{int(report.rankings['verdict'].eq('Not replicated').sum())} not; the "
         f"best method is unchanged in {int(report.rankings['same_best'].sum())}.",
         "",
     ]
@@ -966,6 +1231,7 @@ def render_markdown(report: Report, checks: dict | None = None) -> str:
             )
         lines.append("")
 
+    lines += _reading_notes(report)
     lines += [
         "## Verdicts",
         "",
@@ -1086,10 +1352,15 @@ def render_markdown(report: Report, checks: dict | None = None) -> str:
         over = check[check["gap_in_sd"] > REPRODUCTION_TOLERANCE_SD]
         lines += [
             f"Of {len(check)} displayed table cells, {identical} match the "
-            "committed runs exactly on all ten seeds. The largest gap between "
-            f"a rerun mean and a committed mean is {worst['gap_in_sd']:.3f} "
-            f"committed seed sds ({METHOD_NAMES[worst['method']]}, "
-            f"{worst['column']}, {TABLES[worst['run']][0].lower()}). "
+            "committed runs exactly on all ten seeds. "
+            + (
+                "Every rerun mean equals its committed mean. "
+                if worst["gap_in_sd"] == 0
+                else "The largest gap between a rerun mean and a committed mean "
+                f"is {worst['gap_in_sd']:.3f} committed seed sds "
+                f"({METHOD_NAMES[worst['method']]}, {worst['column']}, "
+                f"{TABLES[worst['run']][0].lower()}). "
+            )
             + (
                 "No cell exceeds the half-sd tolerance, so the committed 2022 "
                 "runs stand as the baseline."
@@ -1141,8 +1412,13 @@ def render_markdown(report: Report, checks: dict | None = None) -> str:
     else:
         lines += [
             "Arm C is the 2022 wave in 2025 dollars (the file the Fed now "
-            "serves): it separates the change of dollar basis from the change "
-            "of wave. Arm D is the 2022 rerun. Neither carries a verdict.",
+            "serves). The criteria file describes it as separating the dollar "
+            "basis from the wave. That holds for the within-SCF task, where "
+            "donor and receiver are re-based together. In the population view "
+            "it does not: the CPS receiver's incomes are unchanged, so arm C "
+            "also moves the donor's income predictors by the re-basing factor "
+            "relative to the receiver's. Arm D is the 2022 rerun. Neither "
+            "carries a verdict.",
             "",
         ]
         headers = ["ID", "2022 (paper)", "2025"]
@@ -1161,6 +1437,37 @@ def render_markdown(report: Report, checks: dict | None = None) -> str:
             rows.append(cells)
         lines += [_md_table(headers, rows), ""]
 
+    if not report.units.empty:
+        lines += [
+            "### Do the methods depend on the dollar units?",
+            "",
+            "Within the SCF, arm C is arm A in different units. After "
+            "converting arm C's dollar metrics back to 2022 dollars, a method "
+            "whose results do not depend on units reproduces arm A exactly.",
+            "",
+            _md_table(
+                [
+                    "Method",
+                    "Metric rows",
+                    "Matching",
+                    "Largest per-seed difference",
+                    "Largest change in a W1 mean",
+                ],
+                [
+                    [
+                        METHOD_NAMES[row.method],
+                        str(row.rows),
+                        str(row.rows_matching),
+                        f"{100 * row.max_seed_relative_difference:.1f}%",
+                        f"{100 * row.max_w1_mean_relative_difference:.1f}%",
+                    ]
+                    for row in report.units.itertuples()
+                ],
+            ),
+            "",
+        ]
+
+    lines += _reuse_section(reuse)
     lines += _checks_section(checks)
     return "\n".join(lines)
 
@@ -1180,50 +1487,57 @@ _TEX_ESCAPES = {
 
 
 def _tex(text: str) -> str:
-    """Escape report text for LaTeX."""
+    """Escape report text for LaTeX; a minus sign before a number is set as one."""
     for raw, escaped in _TEX_ESCAPES.items():
         text = text.replace(raw, escaped)
-    return text
+    return re.sub(r"(?<![\w.$])-(?=\d)", "$-$", text)
 
 
-def render_verdict_table(report: Report) -> str:
-    """The verdict table the appendix inputs (two tabulars, one per task)."""
-    blocks = [
+#: The verdict tables: file stem -> the prefixes of the finding IDs it holds
+#: (within-SCF findings start with W or G; population-view findings with F,
+#: split in two so each table fits a page).
+VERDICT_TABLES: dict[str, tuple[str, ...]] = {
+    "scf2025_verdicts_wealth": ("W", "G"),
+    "scf2025_verdicts_view_a": ("F0", "F1", "F2"),
+    "scf2025_verdicts_view_b": ("F3", "F4", "F5"),
+}
+
+
+def render_verdict_table(report: Report, prefixes: tuple[str, ...]) -> str:
+    """One verdict table the appendix inputs: the findings whose ID starts so."""
+    lines = [
         "% Generated by `imp replication` -- do not edit by hand. Pre-registered "
         "rules of docs/scf-2025-replication-criteria.md applied to the committed "
-        "2022 and 2025 runs.",
+        "2022 and 2025 runs. An asterisk marks a primary finding.",
+        r"\begin{tabular}{@{}lp{0.20\textwidth}p{0.26\textwidth}"
+        r"p{0.26\textwidth}p{0.12\textwidth}@{}}",
+        r"\hline",
+        r"ID & Finding & 2022 & 2025 & Verdict \\",
+        r"\hline",
     ]
-    for prefix, caption in (("WG", "within-SCF"), ("F", "population view")):
-        subset = [j for j in report.judgements if j.finding.key[0] in prefix]
-        blocks += [
-            f"% --- {caption} ---",
-            r"\begin{tabular}{@{}lp{0.21\textwidth}p{0.27\textwidth}"
-            r"p{0.27\textwidth}p{0.13\textwidth}@{}}",
-            r"\hline",
-            r"ID & Finding & 2022 & 2025 & Verdict \\",
-            r"\hline",
-        ]
-        for j in subset:
-            key = j.finding.key + (r"$^{\ast}$" if j.finding.primary else "")
-            blocks.append(
-                " & ".join(
-                    [
-                        key,
-                        _tex(j.finding.claim),
-                        _tex(j.baseline.text),
-                        _tex(j.replication.text),
-                        _tex(j.verdict),
-                    ]
-                )
-                + r" \\"
+    for j in report.judgements:
+        if not j.finding.key.startswith(prefixes):
+            continue
+        key = j.finding.key + (r"$^{\ast}$" if j.finding.primary else "")
+        lines.append(
+            " & ".join(
+                [
+                    key,
+                    _tex(j.finding.claim),
+                    _tex(j.baseline.text),
+                    _tex(j.replication.text),
+                    _tex(j.verdict),
+                ]
             )
-        blocks += [r"\hline", r"\end{tabular}", ""]
-        if prefix == "WG":
-            blocks += [r"\par\medskip", ""]
-    return "\n".join(blocks)
+            + r" \\"
+        )
+    lines += [r"\hline", r"\end{tabular}", ""]
+    return "\n".join(lines)
 
 
-def number_macros(report: Report, checks: dict | None = None) -> dict[str, str]:
+def number_macros(
+    report: Report, checks: dict | None = None, reuse: dict | None = None
+) -> dict[str, str]:
     """Macro key -> text for every number the appendix prose may cite.
 
     Keys: ``<headline key>:2022`` and ``:2025`` (and ``:2022r`` for a dollar
@@ -1257,6 +1571,14 @@ def number_macros(report: Report, checks: dict | None = None) -> dict[str, str]:
         macros[f"count:{tag}:failed"] = str(
             int(subset["verdict"].eq(rules.NOT_REPLICATED).sum())
         )
+    findings = report.findings
+    macros["count:all"] = str(len(findings))
+    macros["count:status2022:notmet"] = str(
+        int(findings["status_2022"].ne("met").sum())
+    )
+    macros["count:all:replicated"] = str(
+        int(findings["verdict"].eq(rules.REPLICATED).sum())
+    )
     rankings = report.rankings
     macros["rank:columns"] = str(len(rankings))
     macros["rank:replicated"] = str(int(rankings["verdict"].eq("Replicated").sum()))
@@ -1282,11 +1604,42 @@ def number_macros(report: Report, checks: dict | None = None) -> dict[str, str]:
                     f"{gap[f'published_{wave}'] / scale:,.1f}"
                 )
                 macros[f"check:{key}:gap:{tag}"] = (
-                    f"{100 * abs(gap[f'gap_{wave}']):.2f}"
+                    f"{100 * gap[f'gap_{wave}']:+.2f}".replace("-", "−")
                 )
         for year in ("2022", "2025"):
             macros[f"check:families:{year}"] = f"{checks['waves'][year]['families']:,}"
             macros[f"check:rows:{year}"] = f"{checks['waves'][year]['rows']:,}"
+    if reuse is not None:
+        for row in reuse_table(reuse).itertuples():
+            key = f"reuse:{row.profile}:{row.scf_year}"
+            macros[f"{key}:inflated"] = str(row.seeds_inflated)
+            macros[f"{key}:other-max"] = _percent(row.other_max_top_tail_share)
+            macros[f"{key}:top-share-max"] = _percent(row.max_top_donor_share)
+            if row.seeds_inflated:
+                macros[f"{key}:share-min"] = _percent(row.inflated_min_top_tail_share)
+                macros[f"{key}:share-max"] = _percent(row.inflated_max_top_tail_share)
+    for judgement in report.judgements:
+        for tag, evaluation in (
+            ("2022", judgement.baseline),
+            ("2025", judgement.replication),
+        ):
+            if evaluation.parts:
+                key = judgement.finding.key
+                macros[f"{key}:parts"] = str(len(evaluation.parts))
+                macros[f"{key}:parts-met:{tag}"] = str(
+                    evaluation.parts.count(rules.MET)
+                )
+    if not report.units.empty:
+        units = report.units.set_index("method")["max_w1_mean_relative_difference"]
+        forests = [CANDIDATE, UNWEIGHTED, UNCHAINED, PLAIN_FOREST]
+        macros["units:forest-max"] = f"{100 * units[forests].max():.1f}"
+        macros["units:candidate"] = f"{100 * units[CANDIDATE]:.1f}"
+        macros["units:quantreg"] = f"{100 * units[QUANTREG]:.1f}"
+    if "status_C" in report.diagnostics:
+        merged = report.diagnostics.merge(report.findings, on="id")
+        moved = merged[merged["status_C"].ne(merged["status_2022"])]
+        macros["diag:C:changed"] = str(len(moved))
+        macros["diag:C:changed-ids"] = ", ".join(moved["id"])
     return macros
 
 
@@ -1323,27 +1676,185 @@ def make_replication(
         return 1
     checks_path = runs_dir / "scf-population-checks" / "manifest.json"
     checks = json.loads(checks_path.read_text()) if checks_path.exists() else None
+    reuse_path = runs_dir / "scf-hotdeck-reuse" / "manifest.json"
+    reuse = json.loads(reuse_path.read_text()) if reuse_path.exists() else None
 
     docs_out.mkdir(parents=True, exist_ok=True)
     tables_out.mkdir(parents=True, exist_ok=True)
-    (docs_out / "comparison.md").write_text(render_markdown(report, checks))
+    (docs_out / "comparison.md").write_text(render_markdown(report, checks, reuse))
     report.findings.to_csv(docs_out / "findings.csv", index=False)
     report.headlines.to_csv(docs_out / "headline_numbers.csv", index=False)
     report.rankings.to_csv(docs_out / "rankings.csv", index=False)
     if not report.reproduction.empty:
         report.reproduction.to_csv(docs_out / "reproduction_check.csv", index=False)
-    (tables_out / "scf2025_replication.tex").write_text(render_verdict_table(report))
+    if not report.units.empty:
+        report.units.to_csv(docs_out / "unit_invariance.csv", index=False)
+    for stem, prefixes in VERDICT_TABLES.items():
+        (tables_out / f"{stem}.tex").write_text(render_verdict_table(report, prefixes))
     (tables_out / "scf2025_numbers.tex").write_text(
-        render_number_macros(number_macros(report, checks))
+        render_number_macros(number_macros(report, checks, reuse))
     )
 
     print(f"imp replication -- baseline arm {report.baseline_letter}")
     for verdict, count in report.findings["verdict"].value_counts().items():
         print(f"  {count:2d} {verdict}")
     print(f"  wrote {docs_out / 'comparison.md'}")
-    print(f"  wrote {tables_out / 'scf2025_replication.tex'}")
+    for stem in VERDICT_TABLES:
+        print(f"  wrote {tables_out / f'{stem}.tex'}")
     print(f"  wrote {tables_out / 'scf2025_numbers.tex'}")
     return 0
+
+
+#: Net-worth quantile at which donor reuse is measured (the harness's q99).
+REUSE_QUANTILE = 0.99
+
+#: A hot-deck seed counts as tail-inflated when its imputed net-worth q99 is
+#: more than this multiple of the holdout's (the level F1b applies to the
+#: unweighted ablation).
+REUSE_INFLATED_RATIO = 1.5
+
+
+def make_hotdeck_reuse(
+    out: Path = Path("runs/scf-hotdeck-reuse"),
+    runs_dir: Path = Path("runs"),
+    n_seeds: int = 10,
+    max_receiver_rows: int = 20_000,
+) -> int:
+    """Measure hot-deck donor reuse in the population view, both waves.
+
+    Repeats the hot-deck match of ``imp harness`` (same receiver sample, same
+    donor splits) for each profile, wave, and seed, and records how much
+    receiver weight a single donor above the holdout's net-worth q99 accounts
+    for. Only weight shares and counts are written. As a differential check,
+    the net-worth q99 ratio recomputed here must equal the one the committed
+    harness run recorded for the same seed.
+
+    Returns:
+        Process exit code (``0`` if every recomputed ratio matches its run).
+    """
+    from statmatch import nnd_hotdeck
+
+    from imputation_paper.cli.harness import PROFILE_RECEIVER_YEARS, default_run_dir
+    from imputation_paper.data.cps import load_cps_households
+    from imputation_paper.data.scf import load_scf
+    from imputation_paper.experiments.donor_reuse import donor_reuse_summary
+    from imputation_paper.experiments.holdout import split_frame
+    from imputation_paper.experiments.metrics import _weighted_quantile
+
+    level = np.array([REUSE_QUANTILE])
+    rows: list[dict[str, object]] = []
+    worst = 0.0
+    for profile, run_key in (("minimal", "min"), ("populace-scale", "scale")):
+        full = load_cps_households(PROFILE_RECEIVER_YEARS[profile], profile=profile)
+        receiver = (
+            full.sample(n=max_receiver_rows, random_state=0)
+            if len(full) > max_receiver_rows
+            else full
+        ).reset_index(drop=True)
+        weights = receiver["household_weight"].to_numpy(dtype=np.float64)
+        for year in (2022, 2025):
+            scf = load_scf(year, profile=profile)
+            shared = [p for p in scf.predictors if p in receiver.columns]
+            committed = pd.read_csv(
+                runs_dir / default_run_dir(profile, year).name / "harness_long.csv"
+            )
+            committed = committed[
+                committed["method"].eq(HOT_DECK)
+                & committed["metric"].eq("q99_ratio.networth")
+            ].set_index("seed")["value"]
+            for seed in range(n_seeds):
+                split = split_frame(scf.frame, seed=seed)
+                donor = split.train.loc[:, [*shared, *scf.targets]].reset_index(
+                    drop=True
+                )
+                matched = nnd_hotdeck(
+                    data_rec=receiver.loc[:, shared],
+                    data_don=donor,
+                    match_vars=shared,
+                    don_weights=split.train[scf.weight_column].to_numpy(),
+                )["mtc.ids"].sort_values("rec.id")
+                donor_index = matched["don.id"].to_numpy(dtype=np.int64)
+                donated = donor["networth"].to_numpy(dtype=np.float64)[donor_index]
+                holdout_q99 = float(
+                    _weighted_quantile(
+                        split.test["networth"].to_numpy(dtype=np.float64),
+                        split.test[scf.weight_column].to_numpy(dtype=np.float64),
+                        level,
+                    )[0]
+                )
+                ratio = (
+                    float(_weighted_quantile(donated, weights, level)[0]) / holdout_q99
+                )
+                worst = max(worst, abs(ratio - float(committed.loc[seed])))
+                rows.append(
+                    {
+                        "profile": run_key,
+                        "scf_year": year,
+                        "seed": seed,
+                        "donors": int(len(donor)),
+                        "q99_ratio": ratio,
+                        **donor_reuse_summary(
+                            donor_index, weights, donated, holdout_q99
+                        ),
+                    }
+                )
+                print(f"  done reuse/{profile}/{year}/seed={seed}", flush=True)
+
+    matches = worst < 1e-9
+    manifest = {
+        "diagnostic": "hotdeck_donor_reuse",
+        "quantile": REUSE_QUANTILE,
+        "receiver_rows": max_receiver_rows,
+        "largest_difference_from_committed_q99_ratio": worst,
+        "matches_committed_runs": matches,
+        "rows": rows,
+    }
+    out.mkdir(parents=True, exist_ok=True)
+    (out / "manifest.json").write_text(json.dumps(manifest, indent=2))
+    print(
+        f"imp hotdeck-reuse -- {len(rows)} matches; largest difference from the "
+        f"committed q99 ratios {worst:.2g} -> {'ok' if matches else 'MISMATCH'}"
+    )
+    print(f"  wrote {out / 'manifest.json'}")
+    return 0 if matches else 1
+
+
+def reuse_table(reuse: dict) -> pd.DataFrame:
+    """Per profile and wave: tail-inflated seeds and the reuse behind them."""
+    frame = pd.DataFrame(reuse["rows"])
+    frame["inflated"] = frame["q99_ratio"] > REUSE_INFLATED_RATIO
+    rows = []
+    for (profile, year), group in frame.groupby(["profile", "scf_year"], sort=True):
+        hot = group[group["inflated"]]
+        rest = group[~group["inflated"]]
+        rows.append(
+            {
+                "profile": profile,
+                "scf_year": int(year),
+                "seeds": int(len(group)),
+                "seeds_inflated": int(len(hot)),
+                "inflated_min_top_tail_share": float(
+                    hot["top_tail_donor_weight_share"].min()
+                )
+                if len(hot)
+                else float("nan"),
+                "inflated_max_top_tail_share": float(
+                    hot["top_tail_donor_weight_share"].max()
+                )
+                if len(hot)
+                else float("nan"),
+                "other_max_top_tail_share": float(
+                    rest["top_tail_donor_weight_share"].max()
+                )
+                if len(rest)
+                else float("nan"),
+                "max_top_donor_share": float(group["top_donor_weight_share"].max()),
+                "mean_donors_used_share": float(
+                    (group["donors_used"] / group["donors"]).mean()
+                ),
+            }
+        )
+    return pd.DataFrame(rows)
 
 
 def make_population_checks(out: Path = Path("runs/scf-population-checks")) -> int:

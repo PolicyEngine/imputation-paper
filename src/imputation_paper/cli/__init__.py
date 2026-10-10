@@ -170,6 +170,21 @@ def main(argv: list[str] | None = None) -> int:
         help="Run directory to write manifest.json into.",
     )
 
+    hotdeck_reuse = subcommands.add_parser(
+        "hotdeck-reuse",
+        help="Measure hot-deck donor reuse in the population view, both waves "
+        "(needs the methods extra).",
+    )
+    hotdeck_reuse.add_argument(
+        "--out",
+        type=Path,
+        default=Path("runs/scf-hotdeck-reuse"),
+        help="Run directory to write manifest.json into.",
+    )
+    hotdeck_reuse.add_argument(
+        "--runs-dir", type=Path, default=Path("runs"), help="Runs root."
+    )
+
     figures = subcommands.add_parser(
         "figures",
         help="Aggregate a run's long-format artifacts into summary tables.",
@@ -227,6 +242,10 @@ def main(argv: list[str] | None = None) -> int:
         from imputation_paper.cli.replication import make_population_checks
 
         return make_population_checks(out=args.out)
+    if args.command == "hotdeck-reuse":
+        from imputation_paper.cli.replication import make_hotdeck_reuse
+
+        return make_hotdeck_reuse(out=args.out, runs_dir=args.runs_dir)
     if args.command == "figures":
         from imputation_paper.cli.figures import make_figures
 

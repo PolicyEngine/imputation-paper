@@ -315,11 +315,14 @@ class Evaluation:
         effects: The stated effect sizes (one per profile where the claim
             spans both), on the scale the magnitude band is defined on; empty
             when the claim carries no magnitude.
+        parts: For a claim made of several rules that must all hold, each
+            rule's status; empty for a single rule.
     """
 
     status: str
     text: str
     effects: tuple[float, ...] = ()
+    parts: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -432,7 +435,8 @@ def _w7(arm: Arm) -> Evaluation:
         parts.append(best == MARGINAL)
         texts.append(
             f"{target}: marginal {format_number(means[MARGINAL])}, candidate "
-            f"{format_number(means[CANDIDATE])}, best {best}"
+            f"{format_number(means[CANDIDATE])}, lowest: "
+            f"{'marginal draw' if best == MARGINAL else best}"
         )
     return Evaluation(_level(all(parts)), "; ".join(texts))
 
@@ -493,7 +497,7 @@ def _ties(
                 f"{format_number(widest.mean_a)}); {statuses.count(MET)}/{len(statuses)} "
                 "ties met"
             )
-        return Evaluation(_all_of(statuses), text)
+        return Evaluation(_all_of(statuses), text, parts=tuple(statuses))
 
     return evaluate
 
@@ -625,7 +629,7 @@ def _f5b(arm: Arm) -> Evaluation:
             f"{marginal.mean_b:.2f} vs floor {marginal.mean_a:.2f} "
             f"({marginal.gap:.2f} floor sd)"
         )
-    return Evaluation(_all_of(statuses), "; ".join(texts))
+    return Evaluation(_all_of(statuses), "; ".join(texts), parts=tuple(statuses))
 
 
 #: Every pre-registered finding, in the criteria file's order.
@@ -931,9 +935,10 @@ NOT_REPLICATED = "Not replicated"
 def judge(finding: Finding, baseline: Arm, replication: Arm) -> Judgement:
     """Apply a finding's rule to both arms and return the verdict.
 
-    The verdict follows the replication arm's status. The magnitude band is
-    the baseline's effect halved and doubled; it matters only when the rule
-    is met.
+    The verdict follows the replication arm's status, with one cap from the
+    criteria file: a claim the baseline arm does not itself meet can at best
+    be inconclusive. The magnitude band is the baseline's effect halved and
+    doubled; it matters only when the rule is met on both arms.
     """
     base = finding.evaluate(baseline)
     repl = finding.evaluate(replication)
@@ -955,7 +960,10 @@ def judge(finding: Finding, baseline: Arm, replication: Arm) -> Judgement:
 
     if repl.status == FAILED:
         verdict = NOT_REPLICATED
-    elif repl.status == INCONCLUSIVE:
+    elif repl.status == INCONCLUSIVE or base.status != MET:
+        # The criteria file: "A claim that was within seed noise in 2022 can
+        # at best come out inconclusive." Meeting the rule on the new wave
+        # does not replicate a finding the old wave never established.
         verdict = VERDICT_INCONCLUSIVE
     elif magnitude_holds is False:
         verdict = f"{DIRECTION_ONLY} ({direction})"
