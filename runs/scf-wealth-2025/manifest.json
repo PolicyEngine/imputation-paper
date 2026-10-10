@@ -1,0 +1,55 @@
+{
+  "task": "scf_wealth",
+  "rows_used": 4360,
+  "rows_available": 4360,
+  "row_cap_applied": false,
+  "max_rows": 20000,
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+  ],
+  "methods_requested": [
+    "populace_fit",
+    "populace_fit_unweighted",
+    "populace_fit_unchained",
+    "plain_qrf",
+    "microimpute_qrf",
+    "microimpute_ols",
+    "microimpute_quantreg",
+    "statmatch_hotdeck",
+    "weighted_marginal"
+  ],
+  "predictors": [
+    "age",
+    "hhsex",
+    "edcl",
+    "married",
+    "kids",
+    "income",
+    "wageinc"
+  ],
+  "targets": [
+    "debt",
+    "networth"
+  ],
+  "weight_column": "wgt",
+  "input_provenance": {
+    "scf_year": 2025,
+    "file": "rscfp2025.dta",
+    "zip_sha256": "32dcf86be48b20fb5fd9e659f79fa22a4d9cccf456e44b6ca9b1329e9869bbeb",
+    "file_dollar_year": 2025,
+    "file_description": "SCF 2025 in 2025 dollars (rscfp2025.dta dated 2026-10-05), first release, served from 2026-10-09",
+    "dollar_year": 2025,
+    "rebase_factor": 1.0,
+    "url": "https://www.federalreserve.gov/econres/files/scfp2025s.zip",
+    "profile": "minimal"
+  }
+}

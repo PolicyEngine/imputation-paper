@@ -1,0 +1,71 @@
+{
+  "checks": "scf_population",
+  "published_source": "Board of Governors of the Federal Reserve System, 'Changes in U.S. Family Finances from 2022 to 2025' (https://www.federalreserve.gov/publications/files/scf26.pdf): Table 2 (net worth, all families, thousands of 2025 dollars), Table B.1 (families represented, millions), and Appendix A (families interviewed).",
+  "published_dollar_year": 2025,
+  "families_interviewed": {
+    "2022": 4602,
+    "2025": 4367
+  },
+  "waves": {
+    "2022": {
+      "rows": 22975,
+      "families": 4595,
+      "implicates": 5,
+      "weight_total": 131306389.38346359,
+      "net_worth_identity_max_abs_error": 2.384185791015625e-07,
+      "asset_identity_max_abs_error": 2.384185791015625e-07,
+      "net_worth_median": 210886.72303473493,
+      "net_worth_mean": 1159447.4008198339,
+      "scf_year": 2022,
+      "dollar_year": 2025,
+      "zip_sha256": "3bb4d890ae2463ff6039ec7692e375f544dd98a55a37ca2cb2340354b9cc9d80",
+      "file_dollar_year": 2022
+    },
+    "2025": {
+      "rows": 21800,
+      "families": 4360,
+      "implicates": 5,
+      "weight_total": 134963690.69015205,
+      "net_worth_identity_max_abs_error": 0.0,
+      "asset_identity_max_abs_error": 0.0,
+      "net_worth_median": 216100.0,
+      "net_worth_mean": 1231997.2637029984,
+      "scf_year": 2025,
+      "dollar_year": 2025,
+      "zip_sha256": "32dcf86be48b20fb5fd9e659f79fa22a4d9cccf456e44b6ca9b1329e9869bbeb",
+      "file_dollar_year": 2025
+    }
+  },
+  "published_gaps": {
+    "weight_total": {
+      "published_calibration": 131300000.00000001,
+      "public_calibration": 131306389.38346359,
+      "gap_calibration": 4.866247877810537e-05,
+      "published_replication": 135000000.0,
+      "public_replication": 134963690.69015205,
+      "gap_replication": -0.00026895785072555967,
+      "tolerance": 0.001,
+      "within_tolerance": true
+    },
+    "net_worth_median": {
+      "published_calibration": 211100.0,
+      "public_calibration": 210886.72303473493,
+      "gap_calibration": -0.0010103124834915933,
+      "published_replication": 215900.0,
+      "public_replication": 216100.0,
+      "gap_replication": 0.0009263547938860306,
+      "tolerance": 0.01,
+      "within_tolerance": true
+    },
+    "net_worth_mean": {
+      "published_calibration": 1164100.0,
+      "public_calibration": 1159447.4008198339,
+      "gap_calibration": -0.003996734971365101,
+      "published_replication": 1241500.0,
+      "public_replication": 1231997.2637029984,
+      "gap_replication": -0.0076542378550154,
+      "tolerance": 0.01,
+      "within_tolerance": true
+    }
+  }
+}
