@@ -29,6 +29,30 @@ METHOD_ORDER: tuple[tuple[str, str], ...] = (
 )
 _DISPLAY = dict(METHOD_ORDER)
 
+#: Displayed columns of the SCF wealth table: ``(target, metric, header)``.
+SCF_WEALTH_COLUMNS: list[tuple[str, str, str]] = [
+    ("debt", "pinball_loss", "Debt pinball"),
+    ("debt", "wasserstein1", "Debt $W_1$"),
+    ("debt", "zero_share_error", "Debt zero-share err."),
+    ("networth", "pinball_loss", "Net worth pinball"),
+    ("networth", "wasserstein1", "Net worth $W_1$"),
+]
+
+#: Displayed columns of both population-view tables: ``(view, metric, header)``.
+HARNESS_COLUMNS: list[tuple[str, str, str]] = [
+    ("scf", "energy_distance", "Energy distance"),
+    ("scf", "prdc_coverage", "Coverage"),
+    ("scf", "c2st_auc", "C2ST AUC"),
+    ("scf", "w1_over_sd.networth", r"NW $W_1$/sd"),
+    ("scf", "q99_ratio.networth", "NW q99 ratio"),
+]
+
+#: Replication waves whose tables are written next to the paper's when their
+#: runs exist: ``(run-directory suffix, table-file suffix, donor label)``.
+REPLICATION_WAVES: tuple[tuple[str, str, str], ...] = (
+    ("-2025", "_2025", "SCF 2025 donor"),
+)
+
 #: Metrics where lower is better (used for bolding the best value).
 #: fragility_kappa5 is deliberately absent: its target is the *truth's* own
 #: exposure, not zero -- too low means the method never generates realistic
@@ -322,6 +346,58 @@ def _ablation_table(runs_dir: Path, out_dir: Path, written: list[str]) -> None:
     written.append("ablations.tex")
 
 
+def _replication_wave_tables(runs_dir: Path, out_dir: Path, written: list[str]) -> None:
+    """The three SCF tables again, for each replication wave that has runs.
+
+    Same columns, same aggregation, same bolding as the paper's tables; only
+    the donor wave differs. A wave with no runs is skipped without comment, so
+    a checkout that holds only the paper's runs prints what it always did.
+    """
+    for run_suffix, file_suffix, donor in REPLICATION_WAVES:
+        scf = _long_to_summary(
+            runs_dir / f"scf-wealth{run_suffix}", "metrics_long.csv", "target"
+        )
+        if scf is not None:
+            name = f"scf_wealth{file_suffix}.tex"
+            (out_dir / name).write_text(
+                _tabular(
+                    scf,
+                    SCF_WEALTH_COLUMNS,
+                    f"SCF wealth task, {donor}, mean (sd) over 10 paired seeds.",
+                )
+            )
+            written.append(name)
+        for run_name, stem, note in (
+            (
+                "scf-to-cps-harness",
+                "harness",
+                "Minimal profile: 6 shared predictors, 2 targets, ASEC 2025 receiver.",
+            ),
+            (
+                "scf-to-cps-harness-scale",
+                "harness_scale",
+                "Populace-scale profile: 10 shared predictors, 4 chained targets, "
+                "pooled ASEC 2023-2025 receiver.",
+            ),
+        ):
+            harness = _long_to_summary(
+                runs_dir / f"{run_name}{run_suffix}", "harness_long.csv", "view"
+            )
+            if harness is None:
+                continue
+            name = f"{stem}{file_suffix}.tex"
+            (out_dir / name).write_text(
+                _tabular(
+                    harness,
+                    HARNESS_COLUMNS,
+                    f"SCF->CPS population view vs held-out SCF, {donor}, mean "
+                    f"(sd) over 10 donor splits. AUC of 0.5 is "
+                    f"indistinguishable; q99 ratio of 1 is a perfect tail. {note}",
+                )
+            )
+            written.append(name)
+
+
 def make_tables(
     runs_dir: Path = Path("runs"), out_dir: Path = Path("paper/tables")
 ) -> int:
@@ -338,13 +414,7 @@ def make_tables(
         (out_dir / "scf_wealth.tex").write_text(
             _tabular(
                 scf,
-                [
-                    ("debt", "pinball_loss", "Debt pinball"),
-                    ("debt", "wasserstein1", "Debt $W_1$"),
-                    ("debt", "zero_share_error", "Debt zero-share err."),
-                    ("networth", "pinball_loss", "Net worth pinball"),
-                    ("networth", "wasserstein1", "Net worth $W_1$"),
-                ],
+                SCF_WEALTH_COLUMNS,
                 "SCF wealth task, mean (sd) over 10 paired seeds.",
             )
         )
@@ -411,19 +481,15 @@ def make_tables(
         (out_dir / out_name).write_text(
             _tabular(
                 harness,
-                [
-                    ("scf", "energy_distance", "Energy distance"),
-                    ("scf", "prdc_coverage", "Coverage"),
-                    ("scf", "c2st_auc", "C2ST AUC"),
-                    ("scf", "w1_over_sd.networth", r"NW $W_1$/sd"),
-                    ("scf", "q99_ratio.networth", "NW q99 ratio"),
-                ],
+                HARNESS_COLUMNS,
                 f"SCF->CPS population view vs held-out SCF, mean (sd) over 10 "
                 f"donor splits. AUC of 0.5 is indistinguishable; q99 ratio of "
                 f"1 is a perfect tail. {note}",
             )
         )
         written.append(out_name)
+
+    _replication_wave_tables(runs_dir, out_dir, written)
 
     _openml_table(runs_dir, out_dir, written)
     _ablation_table(runs_dir, out_dir, written)
