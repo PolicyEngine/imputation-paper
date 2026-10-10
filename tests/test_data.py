@@ -155,6 +155,47 @@ def test_paper_2022_inputs_are_unchanged() -> None:
     np.testing.assert_array_equal(rebased.frame["wgt"], task.frame["wgt"])
 
 
+def test_rebasing_agrees_with_the_feds_reissued_2022_file() -> None:
+    """Differential: our re-basing against the Fed's own re-based file.
+
+    On 2026-10-09 the Fed replaced the 2022 extract with a copy in 2025
+    dollars. Fetch whatever the Fed serves now under a separate cache name and
+    read it through the loader's own path. If it is the registered 2025-dollar
+    re-issue, its values must equal the 2022-dollar file's times 4789/4376,
+    and its default (2022-dollar) load must equal the paper's inputs, so a
+    cold cache reproduces the paper. If the Fed has replaced the file again
+    the hash is unregistered and the loader refuses it, which fails here and
+    says the registry needs a new entry.
+    """
+    from imputation_paper.data import scf
+    from imputation_paper.data.base import download, sha256_of_file
+
+    served = download(scf._SCF_ZIP_URL.format(year=2022), "scfp2022s.as-served.zip")
+    vintage = scf.KNOWN_EXTRACTS.get(sha256_of_file(served))
+    assert vintage is not None, "the Fed serves an unregistered 2022 extract"
+    if (vintage.survey_year, vintage.dollar_year) != (2022, 2025):
+        pytest.skip("the Fed serves the original 2022-dollar file")
+
+    keys = ["y1"]
+    theirs_2025, _ = scf._implicates_from_zip(served, 2022, 2025)
+    theirs_2022, _ = scf._implicates_from_zip(served, 2022, None)
+    ours_2025 = scf.load_scf_implicates(2022, dollar_year=2025)
+    ours_2022 = scf.load_scf_implicates(2022)
+    for theirs, ours in ((theirs_2025, ours_2025), (theirs_2022, ours_2022)):
+        theirs, ours = (
+            theirs.set_index(keys).sort_index(),
+            ours.set_index(keys).sort_index(),
+        )
+        assert theirs.index.equals(ours.index)
+        for column in ours.columns:
+            if column in scf.DOLLAR_COLUMNS:
+                np.testing.assert_allclose(
+                    theirs[column], ours[column], rtol=1e-9, atol=1e-6, err_msg=column
+                )
+            else:
+                np.testing.assert_array_equal(theirs[column], ours[column], column)
+
+
 @pytest.mark.parametrize("year", [2022, 2025])
 def test_scf_weight_total_and_balance_sheet_identity(
     scf_population: dict[int, dict[str, float | int]], year: int

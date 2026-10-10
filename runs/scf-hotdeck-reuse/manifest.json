@@ -15,7 +15,8 @@
       "top_donor_weight_share": 0.02722867899131711,
       "tail_weight_share": 0.007132424708089355,
       "tail_donors": 62,
-      "top_tail_donor_weight_share": 0.0005332700498764683
+      "top_tail_donor_weight_share": 0.0005332700498764683,
+      "max_receiver_weight_share": 0.0002719843248870525
     },
     {
       "profile": "min",
@@ -27,7 +28,8 @@
       "top_donor_weight_share": 0.02739439693816446,
       "tail_weight_share": 0.007459200298395617,
       "tail_donors": 53,
-      "top_tail_donor_weight_share": 0.0006757346482921447
+      "top_tail_donor_weight_share": 0.0006757346482921447,
+      "max_receiver_weight_share": 0.0002719843248870525
     },
     {
       "profile": "min",
@@ -39,7 +41,8 @@
       "top_donor_weight_share": 0.02701956474612117,
       "tail_weight_share": 0.010071990901342094,
       "tail_donors": 76,
-      "top_tail_donor_weight_share": 0.0006757346482921447
+      "top_tail_donor_weight_share": 0.0006757346482921447,
+      "max_receiver_weight_share": 0.0002719843248870525
     },
     {
       "profile": "min",
@@ -51,7 +54,8 @@
       "top_donor_weight_share": 0.02680128706467609,
       "tail_weight_share": 0.006546825385023025,
       "tail_donors": 44,
-      "top_tail_donor_weight_share": 0.0006757346482921447
+      "top_tail_donor_weight_share": 0.0006757346482921447,
+      "max_receiver_weight_share": 0.0002719843248870525
     },
     {
       "profile": "min",
@@ -63,7 +67,8 @@
       "top_donor_weight_share": 0.028418546464847844,
       "tail_weight_share": 0.006263336052933663,
       "tail_donors": 49,
-      "top_tail_donor_weight_share": 0.0006757346482921447
+      "top_tail_donor_weight_share": 0.0006757346482921447,
+      "max_receiver_weight_share": 0.0002719843248870525
     },
     {
       "profile": "min",
@@ -75,7 +80,8 @@
       "top_donor_weight_share": 0.027526080925640954,
       "tail_weight_share": 0.007519607970611602,
       "tail_donors": 57,
-      "top_tail_donor_weight_share": 0.0006757346482921447
+      "top_tail_donor_weight_share": 0.0006757346482921447,
+      "max_receiver_weight_share": 0.0002719843248870525
     },
     {
       "profile": "min",
@@ -87,7 +93,8 @@
       "top_donor_weight_share": 0.039378593410459524,
       "tail_weight_share": 0.005457085918789812,
       "tail_donors": 47,
-      "top_tail_donor_weight_share": 0.0004431000516280269
+      "top_tail_donor_weight_share": 0.0004431000516280269,
+      "max_receiver_weight_share": 0.0002719843248870525
     },
     {
       "profile": "min",
@@ -99,7 +106,8 @@
       "top_donor_weight_share": 0.02692854743885873,
       "tail_weight_share": 0.008900998424739182,
       "tail_donors": 70,
-      "top_tail_donor_weight_share": 0.0007980153950815746
+      "top_tail_donor_weight_share": 0.0007980153950815746,
+      "max_receiver_weight_share": 0.0002719843248870525
     },
     {
       "profile": "min",
@@ -111,7 +119,8 @@
       "top_donor_weight_share": 0.02671264018794852,
       "tail_weight_share": 0.007249969992004182,
       "tail_donors": 49,
-      "top_tail_donor_weight_share": 0.0006757346482921447
+      "top_tail_donor_weight_share": 0.0006757346482921447,
+      "max_receiver_weight_share": 0.0002719843248870525
     },
     {
       "profile": "min",
@@ -123,7 +132,8 @@
       "top_donor_weight_share": 0.027250328452923706,
       "tail_weight_share": 0.006331788489267597,
       "tail_donors": 50,
-      "top_tail_donor_weight_share": 0.0006757346482921447
+      "top_tail_donor_weight_share": 0.0006757346482921447,
+      "max_receiver_weight_share": 0.0002719843248870525
     },
     {
       "profile": "min",
@@ -135,7 +145,8 @@
       "top_donor_weight_share": 0.018100756845125545,
       "tail_weight_share": 0.008914368923607934,
       "tail_donors": 40,
-      "top_tail_donor_weight_share": 0.005520904419842344
+      "top_tail_donor_weight_share": 0.005520904419842344,
+      "max_receiver_weight_share": 0.0002719843248870525
     },
     {
       "profile": "min",
@@ -147,7 +158,8 @@
       "top_donor_weight_share": 0.02068629569802517,
       "tail_weight_share": 0.023758751129630724,
       "tail_donors": 36,
-      "top_tail_donor_weight_share": 0.02068629569802517
+      "top_tail_donor_weight_share": 0.02068629569802517,
+      "max_receiver_weight_share": 0.0002719843248870525
     },
     {
       "profile": "min",
@@ -159,7 +171,8 @@
       "top_donor_weight_share": 0.018318682605772116,
       "tail_weight_share": 0.00981788436064231,
       "tail_donors": 46,
-      "top_tail_donor_weight_share": 0.006110191333057558
+      "top_tail_donor_weight_share": 0.006110191333057558,
+      "max_receiver_weight_share": 0.0002719843248870525
     },
     {
       "profile": "min",
@@ -171,7 +184,8 @@
       "top_donor_weight_share": 0.01835166537045101,
       "tail_weight_share": 0.010487876575043464,
       "tail_donors": 43,
-      "top_tail_donor_weight_share": 0.006221203555116366
+      "top_tail_donor_weight_share": 0.006221203555116366,
+      "max_receiver_weight_share": 0.0002719843248870525
     },
     {
       "profile": "min",
@@ -183,7 +197,8 @@
       "top_donor_weight_share": 0.01832248376564182,
       "tail_weight_share": 0.00841125277653442,
       "tail_donors": 31,
-      "top_tail_donor_weight_share": 0.006134170946358369
+      "top_tail_donor_weight_share": 0.006134170946358369,
+      "max_receiver_weight_share": 0.0002719843248870525
     },
     {
       "profile": "min",
@@ -195,7 +210,8 @@
       "top_donor_weight_share": 0.02468525104345423,
       "tail_weight_share": 0.0038105458776903417,
       "tail_donors": 37,
-      "top_tail_donor_weight_share": 0.0005000833995196177
+      "top_tail_donor_weight_share": 0.0005000833995196177,
+      "max_receiver_weight_share": 0.0002719843248870525
     },
     {
       "profile": "min",
@@ -207,7 +223,8 @@
       "top_donor_weight_share": 0.02076488739819113,
       "tail_weight_share": 0.00230901298491721,
       "tail_donors": 28,
-      "top_tail_donor_weight_share": 0.00022731384486267137
+      "top_tail_donor_weight_share": 0.00022731384486267137,
+      "max_receiver_weight_share": 0.0002719843248870525
     },
     {
       "profile": "min",
@@ -219,7 +236,8 @@
       "top_donor_weight_share": 0.018131492714889105,
       "tail_weight_share": 0.009777344953259805,
       "tail_donors": 34,
-      "top_tail_donor_weight_share": 0.006520361979089419
+      "top_tail_donor_weight_share": 0.006520361979089419,
+      "max_receiver_weight_share": 0.0002719843248870525
     },
     {
       "profile": "min",
@@ -231,7 +249,8 @@
       "top_donor_weight_share": 0.0180245924641663,
       "tail_weight_share": 0.008869186445536869,
       "tail_donors": 34,
-      "top_tail_donor_weight_share": 0.006242636050802934
+      "top_tail_donor_weight_share": 0.006242636050802934,
+      "max_receiver_weight_share": 0.0002719843248870525
     },
     {
       "profile": "min",
@@ -243,7 +262,8 @@
       "top_donor_weight_share": 0.01819008181821178,
       "tail_weight_share": 0.012304210200320534,
       "tail_donors": 59,
-      "top_tail_donor_weight_share": 0.006484269854010227
+      "top_tail_donor_weight_share": 0.006484269854010227,
+      "max_receiver_weight_share": 0.0002719843248870525
     },
     {
       "profile": "scale",
@@ -255,7 +275,8 @@
       "top_donor_weight_share": 0.03354108645969856,
       "tail_weight_share": 0.0069929477277781435,
       "tail_donors": 66,
-      "top_tail_donor_weight_share": 0.0005684384616958289
+      "top_tail_donor_weight_share": 0.0005684384616958289,
+      "max_receiver_weight_share": 0.00021319367155238567
     },
     {
       "profile": "scale",
@@ -267,7 +288,8 @@
       "top_donor_weight_share": 0.03364839152119576,
       "tail_weight_share": 0.004998464343478346,
       "tail_donors": 46,
-      "top_tail_donor_weight_share": 0.0005949117289405615
+      "top_tail_donor_weight_share": 0.0005949117289405615,
+      "max_receiver_weight_share": 0.00021319367155238567
     },
     {
       "profile": "scale",
@@ -279,7 +301,8 @@
       "top_donor_weight_share": 0.034133967679698944,
       "tail_weight_share": 0.007957948640988022,
       "tail_donors": 70,
-      "top_tail_donor_weight_share": 0.0006411454599014559
+      "top_tail_donor_weight_share": 0.0006411454599014559,
+      "max_receiver_weight_share": 0.00021319367155238567
     },
     {
       "profile": "scale",
@@ -291,7 +314,8 @@
       "top_donor_weight_share": 0.033506420026242954,
       "tail_weight_share": 0.00501771415426121,
       "tail_donors": 44,
-      "top_tail_donor_weight_share": 0.0005949117289405615
+      "top_tail_donor_weight_share": 0.0005949117289405615,
+      "max_receiver_weight_share": 0.00021319367155238567
     },
     {
       "profile": "scale",
@@ -303,7 +327,8 @@
       "top_donor_weight_share": 0.03449439097894436,
       "tail_weight_share": 0.005743809755315024,
       "tail_donors": 52,
-      "top_tail_donor_weight_share": 0.0005684384616958289
+      "top_tail_donor_weight_share": 0.0005684384616958289,
+      "max_receiver_weight_share": 0.00021319367155238567
     },
     {
       "profile": "scale",
@@ -315,7 +340,8 @@
       "top_donor_weight_share": 0.033384857662245894,
       "tail_weight_share": 0.005979725889926402,
       "tail_donors": 55,
-      "top_tail_donor_weight_share": 0.0006719967532716227
+      "top_tail_donor_weight_share": 0.0006719967532716227,
+      "max_receiver_weight_share": 0.00021319367155238567
     },
     {
       "profile": "scale",
@@ -327,7 +353,8 @@
       "top_donor_weight_share": 0.032739962035147785,
       "tail_weight_share": 0.00406044947374352,
       "tail_donors": 34,
-      "top_tail_donor_weight_share": 0.0006719967532716227
+      "top_tail_donor_weight_share": 0.0006719967532716227,
+      "max_receiver_weight_share": 0.00021319367155238567
     },
     {
       "profile": "scale",
@@ -339,7 +366,8 @@
       "top_donor_weight_share": 0.03373511843729441,
       "tail_weight_share": 0.008225879635736498,
       "tail_donors": 72,
-      "top_tail_donor_weight_share": 0.000893309063309488
+      "top_tail_donor_weight_share": 0.000893309063309488,
+      "max_receiver_weight_share": 0.00021319367155238567
     },
     {
       "profile": "scale",
@@ -351,7 +379,8 @@
       "top_donor_weight_share": 0.033506420026242954,
       "tail_weight_share": 0.005584036113487552,
       "tail_donors": 52,
-      "top_tail_donor_weight_share": 0.0005949117289405615
+      "top_tail_donor_weight_share": 0.0005949117289405615,
+      "max_receiver_weight_share": 0.00021319367155238567
     },
     {
       "profile": "scale",
@@ -363,7 +392,8 @@
       "top_donor_weight_share": 0.032128339321671126,
       "tail_weight_share": 0.004998348623790758,
       "tail_donors": 50,
-      "top_tail_donor_weight_share": 0.0005684384616958289
+      "top_tail_donor_weight_share": 0.0005684384616958289,
+      "max_receiver_weight_share": 0.00021319367155238567
     },
     {
       "profile": "scale",
@@ -375,7 +405,8 @@
       "top_donor_weight_share": 0.025427289303754125,
       "tail_weight_share": 0.01814623756090036,
       "tail_donors": 36,
-      "top_tail_donor_weight_share": 0.014912038334663468
+      "top_tail_donor_weight_share": 0.014912038334663468,
+      "max_receiver_weight_share": 0.00021319367155238567
     },
     {
       "profile": "scale",
@@ -387,7 +418,8 @@
       "top_donor_weight_share": 0.027027574103112188,
       "tail_weight_share": 0.017439472243586465,
       "tail_donors": 31,
-      "top_tail_donor_weight_share": 0.014484097162799496
+      "top_tail_donor_weight_share": 0.014484097162799496,
+      "max_receiver_weight_share": 0.00021319367155238567
     },
     {
       "profile": "scale",
@@ -399,7 +431,8 @@
       "top_donor_weight_share": 0.02495788056574994,
       "tail_weight_share": 0.019390474114522625,
       "tail_donors": 44,
-      "top_tail_donor_weight_share": 0.014648043720260273
+      "top_tail_donor_weight_share": 0.014648043720260273,
+      "max_receiver_weight_share": 0.00021319367155238567
     },
     {
       "profile": "scale",
@@ -411,7 +444,8 @@
       "top_donor_weight_share": 0.031986544060370985,
       "tail_weight_share": 0.03158889044651835,
       "tail_donors": 44,
-      "top_tail_donor_weight_share": 0.027072331505655127
+      "top_tail_donor_weight_share": 0.027072331505655127,
+      "max_receiver_weight_share": 0.00021319367155238567
     },
     {
       "profile": "scale",
@@ -423,7 +457,8 @@
       "top_donor_weight_share": 0.02476228265660188,
       "tail_weight_share": 0.01617340331301597,
       "tail_donors": 26,
-      "top_tail_donor_weight_share": 0.014315365330844855
+      "top_tail_donor_weight_share": 0.014315365330844855,
+      "max_receiver_weight_share": 0.00021319367155238567
     },
     {
       "profile": "scale",
@@ -435,7 +470,8 @@
       "top_donor_weight_share": 0.032491183179519253,
       "tail_weight_share": 0.003594788142649846,
       "tail_donors": 35,
-      "top_tail_donor_weight_share": 0.00035763286230178063
+      "top_tail_donor_weight_share": 0.00035763286230178063,
+      "max_receiver_weight_share": 0.00021319367155238567
     },
     {
       "profile": "scale",
@@ -447,7 +483,8 @@
       "top_donor_weight_share": 0.03663604942220374,
       "tail_weight_share": 0.002664271059351865,
       "tail_donors": 32,
-      "top_tail_donor_weight_share": 0.0003993265595746186
+      "top_tail_donor_weight_share": 0.0003993265595746186,
+      "max_receiver_weight_share": 0.00021319367155238567
     },
     {
       "profile": "scale",
@@ -459,7 +496,8 @@
       "top_donor_weight_share": 0.026821829594494907,
       "tail_weight_share": 0.030134460227703184,
       "tail_donors": 34,
-      "top_tail_donor_weight_share": 0.026821829594494907
+      "top_tail_donor_weight_share": 0.026821829594494907,
+      "max_receiver_weight_share": 0.00021319367155238567
     },
     {
       "profile": "scale",
@@ -471,7 +509,8 @@
       "top_donor_weight_share": 0.02689652654666763,
       "tail_weight_share": 0.029686725893348948,
       "tail_donors": 31,
-      "top_tail_donor_weight_share": 0.02689652654666763
+      "top_tail_donor_weight_share": 0.02689652654666763,
+      "max_receiver_weight_share": 0.00021319367155238567
     },
     {
       "profile": "scale",
@@ -483,7 +522,8 @@
       "top_donor_weight_share": 0.024977065615973695,
       "tail_weight_share": 0.020135169160482098,
       "tail_donors": 52,
-      "top_tail_donor_weight_share": 0.014423275531992743
+      "top_tail_donor_weight_share": 0.014423275531992743,
+      "max_receiver_weight_share": 0.00021319367155238567
     }
   ]
 }

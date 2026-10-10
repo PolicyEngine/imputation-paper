@@ -49,7 +49,7 @@ to 2025 dollars (every dollar column multiplied by the CPI-U-RS ratio
 earlier, 2022-dollar file, and the repository's loader now accepts only files
 it can identify by hash, so the 2022 results regenerate regardless of which
 copy is downloaded. The comparisons below are scale-free or within-wave
-ratios; where a dollar level is shown, the 2022 value is re-based.
+ratios. Dollar levels in the verdict tables are in each wave's own dollars.
 
 \paragraph{Rules.} Within the \scf{}, a claim that method B is worse than
 method A is met when B is worse on average and on at least eight of ten
@@ -90,7 +90,19 @@ loses \rep{scale-auc-forest-gap:2025} points. The classifier separates the
 unconditional marginal draw as sharply as before (AUC
 \rep{scale-auc-marginal:2025} against the candidate's
 \rep{scale-auc-candidate:2025} at scale), and within the \scf{} the same draw
-again posts the best pinball loss on both targets. Hot deck stays within one
+again posts the best pinball loss on both targets. That last result is a
+property of the metric: the pinball loss reads the imputed quantiles
+unweighted and scores them against weighted truth. Read under receiver
+weights, the candidate's and the marginal draw's net-worth losses in 2025 are
+\rep{pinball:networth:candidate:weighted:2025} and
+\rep{pinball:networth:marginal:weighted:2025} (as coded,
+\rep{pinball:networth:candidate:coded:2025} and
+\rep{pinball:networth:marginal:coded:2025}), and the marginal draw is the
+lower on \rep{pinball:networth:candidate:seeds-weighted:2025} of ten seeds,
+not \rep{pinball:networth:candidate:seeds-coded:2025}; the 2022 wave shows
+the same (\rep{pinball:networth:candidate:seeds-weighted:2022} of ten, not
+\rep{pinball:networth:candidate:seeds-coded:2022}). The body's pinball
+columns are left as published. Hot deck stays within one
 floor standard deviation of the candidate on AUC in both profiles
 (\rep{min-auc-hotdeck-sd:2025} and \rep{scale-auc-hotdeck-sd:2025}). The
 candidate still understates the extreme tail: its net-worth q99 ratio is
@@ -108,9 +120,9 @@ reuse produces the q99 inflation. On
 \rep{reuse:scale:2025:inflated} of the ten seeds, one donor above the
 holdout's q99 is matched to between \rep{reuse:scale:2025:share-min} and
 \rep{reuse:scale:2025:share-max} percent of receiver weight. A donor
-matched to more than one percent of the weight puts the imputed q99 at or
-above its own net worth, so that match alone lifts the imputed q99 above the
-holdout's. On the remaining seeds the largest such share is
+whose receivers carry more than one percent of the weight, by more than any
+single receiver's share, puts the imputed q99 at or above its own net worth,
+so that match alone lifts the imputed q99 above the holdout's. On the remaining seeds the largest such share is
 \rep{reuse:scale:2025:other-max} percent, and in 2022 it never exceeded
 \rep{reuse:scale:2022:other-max} percent. In the minimal profile hot deck's
 mean q99 ratio is \rep{min-q99-hotdeck:2025}, which looks like a correct

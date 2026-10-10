@@ -2,11 +2,14 @@
 
 Hot-deck matching donates whole observed values, so a donor that is the
 nearest neighbour of many receivers is copied many times. That is harmless in
-the middle of a distribution and decisive in its tail: if one donor above a
-high quantile is matched to more receiver weight than lies above that quantile
-in the reference population, the donor's value *becomes* the imputed quantile.
-:func:`donor_reuse_summary` measures exactly that, in aggregate terms only
-(weight shares and counts; no record's values).
+the middle of a distribution and decisive in its tail. Under the harness's
+interpolating weighted quantile, a donor whose receivers carry a weight share
+above ``(1 - q)`` *plus the largest single receiver's share* puts the matched
+file's ``q``-quantile at or above that donor's value. (Without the
+one-receiver margin the interpolation can land just below it.) So one such
+donor above the holdout's q99 is enough to inflate the q99 ratio.
+:func:`donor_reuse_summary` measures the shares that condition needs, in
+aggregate terms only (weight shares and counts; no record's values).
 """
 
 from __future__ import annotations
@@ -39,8 +42,10 @@ def donor_reuse_summary(
         ``tail_weight_share`` (share of receiver weight in the tail),
         ``tail_donors`` (distinct donors in the tail), and
         ``top_tail_donor_weight_share`` (largest share of *all* receiver
-        weight that one tail donor accounts for). The last never exceeds
-        either of the two shares before it.
+        weight that one tail donor accounts for), which never exceeds
+        ``top_donor_weight_share`` or ``tail_weight_share``; and
+        ``max_receiver_weight_share`` (the largest single receiver's share,
+        the margin in the sufficient condition above).
 
     Raises:
         ValueError: If the inputs are not aligned 1-D arrays, or the weights
@@ -73,4 +78,5 @@ def donor_reuse_summary(
         "top_tail_donor_weight_share": float(tail_by_donor.max() / total)
         if tail_by_donor.size
         else 0.0,
+        "max_receiver_weight_share": float(weights.max() / total),
     }

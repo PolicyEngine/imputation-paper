@@ -361,6 +361,47 @@ def test_a_claim_unmet_in_2022_is_at_best_inconclusive(arm_2022: Arm) -> None:
     assert rules.judge(w3c, arm_2022, better).verdict == rules.NOT_REPLICATED
 
 
+def _copy_values(arm: Arm, run: str, metric: str, source: str, target: str) -> Arm:
+    """``arm`` with ``target``'s values for ``metric`` set to ``source``'s, by seed."""
+    frame = arm.frame(run).copy()
+    keys = [c for c in ("seed", "target", "view") if c in frame.columns]
+    is_metric = frame["metric"].eq(metric)
+    donor = frame[is_metric & frame["method"].eq(source)].set_index(keys)["value"]
+    rows = is_metric & frame["method"].eq(target)
+    frame.loc[rows, "value"] = (
+        frame.loc[rows].set_index(keys).index.map(donor).to_numpy()
+    )
+    frames = {"wealth": arm.wealth, "min": arm.minimal, "scale": arm.scale} | {
+        run: frame
+    }
+    return Arm("tied", frames["wealth"], frames["min"], frames["scale"])
+
+
+def test_a_tie_at_the_extremum_counts_for_the_claimed_method(arm_2022: Arm) -> None:
+    """ "Lowest" and "largest" compare values, not names.
+
+    W7 says the marginal draw has the lowest pinball loss and F3c that the
+    candidate has the lowest AUC. Give another method exactly the claimed
+    method's values: the claim still holds, whichever name sorts first.
+    """
+    by_key = {f.key: f for f in FINDINGS}
+    # Candidate ("populace_fit" sorts before "weighted_marginal") ties the
+    # marginal draw's pinball loss on every seed and target.
+    tied = _copy_values(arm_2022, "wealth", "pinball_loss", rules.MARGINAL, CANDIDATE)
+    assert by_key["W7"].evaluate(tied).status == MET
+    # OLS ("microimpute_ols" sorts before "populace_fit") ties the candidate's
+    # AUC in both profiles.
+    tied = _copy_values(arm_2022, "min", "c2st_auc", CANDIDATE, rules.OLS)
+    tied = _copy_values(tied, "scale", "c2st_auc", CANDIDATE, rules.OLS)
+    assert by_key["F3c"].evaluate(tied).status == MET
+    # And a genuine reversal still fails.
+    lower = arm_2022.wealth.copy()
+    rows = lower["method"].eq(CANDIDATE) & lower["metric"].eq("pinball_loss")
+    lower.loc[rows, "value"] *= 0.5
+    reversed_arm = Arm("reversed", lower, arm_2022.minimal, arm_2022.scale)
+    assert by_key["W7"].evaluate(reversed_arm).status == FAILED
+
+
 def _scale_method(arm: Arm, method: str, factor: float) -> Arm:
     """The 2022 arm with one method's net-worth W1 multiplied by ``factor``."""
     wealth = arm.wealth.copy()

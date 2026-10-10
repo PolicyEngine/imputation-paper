@@ -994,10 +994,12 @@ def _reuse_section(reuse: dict | None) -> list[str]:
         "Hot deck donates whole observed values, so a donor matched to many "
         "receivers is copied many times. The table repeats each run's "
         "hot-deck match and asks how much receiver weight a single donor "
-        "above the holdout's net-worth q99 accounts for. A donor matched to "
-        "more than one percent of receiver weight puts the imputed q99 at or "
+        "above the holdout's net-worth q99 accounts for. A donor whose "
+        "receivers carry more than one percent of the weight, by more than "
+        "the largest single receiver's share, puts the imputed q99 at or "
         "above its own net worth, so one such donor above the holdout's q99 "
-        "is enough to inflate the ratio. A "
+        "is enough to inflate the ratio (the largest single receiver's share "
+        f"here is {_percent(max(r['max_receiver_weight_share'] for r in reuse['rows']))}%). A "
         f"seed counts as tail-inflated when its q99 ratio exceeds "
         f"{REUSE_INFLATED_RATIO}. The recomputed q99 ratios match the "
         "committed harness runs (largest difference "
@@ -1032,6 +1034,71 @@ def _reuse_section(reuse: dict | None) -> list[str]:
         ),
         "",
     ]
+    return lines
+
+
+def _pinball_section(pinball: dict | None) -> list[str]:
+    """Pinball loss as coded and with weighted imputed quantiles."""
+    lines = ["### Pinball loss and how the imputed quantiles are read", ""]
+    if pinball is None:
+        return [
+            *lines,
+            "Not run: `runs/scf-pinball-weighting/manifest.json` is absent "
+            "(`imp pinball-weighting` writes it).",
+            "",
+        ]
+    lines += [
+        "`weighted_pinball_loss` reads the quantiles of the imputed draw with "
+        "`np.quantile`, every receiver row counted once, and scores them "
+        "against the weighted truth. The SCF's weights are far from uniform, "
+        "so the two sides describe different populations. The table repeats "
+        "the within-SCF sweep and adds the same loss with the imputed "
+        'quantiles read under receiver weights. "Marginal lower" counts '
+        "the seeds (of 10) on which the marginal draw's loss is below the "
+        "method's. The as-coded values match the committed sweeps (largest "
+        "relative difference "
+        f"{pinball['largest_relative_difference_from_committed_pinball']:.1g}). "
+        "Nothing here changes the paper's metric or its tables; whether to "
+        "change them is a decision for the paper.",
+        "",
+    ]
+    table = pinball_table(pinball)
+    for year in sorted(table["scf_year"].unique()):
+        rows = []
+        for method in DISPLAYED_METHODS:
+            cells = [METHOD_NAMES[method]]
+            for target in ("debt", "networth"):
+                row = table[
+                    table["scf_year"].eq(year)
+                    & table["target"].eq(target)
+                    & table["method"].eq(method)
+                ].iloc[0]
+                cells += [
+                    f"{row['as_coded']:,.0f}",
+                    f"{row['weighted_quantiles']:,.0f}",
+                    "–"
+                    if method == MARGINAL
+                    else f"{row['seeds_marginal_lower_as_coded']} / "
+                    f"{row['seeds_marginal_lower_weighted']}",
+                ]
+            rows.append(cells)
+        lines += [
+            f"{year} wave ({year} dollars):",
+            "",
+            _md_table(
+                [
+                    "Method",
+                    "Debt, as coded",
+                    "Debt, weighted",
+                    "Marginal lower (coded / weighted)",
+                    "Net worth, as coded",
+                    "Net worth, weighted",
+                    "Marginal lower (coded / weighted)",
+                ],
+                rows,
+            ),
+            "",
+        ]
     return lines
 
 
@@ -1143,7 +1210,7 @@ def _thread_note(report: Report) -> list[str]:
     ]
 
 
-def _reading_notes(report: Report) -> list[str]:
+def _reading_notes(report: Report, pinball: dict | None = None) -> list[str]:
     """Verdicts that are easy to misread, stated once in plain terms."""
     verdicts = report.findings.set_index("id")["verdict"]
     statuses = report.findings.set_index("id")[["status_2022", "status_2025"]]
@@ -1178,13 +1245,29 @@ def _reading_notes(report: Report) -> list[str]:
             "sits at the floor; the part that failed is hot deck's tail (see "
             '"Hot deck\'s tail and donor reuse" under Diagnostics).'
         )
+    if pinball is not None and verdicts.get("W7") == rules.REPLICATED:
+        table = pinball_table(pinball).set_index(["scf_year", "target", "method"])
+        row = table.loc[(2025, "networth", CANDIDATE)]
+        notes.append(
+            "- **W7** replicated as stated, but what it shows is a property of "
+            "the metric. The pinball loss reads the imputed quantiles "
+            "unweighted and scores them against weighted truth. Read under "
+            "receiver weights, the marginal draw's 2025 net-worth loss is "
+            f"below the candidate's on {int(row['seeds_marginal_lower_weighted'])} "
+            f"of 10 seeds, against {int(row['seeds_marginal_lower_as_coded'])} "
+            'as coded (see "Pinball loss and how the imputed quantiles are '
+            'read" under Diagnostics).'
+        )
     if not notes:
         return []
     return ["## Notes on reading the verdicts", "", *notes, ""]
 
 
 def render_markdown(
-    report: Report, checks: dict | None = None, reuse: dict | None = None
+    report: Report,
+    checks: dict | None = None,
+    reuse: dict | None = None,
+    pinball: dict | None = None,
 ) -> str:
     """The comparison document."""
     findings = report.findings
@@ -1231,7 +1314,7 @@ def render_markdown(
             )
         lines.append("")
 
-    lines += _reading_notes(report)
+    lines += _reading_notes(report, pinball)
     lines += [
         "## Verdicts",
         "",
@@ -1468,6 +1551,7 @@ def render_markdown(
         ]
 
     lines += _reuse_section(reuse)
+    lines += _pinball_section(pinball)
     lines += _checks_section(checks)
     return "\n".join(lines)
 
@@ -1536,7 +1620,10 @@ def render_verdict_table(report: Report, prefixes: tuple[str, ...]) -> str:
 
 
 def number_macros(
-    report: Report, checks: dict | None = None, reuse: dict | None = None
+    report: Report,
+    checks: dict | None = None,
+    reuse: dict | None = None,
+    pinball: dict | None = None,
 ) -> dict[str, str]:
     """Macro key -> text for every number the appendix prose may cite.
 
@@ -1640,6 +1727,21 @@ def number_macros(
         moved = merged[merged["status_C"].ne(merged["status_2022"])]
         macros["diag:C:changed"] = str(len(moved))
         macros["diag:C:changed-ids"] = ", ".join(moved["id"])
+    if pinball is not None:
+        names = {CANDIDATE: "candidate", MARGINAL: "marginal", HOT_DECK: "hotdeck"}
+        names[UNWEIGHTED] = "unweighted"
+        for row in pinball_table(pinball).itertuples():
+            if row.method not in names:
+                continue
+            key = f"pinball:{row.target}:{names[row.method]}"
+            macros[f"{key}:coded:{row.scf_year}"] = f"{row.as_coded:,.0f}"
+            macros[f"{key}:weighted:{row.scf_year}"] = f"{row.weighted_quantiles:,.0f}"
+            macros[f"{key}:seeds-coded:{row.scf_year}"] = str(
+                row.seeds_marginal_lower_as_coded
+            )
+            macros[f"{key}:seeds-weighted:{row.scf_year}"] = str(
+                row.seeds_marginal_lower_weighted
+            )
     return macros
 
 
@@ -1678,10 +1780,14 @@ def make_replication(
     checks = json.loads(checks_path.read_text()) if checks_path.exists() else None
     reuse_path = runs_dir / "scf-hotdeck-reuse" / "manifest.json"
     reuse = json.loads(reuse_path.read_text()) if reuse_path.exists() else None
+    pinball_path = runs_dir / "scf-pinball-weighting" / "manifest.json"
+    pinball = json.loads(pinball_path.read_text()) if pinball_path.exists() else None
 
     docs_out.mkdir(parents=True, exist_ok=True)
     tables_out.mkdir(parents=True, exist_ok=True)
-    (docs_out / "comparison.md").write_text(render_markdown(report, checks, reuse))
+    (docs_out / "comparison.md").write_text(
+        render_markdown(report, checks, reuse, pinball)
+    )
     report.findings.to_csv(docs_out / "findings.csv", index=False)
     report.headlines.to_csv(docs_out / "headline_numbers.csv", index=False)
     report.rankings.to_csv(docs_out / "rankings.csv", index=False)
@@ -1692,7 +1798,7 @@ def make_replication(
     for stem, prefixes in VERDICT_TABLES.items():
         (tables_out / f"{stem}.tex").write_text(render_verdict_table(report, prefixes))
     (tables_out / "scf2025_numbers.tex").write_text(
-        render_number_macros(number_macros(report, checks, reuse))
+        render_number_macros(number_macros(report, checks, reuse, pinball))
     )
 
     print(f"imp replication -- baseline arm {report.baseline_letter}")
@@ -1817,6 +1923,147 @@ def make_hotdeck_reuse(
     )
     print(f"  wrote {out / 'manifest.json'}")
     return 0 if matches else 1
+
+
+def pinball_with_weighted_quantiles(
+    y_true: np.ndarray, y_pred: np.ndarray, weights: np.ndarray
+) -> float:
+    """Pinball loss with the imputed quantiles read under receiver weights.
+
+    ``metrics.weighted_pinball_loss`` reads the quantiles of the imputed draw
+    with ``np.quantile`` -- every receiver row counted once -- and then scores
+    them against the weighted truth. This variant differs in one respect: it
+    reads those quantiles with the receiver weights (the harness's weighted
+    quantile), so both sides of the comparison describe the same population.
+    """
+    from imputation_paper.experiments import metrics
+
+    y_true = np.asarray(y_true, dtype=np.float64)
+    y_pred = np.asarray(y_pred, dtype=np.float64)
+    weights = np.asarray(weights, dtype=np.float64)
+    levels = np.asarray(metrics.DEFAULT_QUANTILE_GRID, dtype=np.float64)
+    quantiles = metrics._weighted_quantile(y_pred, weights, levels)
+    losses = [
+        float(np.dot(weights, (y_true - q) * (tau - ((y_true - q) < 0.0))))
+        for tau, q in zip(levels, quantiles, strict=True)
+    ]
+    return float(np.mean(losses) / weights.sum())
+
+
+def make_pinball_weighting(
+    out: Path = Path("runs/scf-pinball-weighting"),
+    runs_dir: Path = Path("runs"),
+    n_seeds: int = 10,
+) -> int:
+    """Within-SCF pinball loss as coded and with weighted imputed quantiles.
+
+    Repeats the within-SCF sweep on both waves and records, per method, seed,
+    and target, the pinball loss the sweep reports and the same loss with the
+    imputed quantiles read under receiver weights. As a differential check,
+    the as-coded value must equal the committed sweep's for the same cell.
+
+    Returns:
+        Process exit code (``0`` if every as-coded value matches its run).
+    """
+    from imputation_paper import methods as method_registry
+    from imputation_paper.data.scf import load_scf
+    from imputation_paper.experiments.conditions import run_condition
+    from imputation_paper.experiments.holdout import split_frame
+
+    rows: list[dict[str, object]] = []
+    worst = 0.0
+    for year in (2022, 2025):
+        task = load_scf(year)
+        run_name = "scf-wealth" if year == 2022 else f"scf-wealth-{year}"
+        committed = pd.read_csv(runs_dir / run_name / "metrics_long.csv")
+        committed = committed[committed["metric"].eq("pinball_loss")].set_index(
+            ["method", "seed", "target"]
+        )["value"]
+        for seed in range(n_seeds):
+            split = split_frame(task.frame, seed=seed)
+            weights = split.test[task.weight_column].to_numpy(dtype=np.float64)
+            for method in method_registry.REGISTRY:
+                result = run_condition(
+                    method,
+                    split.train,
+                    split.test,
+                    task.predictors,
+                    task.targets,
+                    weight_column=task.weight_column,
+                    seed=seed,
+                )
+                for target in task.targets:
+                    as_coded = float(result.metrics[f"{target}.pinball_loss"])
+                    reference = float(committed.loc[(method, seed, target)])
+                    worst = max(worst, abs(as_coded - reference) / abs(reference))
+                    rows.append(
+                        {
+                            "scf_year": year,
+                            "seed": seed,
+                            "method": method,
+                            "target": target,
+                            "pinball_as_coded": as_coded,
+                            "pinball_weighted_quantiles": pinball_with_weighted_quantiles(
+                                split.test[target].to_numpy(dtype=np.float64),
+                                result.imputed[target].to_numpy(dtype=np.float64),
+                                weights,
+                            ),
+                        }
+                    )
+                print(f"  done pinball/{year}/{method}/seed={seed}", flush=True)
+
+    matches = worst < 1e-9
+    manifest = {
+        "diagnostic": "pinball_quantile_weighting",
+        "largest_relative_difference_from_committed_pinball": worst,
+        "matches_committed_runs": matches,
+        "rows": rows,
+    }
+    out.mkdir(parents=True, exist_ok=True)
+    (out / "manifest.json").write_text(json.dumps(manifest, indent=2))
+    print(
+        f"imp pinball-weighting -- {len(rows)} cells; largest relative difference "
+        f"from the committed pinball losses {worst:.2g} -> "
+        f"{'ok' if matches else 'MISMATCH'}"
+    )
+    print(f"  wrote {out / 'manifest.json'}")
+    return 0 if matches else 1
+
+
+def pinball_table(pinball: dict) -> pd.DataFrame:
+    """Per wave, target, and method: both pinball means, and seeds won.
+
+    ``seeds_marginal_lower_*`` counts the seeds on which the marginal draw's
+    loss is below the method's (so it is zero on the marginal draw's own row).
+    """
+    frame = pd.DataFrame(pinball["rows"])
+    keys = ["scf_year", "target", "seed"]
+    marginal = frame[frame["method"].eq(MARGINAL)].set_index(keys)
+    rows = []
+    for (year, target, method), group in frame.groupby(
+        ["scf_year", "target", "method"], sort=False
+    ):
+        indexed = group.set_index(keys)
+        reference = marginal.loc[indexed.index]
+        rows.append(
+            {
+                "scf_year": int(year),
+                "target": target,
+                "method": method,
+                "as_coded": float(group["pinball_as_coded"].mean()),
+                "weighted_quantiles": float(group["pinball_weighted_quantiles"].mean()),
+                "seeds_marginal_lower_as_coded": int(
+                    (reference["pinball_as_coded"] < indexed["pinball_as_coded"]).sum()
+                ),
+                "seeds_marginal_lower_weighted": int(
+                    (
+                        reference["pinball_weighted_quantiles"]
+                        < indexed["pinball_weighted_quantiles"]
+                    ).sum()
+                ),
+            }
+        )
+    return pd.DataFrame(rows)
 
 
 def reuse_table(reuse: dict) -> pd.DataFrame:

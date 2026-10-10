@@ -376,9 +376,10 @@ def _w3a(arm: Arm) -> Evaluation:
         key: contrast(arm, "wealth", "wasserstein1", CANDIDATE, key, "networth").dbar
         for key in ABLATIONS
     }
-    largest = max(deltas, key=lambda key: deltas[key])
+    # "Largest" and "lowest" in the level rules compare values, never names,
+    # so a tie at the extremum counts for the method the claim is about.
     return Evaluation(
-        _level(largest == UNWEIGHTED and deltas[UNWEIGHTED] > 0),
+        _level(deltas[UNWEIGHTED] >= max(deltas.values()) and deltas[UNWEIGHTED] > 0),
         f"deltas: unweighted {deltas[UNWEIGHTED]:+,.0f}; ungated forest "
         f"{deltas[PLAIN_FOREST]:+,.0f}; unchained {deltas[UNCHAINED]:+,.0f}",
     )
@@ -402,7 +403,7 @@ def _w5(arm: Arm) -> Evaluation:
         }
         ratio = means[OLS] / means[CANDIDATE]
         ratios.append(ratio)
-        parts.append(max(means, key=lambda method: means[method]) == OLS and ratio >= 5)
+        parts.append(means[OLS] >= max(means.values()) and ratio >= 5)
     return Evaluation(
         _level(all(parts)),
         f"OLS W1 is {ratios[0]:.1f}x (debt) and {ratios[1]:.1f}x (net worth) "
@@ -431,12 +432,13 @@ def _w7(arm: Arm) -> Evaluation:
             method: arm.mean("wealth", method, "pinball_loss", target)
             for method in arm.methods("wealth")
         }
+        lowest = means[MARGINAL] <= min(means.values())
+        parts.append(lowest)
         best = min(means, key=lambda method: means[method])
-        parts.append(best == MARGINAL)
         texts.append(
             f"{target}: marginal {format_number(means[MARGINAL])}, candidate "
             f"{format_number(means[CANDIDATE])}, lowest: "
-            f"{'marginal draw' if best == MARGINAL else best}"
+            f"{'marginal draw' if lowest else best}"
         )
     return Evaluation(_level(all(parts)), "; ".join(texts))
 
@@ -584,8 +586,7 @@ def _f3c(arm: Arm) -> Evaluation:
             method: arm.mean(profile, method, _AUC)
             for method in (CANDIDATE, OLS, QUANTREG, HOT_DECK, MARGINAL)
         }
-        best = min(means, key=lambda method: means[method])
-        parts.append(best == CANDIDATE)
+        parts.append(means[CANDIDATE] <= min(means.values()))
         runner_up = min(v for k, v in means.items() if k != CANDIDATE)
         texts.append(
             f"{PROFILE_NAMES[profile]}: candidate {means[CANDIDATE]:.3f}, lowest "

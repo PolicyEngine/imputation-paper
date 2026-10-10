@@ -178,7 +178,11 @@ def test_implicate_filter_survives_the_int16_overflow(
     assert not naive.isin(range(1, 6)).all(), "fixture no longer overflows int16"
 
 
-_dollars = st.floats(min_value=-1e10, max_value=1e10, allow_nan=False, width=64)
+#: Dollar amounts. Subnormals are excluded: they round by whole units in the
+#: last place, so a relative tolerance says nothing about them.
+_dollars = st.floats(
+    min_value=-1e10, max_value=1e10, allow_nan=False, allow_subnormal=False, width=64
+)
 _years = st.sampled_from(sorted(scf.CPI_U_RS_SEPTEMBER))
 
 

@@ -32,6 +32,7 @@ Findings that did not come out as replicated:
 - **G1** is a tie claim (no gating advantage on SCF debt zero share in 2022). It failed because a difference appeared, and the difference favours the gated candidate. It is still a 2022 finding that did not recur.
 - **F3c** is a ranking claim (the candidate has the lowest AUC among itself and the baselines). It fails on any reversal, however small. F4b (hot deck and the candidate tied on AUC) shows how small this one is.
 - **F5b** bundles two ties per profile. The marginal draw still sits at the floor; the part that failed is hot deck's tail (see "Hot deck's tail and donor reuse" under Diagnostics).
+- **W7** replicated as stated, but what it shows is a property of the metric. The pinball loss reads the imputed quantiles unweighted and scores them against weighted truth. Read under receiver weights, the marginal draw's 2025 net-worth loss is below the candidate's on 4 of 10 seeds, against 10 as coded (see "Pinball loss and how the imputed quantiles are read" under Diagnostics).
 
 ## Verdicts
 
@@ -394,7 +395,7 @@ Within the SCF, arm C is arm A in different units. After converting arm C's doll
 
 ### Hot deck's tail and donor reuse
 
-Hot deck donates whole observed values, so a donor matched to many receivers is copied many times. The table repeats each run's hot-deck match and asks how much receiver weight a single donor above the holdout's net-worth q99 accounts for. A donor matched to more than one percent of receiver weight puts the imputed q99 at or above its own net worth, so one such donor above the holdout's q99 is enough to inflate the ratio. A seed counts as tail-inflated when its q99 ratio exceeds 1.5. The recomputed q99 ratios match the committed harness runs (largest difference 1e-16). Weight shares and counts only.
+Hot deck donates whole observed values, so a donor matched to many receivers is copied many times. The table repeats each run's hot-deck match and asks how much receiver weight a single donor above the holdout's net-worth q99 accounts for. A donor whose receivers carry more than one percent of the weight, by more than the largest single receiver's share, puts the imputed q99 at or above its own net worth, so one such donor above the holdout's q99 is enough to inflate the ratio (the largest single receiver's share here is 0.03%). A seed counts as tail-inflated when its q99 ratio exceeds 1.5. The recomputed q99 ratios match the committed harness runs (largest difference 1e-16). Weight shares and counts only.
 
 | Profile | Wave | Tail-inflated seeds | Top tail donor's share of receiver weight, inflated seeds | Same, other seeds (largest) | Largest share for any donor | Donors used |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -402,6 +403,36 @@ Hot deck donates whole observed values, so a donor matched to many receivers is 
 | minimal | 2025 | 1 of 10 | 2.1% to 2.1% | 0.65% | 2.5% | 74% |
 | populace-scale | 2022 | 0 of 10 | – | 0.09% | 3.4% | 72% |
 | populace-scale | 2025 | 8 of 10 | 1.4% to 2.7% | 0.04% | 3.7% | 73% |
+
+### Pinball loss and how the imputed quantiles are read
+
+`weighted_pinball_loss` reads the quantiles of the imputed draw with `np.quantile`, every receiver row counted once, and scores them against the weighted truth. The SCF's weights are far from uniform, so the two sides describe different populations. The table repeats the within-SCF sweep and adds the same loss with the imputed quantiles read under receiver weights. "Marginal lower" counts the seeds (of 10) on which the marginal draw's loss is below the method's. The as-coded values match the committed sweeps (largest relative difference 2e-16). Nothing here changes the paper's metric or its tables; whether to change them is a decision for the paper.
+
+2022 wave (2022 dollars):
+
+| Method | Debt, as coded | Debt, weighted | Marginal lower (coded / weighted) | Net worth, as coded | Net worth, weighted | Marginal lower (coded / weighted) |
+| --- | --- | --- | --- | --- | --- | --- |
+| populace-fit | 49,201 | 48,277 | 10 / 5 | 551,317 | 443,741 | 10 / 4 |
+| populace-fit, unweighted | 50,218 | 48,363 | 10 / 7 | 703,457 | 445,725 | 10 / 10 |
+| populace-fit, unchained | 49,201 | 48,277 | 10 / 5 | 556,622 | 444,184 | 10 / 5 |
+| ungated/unchained forest | 50,433 | 48,254 | 10 / 6 | 560,819 | 443,927 | 10 / 7 |
+| OLS | 70,053 | 61,955 | 10 / 10 | 1,116,572 | 906,071 | 10 / 10 |
+| quantile regression | 49,797 | 49,351 | 10 / 9 | 534,420 | 452,182 | 10 / 10 |
+| NND hot deck | 49,537 | 48,279 | 10 / 7 | 644,921 | 443,947 | 10 / 7 |
+| weighted marginal draw | 48,277 | 48,273 | – | 443,554 | 443,736 | – |
+
+2025 wave (2025 dollars):
+
+| Method | Debt, as coded | Debt, weighted | Marginal lower (coded / weighted) | Net worth, as coded | Net worth, weighted | Marginal lower (coded / weighted) |
+| --- | --- | --- | --- | --- | --- | --- |
+| populace-fit | 53,883 | 52,845 | 9 / 7 | 691,571 | 531,304 | 10 / 4 |
+| populace-fit, unweighted | 54,061 | 52,853 | 10 / 6 | 853,940 | 532,547 | 10 / 7 |
+| populace-fit, unchained | 53,883 | 52,845 | 9 / 7 | 693,429 | 531,472 | 10 / 3 |
+| ungated/unchained forest | 55,184 | 52,864 | 10 / 6 | 689,111 | 532,092 | 10 / 6 |
+| OLS | 69,765 | 62,852 | 10 / 10 | 1,116,887 | 850,728 | 10 / 10 |
+| quantile regression | 54,264 | 53,164 | 10 / 9 | 672,364 | 533,642 | 10 / 9 |
+| NND hot deck | 53,598 | 52,879 | 10 / 8 | 786,929 | 532,123 | 10 / 7 |
+| weighted marginal draw | 52,793 | 52,832 | – | 531,502 | 531,697 | – |
 
 ## Check against the Fed's published tables
 

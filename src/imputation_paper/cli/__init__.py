@@ -185,6 +185,21 @@ def main(argv: list[str] | None = None) -> int:
         "--runs-dir", type=Path, default=Path("runs"), help="Runs root."
     )
 
+    pinball_weighting = subcommands.add_parser(
+        "pinball-weighting",
+        help="Within-SCF pinball loss as coded and with weighted imputed "
+        "quantiles, both waves (needs the methods extra).",
+    )
+    pinball_weighting.add_argument(
+        "--out",
+        type=Path,
+        default=Path("runs/scf-pinball-weighting"),
+        help="Run directory to write manifest.json into.",
+    )
+    pinball_weighting.add_argument(
+        "--runs-dir", type=Path, default=Path("runs"), help="Runs root."
+    )
+
     figures = subcommands.add_parser(
         "figures",
         help="Aggregate a run's long-format artifacts into summary tables.",
@@ -246,6 +261,10 @@ def main(argv: list[str] | None = None) -> int:
         from imputation_paper.cli.replication import make_hotdeck_reuse
 
         return make_hotdeck_reuse(out=args.out, runs_dir=args.runs_dir)
+    if args.command == "pinball-weighting":
+        from imputation_paper.cli.replication import make_pinball_weighting
+
+        return make_pinball_weighting(out=args.out, runs_dir=args.runs_dir)
     if args.command == "figures":
         from imputation_paper.cli.figures import make_figures
 
