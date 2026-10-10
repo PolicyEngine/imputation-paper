@@ -138,6 +138,38 @@ def main(argv: list[str] | None = None) -> int:
         help="Directory the manuscript \\input's tables from.",
     )
 
+    replication = subcommands.add_parser(
+        "replication",
+        help="Score the SCF 2025 replication against the paper's 2022 runs.",
+    )
+    replication.add_argument(
+        "--runs-dir", type=Path, default=Path("runs"), help="Runs root."
+    )
+    replication.add_argument(
+        "--docs-out",
+        type=Path,
+        default=Path("docs/scf-2025-replication"),
+        help="Directory for the comparison document and its CSVs.",
+    )
+    replication.add_argument(
+        "--tables-out",
+        type=Path,
+        default=Path("paper/tables"),
+        help="Directory for the appendix's generated LaTeX inputs.",
+    )
+
+    scf_checks = subcommands.add_parser(
+        "scf-checks",
+        help="Check SCF weights, the balance-sheet identity, and the Fed's "
+        "published tables on both waves.",
+    )
+    scf_checks.add_argument(
+        "--out",
+        type=Path,
+        default=Path("runs/scf-population-checks"),
+        help="Run directory to write manifest.json into.",
+    )
+
     figures = subcommands.add_parser(
         "figures",
         help="Aggregate a run's long-format artifacts into summary tables.",
@@ -183,6 +215,18 @@ def main(argv: list[str] | None = None) -> int:
         from imputation_paper.cli.tables import make_tables
 
         return make_tables(runs_dir=args.runs_dir, out_dir=args.out)
+    if args.command == "replication":
+        from imputation_paper.cli.replication import make_replication
+
+        return make_replication(
+            runs_dir=args.runs_dir,
+            docs_out=args.docs_out,
+            tables_out=args.tables_out,
+        )
+    if args.command == "scf-checks":
+        from imputation_paper.cli.replication import make_population_checks
+
+        return make_population_checks(out=args.out)
     if args.command == "figures":
         from imputation_paper.cli.figures import make_figures
 
