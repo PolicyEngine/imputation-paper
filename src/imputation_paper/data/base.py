@@ -21,12 +21,13 @@ from __future__ import annotations
 import hashlib
 import os
 import urllib.request
+from collections.abc import Mapping
 from dataclasses import dataclass, field
 from pathlib import Path
 
 import pandas as pd
 
-__all__ = ["TaskFrame", "cache_dir", "download"]
+__all__ = ["TaskFrame", "cache_dir", "download", "sha256_of_file"]
 
 #: Environment variable that overrides the on-disk cache location.
 CACHE_ENV_VAR = "IMPUTATION_PAPER_CACHE"
@@ -79,6 +80,10 @@ class TaskFrame:
     #: Free-form provenance notes (source, derived-variable mappings). Excluded
     #: from equality so two loads of the same task compare equal on their data.
     notes: tuple[str, ...] = field(default=(), compare=False)
+    #: Machine-readable provenance (input file hash, survey year, dollar basis)
+    #: that the sweep and harness copy into ``manifest.json``. Empty for tasks
+    #: that record none.
+    provenance: Mapping[str, object] = field(default_factory=dict, compare=False)
 
     @property
     def used_columns(self) -> tuple[str, ...]:
@@ -103,7 +108,7 @@ def cache_dir() -> Path:
     return path
 
 
-def _sha256_of_file(path: Path) -> str:
+def sha256_of_file(path: Path) -> str:
     """Return the hex SHA-256 of a file, read in chunks (no full slurp)."""
     digest = hashlib.sha256()
     with path.open("rb") as handle:
@@ -153,7 +158,7 @@ def download(url: str, filename: str) -> Path:
                 out.write(chunk)
         tmp.replace(destination)
 
-    digest = _sha256_of_file(destination)
+    digest = sha256_of_file(destination)
     sidecar.write_text(digest + "\n")
     logger.info("SHA-256(%s) = %s", filename, digest)
     return destination

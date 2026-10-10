@@ -18,6 +18,24 @@ import argparse
 from pathlib import Path
 
 
+def _add_scf_wave_arguments(parser: argparse.ArgumentParser, subject: str) -> None:
+    """Add the SCF wave and dollar-basis options shared by sweep and harness."""
+    parser.add_argument(
+        "--scf-year",
+        type=int,
+        default=2022,
+        help=f"SCF wave for {subject}: 2022 (the paper's) or 2025 (the "
+        "replication wave).",
+    )
+    parser.add_argument(
+        "--scf-dollar-year",
+        type=int,
+        default=None,
+        help=f"Dollar basis for {subject} (default: the survey year's own "
+        "dollars, whichever file the Fed currently serves).",
+    )
+
+
 def main(argv: list[str] | None = None) -> int:
     """Entry point for the ``imp`` console script."""
     parser = argparse.ArgumentParser(
@@ -69,6 +87,7 @@ def main(argv: list[str] | None = None) -> int:
         default=20_000,
         help="Deterministic row cap applied to the task before splitting.",
     )
+    _add_scf_wave_arguments(sweep, "the scf_wealth task")
 
     harness = subcommands.add_parser(
         "harness",
@@ -103,6 +122,7 @@ def main(argv: list[str] | None = None) -> int:
         default=20_000,
         help="Deterministic cap on the CPS receiver sample.",
     )
+    _add_scf_wave_arguments(harness, "the SCF donor")
 
     tables = subcommands.add_parser(
         "tables",
@@ -144,6 +164,8 @@ def main(argv: list[str] | None = None) -> int:
             methods=args.methods,
             n_seeds=args.seeds,
             max_rows=args.max_rows,
+            scf_year=args.scf_year,
+            scf_dollar_year=args.scf_dollar_year,
         )
     if args.command == "harness":
         from imputation_paper.cli.harness import run_harness
@@ -154,6 +176,8 @@ def main(argv: list[str] | None = None) -> int:
             n_seeds=args.seeds,
             max_receiver_rows=args.max_receiver_rows,
             profile=args.profile,
+            scf_year=args.scf_year,
+            scf_dollar_year=args.scf_dollar_year,
         )
     if args.command == "tables":
         from imputation_paper.cli.tables import make_tables
