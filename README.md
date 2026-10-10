@@ -36,6 +36,8 @@ uv run imp sweep --task scf_wealth --scf-year 2025 --out runs/scf-wealth-2025
 uv run imp harness --profile minimal --scf-year 2025         # runs/scf-to-cps-harness-2025
 uv run imp harness --profile populace-scale --scf-year 2025  # runs/scf-to-cps-harness-scale-2025
 uv run imp scf-checks        # weights, balance-sheet identity, Fed Table 2, both waves
+uv run imp hotdeck-reuse     # aggregate donor reuse behind hot deck's 2025 tail
+uv run imp pinball-weighting # pinball loss as coded vs with weighted imputed quantiles
 uv run imp replication       # docs/scf-2025-replication/comparison.md + appendix inputs
 uv run imp tables            # also writes the *_2025.tex tables
 ```
