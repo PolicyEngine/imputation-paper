@@ -10,7 +10,7 @@ construction because every imputed value is a real donor value
 data-fusion tool in European microsimulation practice
 \citep{sutherland2013euromod}. \emph{Regression-based} methods impute from a
 fitted conditional model --- ordinary least squares with residual draws
-\citep{vonhippel2007should}, linear quantile regression
+\citep{vonhippel2013should}, linear quantile regression
 \citep{koenker1978regression, koenker2005quantile} --- and extend to multiple
 imputation for uncertainty propagation \citep{rubin1987multiple,
 kennickell1998multiple}. \emph{Tree-ensemble} methods, in particular quantile
@@ -29,11 +29,11 @@ each new task rather than a prescribed method.
 Imputing several variables one at a time, each conditional only on shared
 predictors, destroys the dependence among imputed variables; sequential
 (chained-equations) imputation conditions each variable on those already
-imputed, retaining joint structure \citep{raghunathan2003multiple,
+imputed, retaining joint structure \citep{raghunathan2001multivariate,
 vanbuuren2011mice}. In data fusion the same issue appears as the conditional
 independence assumption of statistical matching: matched files preserve
-marginals but attenuate cross-source correlations \citep{dorazio2006statistical,
-meinfelder2011simulation}. Synthetic-data generation faces the identical
+marginals but attenuate cross-source correlations
+\citep{dorazio2006statistical}. Synthetic-data generation faces the identical
 trade-off at whole-file scale \citep{rubin1993statistical}.
 
 \subsection{Weights in imputation}
@@ -77,7 +77,6 @@ against realized samples \citep{gneiting2007strictly, szekely2013energy},
 classifier two-sample tests \citep{lopezpaz2017revisiting}, and the
 precision--recall--density--coverage geometry of generative-model
 evaluation \citep{naeem2020reliable}. Population-synthesis practice validates
-against input marginals rather than held-out views, and reviews of the field
-note the absence of a standard benchmark. Section~3.3 operationalizes the
+against input marginals rather than held-out views. Section~3.3 operationalizes the
 combination; the reweighting fragility diagnostic of Section~3.4 is, to our
 knowledge, new.

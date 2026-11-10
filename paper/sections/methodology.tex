@@ -5,7 +5,7 @@
 
 \populacefit{} models $P(\text{targets} \mid \text{predictors})$ with a
 quantile-regression-forest estimator \citep{meinshausen2006quantile,
-zillow2024quantile} wrapped in three mechanisms.
+johnson2024quantile} wrapped in three mechanisms.
 
 \paragraph{Weighted bootstrap.} Random forests cannot honor a per-record
 \texttt{sample\_weight} in their predictive distribution: a fully grown leaf
@@ -59,7 +59,7 @@ baselines on zero-inflated targets.
 
 \paragraph{Sequential chaining.} Targets are imputed in order, each
 conditioning on the predictors plus the targets already drawn
-\citep{raghunathan2003multiple, vanbuuren2011mice}, so dependence among
+\citep{raghunathan2001multivariate, vanbuuren2011mice}, so dependence among
 imputed variables survives.
 
 \paragraph{Interface contract.} Fitting over a \populace{} frame reads the
@@ -120,9 +120,10 @@ attributions to gating. Baselines are
 standard practice: quantile-regression-forest, ordinary-least-squares, and
 linear quantile-regression imputers from \microimpute{}
 \citep{policyengine2025microimpute}, and nearest-neighbour-distance hot-deck
-statistical matching from \pystatmatch{} \citep{dorazio2021statistical}. The
+statistical matching from \pystatmatch{}, a Python port of the R package StatMatch
+\citep{dorazio2025statmatch}. The
 full estimator and the \microimpute{} forest are built on the same forest
-library \citep{zillow2024quantile}.
+library \citep{johnson2024quantile}.
 
 \subsection{The population-view harness}
 \label{sec:harness}

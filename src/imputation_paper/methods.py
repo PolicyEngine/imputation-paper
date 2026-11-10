@@ -459,7 +459,7 @@ REGISTRY: dict[str, Method] = {
         key="microimpute_ols",
         category=MethodCategory.BASELINE,
         description="microimpute OLS-with-normal-residuals imputer.",
-        citation_key="vonhippel2007should",
+        citation_key="vonhippel2013should",
         constructor=lambda: _microimpute_constructor("ols"),
     ),
     "microimpute_quantreg": Method(
@@ -476,7 +476,7 @@ REGISTRY: dict[str, Method] = {
             "py-statmatch nearest-neighbour-distance hot-deck statistical matching "
             "(a Python port of R's StatMatch)."
         ),
-        citation_key="dorazio2021statistical",
+        citation_key="dorazio2025statmatch",
         constructor=_statmatch_hotdeck_constructor,
     ),
     # --- Harness baseline (real, dependency-free; used by demo + CI) ---

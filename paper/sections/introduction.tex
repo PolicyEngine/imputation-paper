@@ -43,7 +43,7 @@ and sign-mixed variables --- ubiquitous in economic microdata
 \citep{mullahy1986specification, lambert1992zero} --- keep their mass
 structure. \emph{Sequential chaining} conditions each imputed variable on
 the ones already drawn, so joint structure among targets survives the
-imputation \citep{raghunathan2003multiple, vanbuuren2011mice}. The interface
+imputation \citep{raghunathan2001multivariate, vanbuuren2011mice}. The interface
 enforces the first choice: fits are weighted by construction, and an
 unweighted fit must be requested explicitly.
 
@@ -71,10 +71,10 @@ right from what calibration can later change.
 \item \textbf{A benchmark against standard practice with attribution, plus a
 reweighting stress test.} We compare the estimator against unweighted and
 weighted quantile regression forests \citep{meinshausen2006quantile},
-ordinary least squares imputation \citep{vonhippel2007should}, linear
+ordinary least squares imputation \citep{vonhippel2013should}, linear
 quantile regression \citep{koenker1978regression}, and nearest-neighbour
 hot-deck statistical matching \citep{andridge2010review,
-dorazio2021statistical}, under a paired, repeated holdout protocol. Ablations
+dorazio2006statistical}, under a paired, repeated holdout protocol. Ablations
 knock out weighting and chaining one at a time, so each gets its own
 attribution; gating is compared against an ungated forest baseline. A
 closed-form fragility diagnostic

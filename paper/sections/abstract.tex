@@ -3,10 +3,9 @@
 Policy microsimulation models rely on imputation to attach variables one
 survey observes to records from another, and the imputed file is then
 reweighted downstream: calibrated to administrative totals, filtered to
-subpopulations, stressed under reform scenarios. Common practice fits
-imputation models to survey records while ignoring their design weights,
-which biases imputed conditionals toward the sample rather than the
-population. We present the imputation operator of \populace{},
+subpopulations, stressed under reform scenarios. Fitting imputation models
+to survey records while ignoring their design weights biases imputed
+conditionals toward the sample rather than the population. We present the imputation operator of \populace{},
 \policyengine{}'s open-source microdata stack: a regime-gated, sequentially
 chained, weighted-bootstrap quantile-regression-forest estimator whose
 interface makes an unweighted fit impossible to request by accident. To
