@@ -163,18 +163,19 @@ help.
 \resizebox{\textwidth}{!}{\input{tables/openml}}
 \caption{Wasserstein-1 to the donor distribution across the six OpenML
 regression datasets (uniform weights), mean over ten paired seeds, with mean
-rank across datasets.}
+rank across datasets among the eight methods shown.}
 \label{tab:openml}
 \end{table}
 
 Table~\ref{tab:openml} runs the surface over the six OpenML regression
 datasets under uniform weights. Two observations. First, with weights
-uninformative by construction, the full estimator and its unweighted ablation are
-statistically the same method, and they rank near the top (mean ranks 3.8 and
-3.3) alongside the unconditional marginal draw (3.3); the linear methods rank
-last (7.8 and 8.8). Second --- and more important for this paper's argument --- the best
-mean rank on a \emph{marginal} distance is achieved by a method with no
-conditional structure at all. Marginal metrics saturate: they reward drawing
+uninformative by construction, the full estimator and its unweighted ablation
+differ only by a uniform resample of the training rows, and they rank near the
+top (mean ranks 3.5 and 3.0) alongside the unconditional marginal draw (3.2);
+the linear methods rank last (7.0 and 7.8). Second --- and more important for
+this paper's argument --- a method with no conditional structure at all ranks
+second of the eight on a \emph{marginal} distance, ahead of the full estimator
+and of every baseline. Marginal metrics saturate: they reward drawing
 from the right marginal and cannot rank what imputation is actually for.
 The population-view harness exists because of exactly this ceiling.
 

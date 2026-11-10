@@ -212,9 +212,13 @@ def _openml_table(runs_dir: Path, out_dir: Path, written: list[str]) -> None:
         return
     table = pd.concat(frames, ignore_index=True)
     pivot = table.pivot_table(index="method", columns="dataset", values="mean")
+    # Rank only the rows the table shows. A row hidden as a duplicate would
+    # otherwise take a rank of its own and push every method below it down one
+    # place, so the printed ranks would run past the number of printed rows.
+    methods = _ordered_methods(set(pivot.index))
+    pivot = pivot.loc[methods]
     ranks = pivot.rank(axis=0)  # lower W1 = better rank
     pivot["mean_rank"] = ranks.mean(axis=1)
-    methods = _ordered_methods(set(pivot.index))
 
     datasets = [c for c in pivot.columns if c != "mean_rank"]
     lines = [
