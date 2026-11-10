@@ -53,7 +53,7 @@ truth. Committed surface (9 methods):
 | `statmatch_hotdeck` | baseline | Classical nearest-neighbour-distance hot deck (py-statmatch) |
 | `weighted_marginal` | harness | Dependency-free lower bound; CI only |
 
-Released microimpute (1.1.2) carries no Matching model (it exists only behind
+Released microimpute (1.15.1; its `__version__` string reads 1.1.2) carries no Matching model (it exists only behind
 an R dependency in the dev tree), so py-statmatch's NND hot deck is *the*
 matching baseline. Adding or removing a method is a deliberate change to this
 table, not drift.

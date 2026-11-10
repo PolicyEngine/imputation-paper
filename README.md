@@ -32,6 +32,31 @@ py-statmatch (git). CI deliberately runs without it:
 the registry imports methods lazily, and sweeps record unavailable methods in
 `skipped.csv` rather than failing or silently dropping them.
 
+## Installing the estimator on its own
+
+The estimator is one package in the
+[Microcosm repository](https://github.com/PolicyEngine/microcosm) and installs
+without the rest of the stack. It is not on PyPI, and the PyPI project named
+`microcosm` is unrelated software, so install it as a Git dependency. With uv
+one requirement is enough: uv resolves the sibling packages it needs from the
+same commit.
+
+The version the paper's runs used, when the package was named `populace-fit`:
+
+```bash
+uv pip install "populace-fit @ git+https://github.com/PolicyEngine/microcosm.git@b538d8a4ecac9f0bad33c4f8d27acc453e280624#subdirectory=packages/populace-fit"
+```
+
+The current package, `microcosm-fit`, at a commit of your choice:
+
+```bash
+uv pip install "microcosm-fit @ git+https://github.com/PolicyEngine/microcosm.git@<commit>#subdirectory=packages/microcosm-fit"
+```
+
+pip does not read uv's workspace sources, so with pip pass one such URL for
+each package: `populace-fit` and `populace-frame` at the pinned commit, or
+`microcosm-fit`, `microcosm-frame` and `microcosm-graph` at a current one.
+
 ## Layout
 
 - `PLAN.md` — the experiment plan: tasks × methods × ablations × metrics, the
