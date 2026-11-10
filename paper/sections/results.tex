@@ -6,12 +6,11 @@
 % paper/tables/. Do not hand-enter values.
 
 Throughout, \emph{the full estimator} names \populacefit{} with all three
-design choices on (weighted, gated, chained); each table indents its
-ablations beneath it. The ungated/unchained forest row is the same estimator
-and configuration as the \microimpute{} QRF baseline
-(Table~\ref{tab:methods}), so it appears once, as an ablation row; OLS,
-quantile regression, and hot deck are the remaining standard-practice
-baselines, and the weighted marginal draw is the unconditional lower bound.
+design choices on (weighted, gated, chained); each table indents its two
+ablations beneath it. The \microimpute{} forest, OLS, quantile regression,
+and hot deck are the standard-practice baselines
+(Table~\ref{tab:methods}), and the weighted marginal draw is the
+unconditional lower bound.
 Unless a caption says otherwise, every cell is the mean over the ten paired
 seeds with the standard deviation across seeds in parentheses, and bold
 marks the best non-reference value in a column: lowest for distances and
@@ -40,14 +39,17 @@ debt by a factor of 2.5 (13,001 to 32,247). The \scf{}'s list-sample design
 oversamples wealthy households at low weight, so an unweighted fit learns the
 sample's wealth distribution rather than the population's --- this is the
 weight-blindness failure mode of Section~1 measured directly, and no other
-design choice comes close to its effect size. Gating and chaining contribute
-more modestly: the ungated/unchained forest sits at 234,367 on net-worth
+design choice comes close to its effect size. The other contrasts are
+smaller: the \microimpute{} forest sits at 234,367 on net-worth
 $W_1$ (1.7 times the full estimator), and removing chaining raises net-worth
 $W_1$ by 17 percent (135,871 to 158,606).
 
 Against the baselines, the full estimator's margins are largest where tails
 and joints matter. Hot-deck matching nearly ties it on debt marginal fit
-(13,770 vs.\ 13,001) but is 3.7 times worse on net worth (509,013). OLS is
+(13,770 vs.\ 13,001) but is 3.7 times worse on net worth (509,013). Its
+donor selection does not use the weights (Table~\ref{tab:methods}), and
+its loss runs in the same direction as the unweighted ablation's, so this
+contrast does not separate matching from weight-blindness. OLS is
 catastrophic on both (156,295 and 3.6 million): normal residuals cannot
 represent a wealth distribution. Linear quantile regression leaves 15
 percent of the debt zero mass unaccounted for, against at most 2 percent for
@@ -93,9 +95,9 @@ Table~\ref{tab:cps-components} reports the \cps{} components task. Pinball
 loss barely separates the non-OLS methods --- age, sex, and earnings carry
 little conditional signal for capital income --- but the zero mass separates
 them sharply. The full estimator holds zero-share error to 0.6 and 1.3
-percentage points (dividends, interest); the ungated/unchained forest
-drifts to 4.4 points on
-dividends; linear quantile regression misses by 25--27 points because a
+percentage points (dividends, interest); the \microimpute{} forest, which
+has no gate, drifts to 4.4 points on dividends, a contrast that does not
+isolate gating (Section~\ref{sec:ablations}); linear quantile regression misses by 25--27 points because a
 99-level linear quantile grid cannot hold a five-sixths zero mass; and OLS
 misses the dividend zero share by 84 points --- with normal residual draws,
 nearly every adult becomes a dividend recipient. Hot deck, which donates
@@ -125,16 +127,21 @@ block of the population-view experiment
 \centering
 \footnotesize
 \resizebox{\textwidth}{!}{\input{tables/ablations}}
-\caption{Paired-seed deltas, ablation minus the full estimator, mean (sd)
-over ten seeds. Positive means the ablation is worse on these
-lower-is-better metrics; a delta near zero means the knocked-out design
-choice is inert on that task.}
+\caption{Paired-seed deltas from the full estimator, mean (sd) over ten
+seeds, for its two ablations and for the \microimpute{} forest baseline.
+Positive means the comparison row is worse on these lower-is-better
+metrics. For the two ablations, a delta near zero means the knocked-out
+design choice is inert on that task; the forest baseline differs from the
+full estimator in more than one respect, so its column is a comparison,
+not an attribution.}
 \label{tab:ablations}
 \end{table}
 
-Table~\ref{tab:ablations} attributes the full estimator's behavior to its
-design choices. Each cell answers one question: on the same ten splits, how
-much did this metric worsen when one design choice was knocked out? The
+Table~\ref{tab:ablations} attributes the full estimator's behavior to the
+two design choices it can knock out, and sets the \microimpute{} forest
+beside them. Each ablation cell answers one question: on the same ten
+splits, how much did this metric worsen when one design choice was knocked
+out? The
 $+693{,}287$ under $\Delta$ unweighted on net-worth $W_1$, for instance,
 reads: refitting the identical estimator without weights raised the
 marginal-fit distance by \$693,287 on average. Because ablation and
@@ -144,14 +151,16 @@ across the ten splits.
 
 The ordering is task-dependent in an informative way. On the \scf{} ---
 informative weights, heavy tails --- weighting dominates ($+693{,}287$
-net-worth $W_1$ when removed), the structural forest machinery matters next
-($+98{,}496$), and chaining contributes a smaller $+22{,}735$ mean shift,
-though with wide seed-to-seed dispersion (sd $70{,}684$). On the \cps{} components
---- weakly informative weights, extreme zero inflation --- weighting is
-approximately free ($\Delta \approx 0$), while gating carries the load
-($+309$ dividend $W_1$ for the plain forest, and the zero-share drift of
-Table~\ref{tab:cps-components}). The design choices are complements across
-regimes, not redundant safeguards: which one binds depends on the survey's
+net-worth $W_1$ when removed), and chaining contributes a smaller
+$+22{,}735$ mean shift, though with wide seed-to-seed dispersion (sd
+$70{,}684$); the \microimpute{} forest trails by $+98{,}496$ (sd
+$179{,}722$). On the \cps{} components --- weakly informative weights,
+extreme zero inflation --- weighting matters little (its largest delta,
+$+36$ dividend $W_1$, is smaller than its spread across seeds) and chaining
+is inert. The one large contrast there is with the \microimpute{} forest
+($+309$ dividend $W_1$, and the zero-share drift of
+Table~\ref{tab:cps-components}), which this surface cannot attribute to
+gating alone. Which choice binds depends on the survey's
 design and the target's structure. Where a choice does not bind, its cost is
 small: the unweighted ablation is slightly ahead on \scf{} debt zero share
 (0.012 against 0.020, Table~\ref{tab:scf-wealth}) and on the uniform-weight
@@ -245,8 +254,10 @@ the accounting identity networth = fin + nfin $-$ debt exactly in the donor,
 fitting them independently costs 5.8 points of C2ST AUC (0.819 vs.\ 0.761)
 while leaving every marginal and tail statistic essentially unchanged ---
 the classifier detects balance sheets that do not add up, which no marginal
-metric can. The same pattern holds for gating: the ungated/unchained forest
-loses 5.6 AUC points at scale (0.817).
+metric can. The \microimpute{} forest sits at the same level (0.817). It
+differs from the full estimator in more than one respect
+(Section~\ref{sec:ablations}), so this experiment credits no part of that
+gap to gating.
 
 Third, \emph{richer conditioning makes the classifier two-sample test ---
 the scorecard's omnibus block --- decisive}. The
@@ -267,7 +278,8 @@ profiles, within 2.1 and 0.7 AUC points, and its donated values slightly
 beat the full estimator's on tail $W_1$ at scale (0.024 vs.\ 0.027). The full
 estimator's advantages over matching
 live where this task does not press hard: informative-weight regimes
-(Table~\ref{tab:scf-wealth}), extreme zero inflation
+(Table~\ref{tab:scf-wealth}, where the matching baseline also selects
+donors without weights), extreme zero inflation
 (Table~\ref{tab:cps-components}), and multi-target coherence (the chaining
 result above, which matching handles only through whole-record donation at
 the cost of reusing donors). One more tail observation cuts against the full

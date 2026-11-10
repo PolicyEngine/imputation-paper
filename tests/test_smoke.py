@@ -50,10 +50,11 @@ def test_registry_exposes_the_committed_method_surface() -> None:
     assert set(REGISTRY) == EXPECTED_METHOD_KEYS
     assert set(list_methods()) == EXPECTED_METHOD_KEYS
     assert CANDIDATE_KEYS == ("populace_fit",)
+    # `plain_qrf` is microimpute's QRF as shipped (a baseline), not a
+    # knock-out of the candidate, so only two ablations are registered.
     assert set(ABLATION_KEYS) == {
         "populace_fit_unweighted",
         "populace_fit_unchained",
-        "plain_qrf",
     }
     assert set(BASELINE_KEYS) == EXPECTED_METHOD_KEYS - set(CANDIDATE_KEYS) - set(
         ABLATION_KEYS

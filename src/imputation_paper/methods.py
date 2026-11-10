@@ -93,7 +93,8 @@ class MethodCategory:
     #: weighted QRF, run in its default weight-aware configuration.
     CANDIDATE = "candidate"
     #: A deliberate knock-out of one populace-fit design choice, to attribute the
-    #: gain (weighting off, chaining off, gates off).
+    #: gain (weighting off, chaining off). There is no gates-off knock-out:
+    #: populace-fit exposes no such switch.
     ABLATION = "ablation"
     #: A standard survey-imputation method the candidate is benchmarked against.
     BASELINE = "baseline"
@@ -429,17 +430,24 @@ REGISTRY: dict[str, Method] = {
             weights_mode="design", chained=False
         ),
     ),
+    # --- Baselines (standard survey-imputation methods) ---
+    # `plain_qrf` is `microimpute_qrf` under a second key. It was first
+    # registered as a gates-off, chaining-off ablation endpoint, which it is
+    # not: microimpute's QRF conditions each target on the targets already
+    # imputed, and it draws through its own sampler. The key stays because the
+    # committed run artifacts carry rows under it.
     "plain_qrf": Method(
         key="plain_qrf",
-        category=MethodCategory.ABLATION,
+        category=MethodCategory.BASELINE,
         description=(
-            "Single ungated, unchained quantile-regression-forest (microimpute QRF) "
-            "at matched hyperparameters: the gates-off, chaining-off comparison."
+            "microimpute quantile-regression-forest imputer as shipped: the same "
+            "estimator and configuration as `microimpute_qrf`, under the key the "
+            "committed runs also carry. Ungated, but sequentially chained and "
+            "drawn through its own sampler, so not a knock-out of the candidate."
         ),
         citation_key="meinshausen2006quantile",
         constructor=lambda: _microimpute_constructor("qrf"),
     ),
-    # --- Baselines (standard survey-imputation methods) ---
     "microimpute_qrf": Method(
         key="microimpute_qrf",
         category=MethodCategory.BASELINE,

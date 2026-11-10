@@ -46,8 +46,8 @@ class's forest.
 \end{enumerate}
 For dividend income the regime is $\{0, +\}$ and the gate is a zero hurdle;
 for net worth it is $\{-, 0, +\}$ and the gate is three-way.
-Section~\ref{sec:results-cps} measures what the gates buy on zero-inflated
-targets.
+Section~\ref{sec:results-cps} compares the gated estimator with ungated
+baselines on zero-inflated targets.
 
 \paragraph{Sequential chaining.} Targets are imputed in order, each
 conditioning on the predictors plus the targets already drawn
@@ -74,41 +74,47 @@ Method & Weights & Gates & Chaining & Implementation \\
 \populacefit{} & design & yes & yes & \populacefit{} \\
 \quad -- unweighted & none & yes & yes & \populacefit{}, \texttt{weights="none"} \\
 \quad -- unchained & design & yes & no & \populacefit{}, targets fit independently \\
-\quad -- ungated/unchained forest & design & no & no & \microimpute{} QRF \\
+QRF (\microimpute{}) & design & no & yes & \microimpute{} QRF, as shipped \\
 OLS & design & no & no & \microimpute{} \\
 Linear quantile regression & design & no & no & \microimpute{} \\
-NND hot deck & inform matching & via donation & via donation & \pystatmatch{} \\
+NND hot deck & standardization only & via donation & via donation & \pystatmatch{} \\
 Weighted marginal draw & design & --- & --- & unconditional weighted draw \\
 \hline
 \end{tabular}
 \caption{The method surface. Every fit that has a weights column uses the
 survey's design weights; the one exception is the unweighted ablation, whose
 sole difference from the full estimator is \texttt{weights="none"}. The
-ungated/unchained forest is the \microimpute{} QRF baseline itself --- one
-implementation serving two roles, as both an ablation endpoint and standard
-practice --- and it \emph{retains} design weights, so it differs from the
-full estimator only in gating and chaining. Hot deck donates all target
-values from one matched donor record, which preserves zero masses and
-cross-target structure by construction rather than by modeling them.}
+\microimpute{} forest is an external baseline run as shipped. It keeps the
+design weights and chains its targets, but it has no gate and it draws
+through its own sampler, so it is not a knockout of the full estimator.
+Hot deck donates all target values from one matched donor record, which
+preserves zero masses and cross-target structure by construction rather
+than by modeling them; its donor weights standardize the matching
+variables and do not enter the choice of donor.}
 \label{tab:methods}
 \end{table}
 
-Table~\ref{tab:methods} lays out the method surface. Each design choice is
-evaluated by knocking it out with everything else held fixed: the full
+Table~\ref{tab:methods} lays out the method surface. Two design choices are
+evaluated by knocking them out with everything else held fixed: the full
 estimator versus itself with \texttt{weights="none"} (the weighted
-bootstrap's contribution), versus fitting each target independently
-(chaining's contribution), and versus a single ungated, unchained forest at
-matched hyperparameters. The last knockout removes gating and chaining
-together --- \populacefit{} does not expose a gates-off switch on its own ---
-so gating's contribution is read jointly from two rows: what the plain
-forest loses beyond what removing chaining alone costs. Baselines are
+bootstrap's contribution), and versus fitting each target independently
+(chaining's contribution). Gating has no such knockout in this surface:
+\populacefit{} does not expose a gates-off switch, and the nearest ungated
+comparator, the \microimpute{} forest, differs from the full estimator in
+more than the gate. It chains its targets as the full estimator does, but
+it turns each requested quantile level into a draw from a ten-level
+conditional quantile grid (levels $1/11$ to $10/11$) at a randomly chosen
+index. Under the level sampling used for all baselines here, that draws
+the lowest and highest levels 25 and 21 percent of the time, against 10
+percent each for a uniform draw. Its random state is also fixed. Contrasts
+with it are therefore comparisons against standard practice, not
+attributions to gating. Baselines are
 standard practice: quantile-regression-forest, ordinary-least-squares, and
 linear quantile-regression imputers from \microimpute{}
 \citep{policyengine2025microimpute}, and nearest-neighbour-distance hot-deck
 statistical matching from \pystatmatch{} \citep{dorazio2021statistical}. The
-candidate and the plain-forest baselines share the same underlying forest
-implementation \citep{zillow2024quantile}, so their differences isolate the
-design choices rather than implementation quality.
+full estimator and the \microimpute{} forest are built on the same forest
+library \citep{zillow2024quantile}.
 
 \subsection{The population-view harness}
 \label{sec:harness}

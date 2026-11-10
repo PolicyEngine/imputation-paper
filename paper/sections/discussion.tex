@@ -11,10 +11,11 @@ the imputed 99th percentile on the population view by a factor of 1.9 to
 competing method except OLS. On the \cps{} components task, whose person weights carry little outcome
 information, weighting is approximately free. An estimator cannot know in
 advance which regime it is in, which is the argument for weighting by
-construction rather than by option. \emph{Gating carries the zero-inflation
-surface} (0.6 versus 4.4 percentage points of dividend zero-share error
-against the same forest ungated, and 5.6 AUC points on the production-scale
-population view). \emph{Chaining matters only where the targets are jointly
+construction rather than by option. \emph{Gating is the choice this surface
+tests least directly}: the full estimator holds dividend zero-share error to
+0.6 percentage points, against 4.4 for the ungated \microimpute{} forest,
+but that baseline also draws through a different sampler, and no gates-off
+arm of the full estimator is run. \emph{Chaining matters only where the targets are jointly
 constrained}: invisible with two loosely coupled targets, it is worth 5.8
 AUC points when the four imputed components must satisfy a balance-sheet
 identity --- and only the omnibus classifier sees the violation, because a
@@ -59,14 +60,18 @@ same shortfall (0.75 to 0.76) and the unconditional marginal draw does not
 (1.09 to 1.12), so the cause is not specific to forest draws; this
 experiment does not isolate it. The tail block keeps the shortfall visible,
 and it is a caution against reading the full estimator's wins as uniform.
-Baseline quantile models are additionally converted to samplers through a
-99-level grid, truncating draws beyond the 1st and 99th conditional
-percentiles. Fourth, the \microimpute{} forest's internal randomness is not
-seedable through its public constructor, so its paired-seed dispersion
-includes forest noise the full estimator's does not. Fifth, comparisons hold
-shared forest backends and default hyperparameters fixed rather than tuning
-each method per task; the ablations are exact controls, the cross-family
-comparisons are defaults-versus-defaults. Finally, we evaluate single
+The OLS and quantile-regression baselines are additionally converted to
+samplers through a 99-level grid, truncating draws beyond the 1st and 99th
+conditional percentiles. Fourth, the \microimpute{} forest is run as
+shipped. It draws each value from a ten-level conditional quantile grid,
+which reaches no further than the 9th and 91st conditional percentiles and
+over-draws those two levels, and its constructor takes no seed, so its
+forest and its sampler run on one fixed internal seed in every cell. Its
+paired-seed dispersion therefore carries no forest noise, and its
+contrasts with the full estimator mix the gate with the sampler. Fifth,
+comparisons hold shared forest backends and default hyperparameters fixed
+rather than tuning each method per task; the two ablations are exact
+controls, the cross-family comparisons are defaults-versus-defaults. Finally, we evaluate single
 imputations distributionally and do not propagate imputation uncertainty in
 the multiple-imputation sense \citep{rubin1987multiple}; for the population
 statistics microsimulation consumes, the distributional view is the relevant

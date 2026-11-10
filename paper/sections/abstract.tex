@@ -14,13 +14,14 @@ evaluate it we formalize a \emph{population-view harness}: one latent
 population observed through survey views, with any candidate weighted file
 scored by projecting it through each view against that survey's holdout.
 Benchmarked against standard survey-imputation methods on four task
-families, each design choice earns its place where its failure mode lives.
+families, weighting and chaining each earn their place where their failure
+modes live.
 Fit without weights, the identical estimator is six times worse on
 net-worth marginal fit and imputes a 99th percentile 1.9 to 2.3 times the
 holdout's --- an inflation that capped joint-geometry metrics miss entirely
-and only an uncapped tail axis detects. Regime gating holds dividend
-zero-share error to 0.6 percentage points against 4.4 for the same forest
-ungated. Chaining is worth 5.8 points of classifier two-sample AUC once
+and only an uncapped tail axis detects. The gated estimator holds dividend
+zero-share error to 0.6 percentage points, against 4.4 for a standard
+ungated forest imputer. Chaining is worth 5.8 points of classifier two-sample AUC once
 four imputed components must satisfy a balance-sheet identity. The
 estimator is available standalone as \populacefit{}, and every number in
 the paper regenerates from the accompanying repository.

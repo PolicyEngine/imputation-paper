@@ -6,7 +6,7 @@ quantile-regression forest in
 [`microcosm-fit`](https://github.com/PolicyEngine/microcosm/tree/main/packages/microcosm-fit),
 benchmarked against standard survey-imputation methods (plain QRF, OLS,
 quantile regression, hot-deck statistical matching) with ablations attributing
-the gains to each design choice. (Microcosm was first released under the name
+the gains to weighting and chaining. (Microcosm was first released under the name
 Populace; the reported sweeps pin a pre-rename commit, so the experiment code
 and its pinned dependencies keep the legacy `populace` spellings.)
 

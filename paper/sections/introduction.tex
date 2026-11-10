@@ -75,8 +75,9 @@ ordinary least squares imputation \citep{vonhippel2007should}, linear
 quantile regression \citep{koenker1978regression}, and nearest-neighbour
 hot-deck statistical matching \citep{andridge2010review,
 dorazio2021statistical}, under a paired, repeated holdout protocol. Ablations
-knock out one design choice at a time, so weighting, gating, and chaining
-each get their own attribution. A closed-form fragility diagnostic
+knock out weighting and chaining one at a time, so each gets its own
+attribution; gating is compared against an ungated forest baseline. A
+closed-form fragility diagnostic
 measures each method's worst-case single-record exposure under bounded
 reweightings of the imputed file --- the landmine failure mode.
 \end{enumerate}
