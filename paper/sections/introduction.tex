@@ -60,7 +60,7 @@ variable subsets, designs, measurement idioms --- and score any candidate
 weighted file by projecting it through each view against that survey's
 holdout. The score has four blocks: a strictly proper joint score
 \citep{gneiting2007strictly, szekely2013energy}, a support-based coverage
-axis that no reweighting of the candidate can change
+axis that is invariant to reweighting of the candidate by definition
 \citep{naeem2020reliable}, a weighted classifier two-sample test, and an
 uncapped tail block on imputed columns. We added the tail block after
 finding that capped sample-geometry metrics are blind to twofold errors in

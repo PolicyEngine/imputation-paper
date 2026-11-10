@@ -172,8 +172,12 @@ points with at least one candidate point inside their
 $k$-nearest-neighbour radius --- does the candidate reach every
 neighbourhood the holdout occupies? It is the explicit anti-collapse axis,
 and because it depends on the candidate only through its \emph{support}, it
-is invariant to any reweighting of the candidate: the one block a later
-calibration cannot change.
+is by definition invariant to any reweighting of the candidate: the one
+block a later calibration cannot change. As implemented, each sample
+larger than 2,048 points is first reduced to that size by a
+weight-proportional resample (the cap the energy distance shares). The
+candidate always is, so the reported coverage is invariant to reweighting
+only up to that resample.
 
 \paragraph{Classifier two-sample test (omnibus; 0.5 is indistinguishable).}
 A gradient-boosted classifier is trained to tell candidate rows from
@@ -204,17 +208,24 @@ wobbles under sampling noise alone.
 \subsection{Marginal and stress metrics}
 \label{sec:metrics}
 
-All metrics are computed under survey weights, on held-out receiver rows.
+All metrics are computed on held-out receiver rows under survey weights,
+with one exception noted under pinball loss.
 
 \paragraph{Pinball loss.} Pinball loss --- also called quantile loss; the
 terms are interchangeable and we use \emph{pinball} throughout --- scores
-conditional distributional calibration \citep{koenker2005quantile}. For a
-predicted conditional quantile $\hat{q}_\tau$ and realized value $y$, the
+predicted quantiles against realized values \citep{koenker2005quantile}.
+For a predicted quantile $\hat{q}_\tau$ and realized value $y$, the
 loss is $\rho_\tau(y - \hat{q}_\tau)$ with
 $\rho_\tau(u) = u\,(\tau - \mathbf{1}[u < 0])$; we average it, weighted,
-over the decile grid $\tau \in \{0.1, \ldots, 0.9\}$. It is minimized in
-expectation exactly when each predicted quantile is the true conditional
-quantile.
+over the decile grid $\tau \in \{0.1, \ldots, 0.9\}$. A single stochastic
+draw carries no conditional quantiles, so $\hat{q}_\tau$ here is the
+$\tau$-quantile of the method's pooled receiver draw, read with every
+receiver row counted once, and it is scored against every held-out value
+under the receiver weights. As computed, pinball loss is therefore a
+\emph{marginal} score. It does not test conditional calibration and cannot
+separate a conditional method from an unconditional one. Because the
+predicted quantiles are read without weights, it also favours a draw whose
+unweighted quantiles already match the weighted population.
 
 \paragraph{Wasserstein-1 distance.} Marginal fit is scored by the weighted
 Wasserstein-1 distance to the weighted donor distribution,

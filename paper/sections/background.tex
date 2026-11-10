@@ -61,9 +61,10 @@ testing that combination is the gap this paper fills.
 
 Because an imputation is a draw from an estimated conditional distribution,
 pointwise accuracy metrics understate quality; the relevant question is
-distributional. We follow the pinball-loss (quantile-loss) tradition for
-conditional calibration \citep{koenker2005quantile, meinshausen2006quantile}
-and use Wasserstein distance for marginal fit. For the joint, the evaluation
+distributional. We report pinball loss, from the quantile-loss tradition
+\citep{koenker2005quantile, meinshausen2006quantile}, and Wasserstein
+distance; as computed here both score marginal fit
+(Section~\ref{sec:metrics}). For the joint, the evaluation
 perspective this paper formalizes --- one latent population, surveys as
 partial views of it, candidates scored through each view against held-out
 survey samples --- has ancestry in several literatures that have not, to our

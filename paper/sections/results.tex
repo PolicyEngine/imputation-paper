@@ -56,13 +56,18 @@ percent of the debt zero mass unaccounted for, against at most 2 percent for
 the forest-based methods.
 
 One result reads wrong until the metric is examined: the \emph{unconditional}
-weighted marginal draw posts the best pinball loss on both targets. With
-predictors as weak as demographics and income are for wealth, receiver-side
-marginal metrics cannot distinguish a method that draws from the correct
-weighted marginal while ignoring predictors entirely from one that also gets
-the conditionals right. This is not an artifact to explain away; it is the
-motivating observation for the population-view harness of
-Section~\ref{sec:results-harness}, which scores the joint.
+weighted marginal draw posts the best pinball loss on both targets. Pinball
+loss as computed here is a marginal score whose predicted quantiles are read
+without receiver weights (Section~\ref{sec:metrics}). In a survey that
+oversamples the wealthy, a conditional method's pooled draw follows the
+receiver sample's composition, while the marginal draw is centred on the
+weighted population by construction, so this column favours the marginal
+draw for a reason unrelated to conditional fit, and we do not read its lead
+as evidence about the methods. More generally, no receiver-side marginal
+metric can distinguish a method that draws from the correct weighted
+marginal while ignoring predictors from one that also gets the conditionals
+right. That is what the population-view harness of
+Section~\ref{sec:results-harness}, which scores the joint, is for.
 
 \subsection{Zero-inflated components and reweighting fragility}
 \label{sec:results-cps}
@@ -92,8 +97,8 @@ generate realistic tails, substantially higher means it plants landmines.}
 \end{table}
 
 Table~\ref{tab:cps-components} reports the \cps{} components task. Pinball
-loss barely separates the non-OLS methods --- age, sex, and earnings carry
-little conditional signal for capital income --- but the zero mass separates
+loss barely separates the non-OLS methods --- as a marginal score it is not
+built to --- but the zero mass separates
 them sharply. The full estimator holds zero-share error to 0.6 and 1.3
 percentage points (dividends, interest); the \microimpute{} forest, which
 has no gate, drifts to 4.4 points on dividends, a contrast that does not
