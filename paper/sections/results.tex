@@ -70,7 +70,8 @@ Section~\ref{sec:results-harness}, which scores the joint.
 \footnotesize
 \resizebox{\textwidth}{!}{\input{tables/cps_components}}
 \caption{Zero-inflated income components in the raw \cps{} (interest and
-dividend income for adults): weighted pinball loss and zero-share error, mean
+dividend income for adults, on a fixed subsample of 20,000 of the file's
+108,044 adults): weighted pinball loss and zero-share error, mean
 (sd) over ten paired seeds. Bold marks the best non-reference value per
 column; lower is better.}
 \label{tab:cps-components}
@@ -148,11 +149,13 @@ net-worth $W_1$ when removed), the structural forest machinery matters next
 though with wide seed-to-seed dispersion (sd $70{,}684$). On the \cps{} components
 --- weakly informative weights, extreme zero inflation --- weighting is
 approximately free ($\Delta \approx 0$), while gating carries the load
-($+534$ dividend $W_1$ for the plain forest, and the zero-share drift of
+($+309$ dividend $W_1$ for the plain forest, and the zero-share drift of
 Table~\ref{tab:cps-components}). The design choices are complements across
 regimes, not redundant safeguards: which one binds depends on the survey's
-design and the target's structure, and none of them hurts where it does not
-help.
+design and the target's structure. Where a choice does not bind, its cost is
+small: the unweighted ablation is slightly ahead on \scf{} debt zero share
+(0.012 against 0.020, Table~\ref{tab:scf-wealth}) and on the uniform-weight
+OpenML suite (Section~\ref{sec:results-openml}).
 
 \subsection{Cross-dataset transfer}
 \label{sec:results-openml}
@@ -163,7 +166,10 @@ help.
 \resizebox{\textwidth}{!}{\input{tables/openml}}
 \caption{Wasserstein-1 to the donor distribution across the six OpenML
 regression datasets (uniform weights), mean over ten paired seeds, with mean
-rank across datasets among the eight methods shown.}
+rank across datasets among the eight methods shown. The two datasets with
+more than 20,000 rows (\texttt{house\_sales}, 21,613, and
+\texttt{onlinenewspopularity}, 39,644) are capped at 20,000 by a fixed
+uniform subsample.}
 \label{tab:openml}
 \end{table}
 
@@ -187,7 +193,8 @@ The population-view harness exists because of exactly this ceiling.
 \footnotesize
 \resizebox{\textwidth}{!}{\input{tables/harness}}
 \caption{The population-view experiment, \emph{minimal} profile (six shared
-predictors, two targets, ASEC 2025 receiver): candidates assembled from real
+predictors, two targets, a fixed subsample of 20,000 of the 55,762 ASEC 2025
+receiver households): candidates assembled from real
 \cps{} demographics plus each method's imputed wealth, under \cps{}
 household weights, scored against the held-out \scf{} through the \scf{}
 view. The first row is the sampling-noise floor; cells are mean (sd) over
@@ -203,8 +210,9 @@ non-reference value per column under those conventions.}
 \footnotesize
 \resizebox{\textwidth}{!}{\input{tables/harness_scale}}
 \caption{The population-view experiment, \emph{production-scale} profile (ten
-shared predictors, four chain-ordered balance-sheet targets, pooled ASEC
-2023--2025 receiver). Columns, cell format, and bolding as in
+shared predictors, four chain-ordered balance-sheet targets, a fixed
+subsample of 20,000 of the 168,852 pooled ASEC 2023--2025 receiver
+households). Columns, cell format, and bolding as in
 Table~\ref{tab:harness}.}
 \label{tab:harness-scale}
 \end{table}
@@ -242,10 +250,11 @@ loses 5.6 AUC points at scale (0.817).
 
 Third, \emph{richer conditioning makes the classifier two-sample test ---
 the scorecard's omnibus block --- decisive}. The
-unconditional weighted marginal draw --- which ties or beats every method on
-marginal metrics throughout this paper --- moves from AUC 0.848 in the
+unconditional weighted marginal draw --- at or near the top on marginal
+metrics throughout this paper --- moves from AUC 0.848 in the
 minimal profile to 0.968 at production scale, while the full estimator stays
-closest to the floor (0.732 and 0.761). With ten shared predictors and a
+the closest to the floor after its own unweighted ablation (0.732 and 0.761,
+against 0.731 and 0.754). With ten shared predictors and a
 four-component wealth block, a classifier finds the missing
 demographics--wealth coupling almost perfectly. This is the empirical case
 for carrying strong auxiliary predictors in a production imputation stack:
@@ -255,16 +264,19 @@ into obvious.
 Fourth, \emph{hot-deck matching is a genuine near-peer on this task}. It
 sits within noise of the full estimator on energy and coverage in both
 profiles, within 2.1 and 0.7 AUC points, and its donated values slightly
-beat the full estimator's on tail $W_1$ at scale (0.024 vs.\ 0.027) ---
-donation preserves marginals and tails by construction. The full
+beat the full estimator's on tail $W_1$ at scale (0.024 vs.\ 0.027). The full
 estimator's advantages over matching
 live where this task does not press hard: informative-weight regimes
 (Table~\ref{tab:scf-wealth}), extreme zero inflation
 (Table~\ref{tab:cps-components}), and multi-target coherence (the chaining
 result above, which matching handles only through whole-record donation at
-the cost of reusing donors). One more tail observation cuts against every
-conditional method, the full estimator included: forest draws do not extrapolate
-beyond training support, so their imputed q99 ratios sit at 0.70--0.81 ---
-they understate the extreme tail by 20--30 percent where donation-based
-draws sit near 1. No method in this surface gets the extreme tail right for
-free; the tail block is what keeps that visible.
+the cost of reusing donors). One more tail observation cuts against the full
+estimator: its imputed net-worth q99 falls short of the holdout's, at a
+ratio of 0.70 in the minimal profile and 0.77 at production scale. Hot deck,
+which donates observed values, shows the same shortfall (0.76 and 0.75),
+while the unconditional marginal draw, which draws from the donor's weighted
+marginal without conditioning, sits near 1 (1.09 and 1.12, against a floor
+of 1.10). The shortfall is therefore shared by a forest and a donation method
+that both condition on the receiver's demographics, and this experiment does
+not isolate its cause. No method in this surface gets the extreme tail right
+for free; the tail block is what keeps that visible.

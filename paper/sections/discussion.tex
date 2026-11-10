@@ -7,8 +7,8 @@ wherever the design is informative}: on the \scf{}, whose list sample
 oversamples wealthy households, removing the weighted bootstrap costs a
 factor of six on net-worth marginal fit within the donor survey and inflates
 the imputed 99th percentile on the population view by a factor of 1.9 to
-2.3. That effect is larger than the gap between the full estimator and any
-competing method. On the \cps{} components task, whose person weights carry little outcome
+2.3. That effect is larger than the gap between the full estimator and every
+competing method except OLS. On the \cps{} components task, whose person weights carry little outcome
 information, weighting is approximately free. An estimator cannot know in
 advance which regime it is in, which is the argument for weighting by
 construction rather than by option. \emph{Gating carries the zero-inflation
@@ -18,13 +18,14 @@ population view). \emph{Chaining matters only where the targets are jointly
 constrained}: invisible with two loosely coupled targets, it is worth 5.8
 AUC points when the four imputed components must satisfy a balance-sheet
 identity --- and only the omnibus classifier sees the violation, because a
-balance sheet that does not add up has perfectly reasonable marginals. None
-of the three choices hurts where it does not help.
+balance sheet that does not add up has perfectly reasonable marginals. Where
+a choice does not bind, its cost is small: the unweighted ablation is slightly
+ahead on \scf{} debt zero share and on the uniform-weight OpenML suite.
 
 The evaluation findings are as load-bearing as the method findings, and one
 of them corrected this paper's own harness. Marginal metrics saturate: with
-weak predictors, an unconditional weighted draw from the donor marginal ties
-or beats every conditional method on pinball loss and Wasserstein distance
+weak predictors, an unconditional weighted draw from the donor marginal sits
+at or near the top on pinball loss and Wasserstein distance
 --- on the OpenML suite it ranks second of the eight methods --- while
 carrying no conditional structure at all; at production scale the classifier separates it
 almost perfectly (AUC 0.968 against 0.761). But the joint metrics have their
@@ -51,13 +52,13 @@ the production release-gate use of the harness; we leave it to future work
 (\psid{} access requires registration), since the two-view experiment
 already identifies the joint-structure differences this paper is about. Second, the joint-geometry blocks still run
 on weight-proportional subsamples (2,048 points per side); the tail block and
-the C2ST, which use all rows, are the axes least affected. Third, no
-conditional method gets the extreme tail right: forest draws do not
-extrapolate beyond training support, so imputed q99 ratios sit at 0.70--0.81
-for the full estimator and its forest relatives, where donation-based draws
-sit near 1 --- a genuine advantage of hot-deck matching that the tail block
-keeps visible, and a caution against reading the full estimator's wins as
-uniform.
+the C2ST, which use all rows, are the axes least affected. Third, the full
+estimator understates the extreme tail on the population view: its imputed
+net-worth q99 is 0.70 to 0.77 of the holdout's. Hot-deck matching shows the
+same shortfall (0.75 to 0.76) and the unconditional marginal draw does not
+(1.09 to 1.12), so the cause is not specific to forest draws; this
+experiment does not isolate it. The tail block keeps the shortfall visible,
+and it is a caution against reading the full estimator's wins as uniform.
 Baseline quantile models are additionally converted to samplers through a
 99-level grid, truncating draws beyond the 1st and 99th conditional
 percentiles. Fourth, the \microimpute{} forest's internal randomness is not
