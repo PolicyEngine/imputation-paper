@@ -391,7 +391,7 @@ def _replication_wave_tables(runs_dir: Path, out_dir: Path, written: list[str]) 
             (
                 "scf-to-cps-harness-scale",
                 "harness_scale",
-                "Populace-scale profile: 10 shared predictors, 4 chained targets, "
+                "Production-scale profile: 10 shared predictors, 4 chained targets, "
                 "pooled ASEC 2023-2025 receiver.",
             ),
         ):
