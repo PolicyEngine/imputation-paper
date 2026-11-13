@@ -6,12 +6,11 @@
 % paper/tables/. Do not hand-enter values.
 
 Throughout, \emph{the full estimator} names \populacefit{} with all three
-design choices on (weighted, gated, chained); each table indents its
-ablations beneath it. The ungated/unchained forest row is the same estimator
-and configuration as the \microimpute{} QRF baseline
-(Table~\ref{tab:methods}), so it appears once, as an ablation row; OLS,
-quantile regression, and hot deck are the remaining standard-practice
-baselines, and the weighted marginal draw is the unconditional lower bound.
+design choices on (weighted, gated, chained); each table indents its two
+ablations beneath it. The \microimpute{} forest, OLS, quantile regression,
+and hot deck are the standard-practice baselines
+(Table~\ref{tab:methods}), and the weighted marginal draw is the
+unconditional lower bound.
 Unless a caption says otherwise, every cell is the mean over the ten paired
 seeds with the standard deviation across seeds in parentheses, and bold
 marks the best non-reference value in a column: lowest for distances and
@@ -40,27 +39,35 @@ debt by a factor of 2.5 (13,001 to 32,247). The \scf{}'s list-sample design
 oversamples wealthy households at low weight, so an unweighted fit learns the
 sample's wealth distribution rather than the population's --- this is the
 weight-blindness failure mode of Section~1 measured directly, and no other
-design choice comes close to its effect size. Gating and chaining contribute
-more modestly: the ungated/unchained forest sits at 234,367 on net-worth
+design choice comes close to its effect size. The other contrasts are
+smaller: the \microimpute{} forest sits at 234,367 on net-worth
 $W_1$ (1.7 times the full estimator), and removing chaining raises net-worth
 $W_1$ by 17 percent (135,871 to 158,606).
 
 Against the baselines, the full estimator's margins are largest where tails
 and joints matter. Hot-deck matching nearly ties it on debt marginal fit
-(13,770 vs.\ 13,001) but is 3.7 times worse on net worth (509,013). OLS is
+(13,770 vs.\ 13,001) but is 3.7 times worse on net worth (509,013). Its
+donor selection does not use the weights (Table~\ref{tab:methods}), and
+its loss runs in the same direction as the unweighted ablation's, so this
+contrast does not separate matching from weight-blindness. OLS is
 catastrophic on both (156,295 and 3.6 million): normal residuals cannot
 represent a wealth distribution. Linear quantile regression leaves 15
 percent of the debt zero mass unaccounted for, against at most 2 percent for
 the forest-based methods.
 
 One result reads wrong until the metric is examined: the \emph{unconditional}
-weighted marginal draw posts the best pinball loss on both targets. With
-predictors as weak as demographics and income are for wealth, receiver-side
-marginal metrics cannot distinguish a method that draws from the correct
-weighted marginal while ignoring predictors entirely from one that also gets
-the conditionals right. This is not an artifact to explain away; it is the
-motivating observation for the population-view harness of
-Section~\ref{sec:results-harness}, which scores the joint.
+weighted marginal draw posts the best pinball loss on both targets. Pinball
+loss as computed here is a marginal score whose predicted quantiles are read
+without receiver weights (Section~\ref{sec:metrics}). In a survey that
+oversamples the wealthy, a conditional method's pooled draw follows the
+receiver sample's composition, while the marginal draw is centered on the
+weighted population by construction, so this column favors the marginal
+draw for a reason unrelated to conditional fit, and we do not read its lead
+as evidence about the methods. More generally, no receiver-side marginal
+metric can distinguish a method that draws from the correct weighted
+marginal while ignoring predictors from one that also gets the conditionals
+right. That is what the population-view harness of
+Section~\ref{sec:results-harness}, which scores the joint, is for.
 
 \subsection{Zero-inflated components and reweighting fragility}
 \label{sec:results-cps}
@@ -70,7 +77,8 @@ Section~\ref{sec:results-harness}, which scores the joint.
 \footnotesize
 \resizebox{\textwidth}{!}{\input{tables/cps_components}}
 \caption{Zero-inflated income components in the raw \cps{} (interest and
-dividend income for adults): weighted pinball loss and zero-share error, mean
+dividend income for adults, on a fixed subsample of 20,000 of the file's
+108,044 adults): weighted pinball loss and zero-share error, mean
 (sd) over ten paired seeds. Bold marks the best non-reference value per
 column; lower is better.}
 \label{tab:cps-components}
@@ -89,12 +97,12 @@ generate realistic tails, substantially higher means it plants landmines.}
 \end{table}
 
 Table~\ref{tab:cps-components} reports the \cps{} components task. Pinball
-loss barely separates the non-OLS methods --- age, sex, and earnings carry
-little conditional signal for capital income --- but the zero mass separates
+loss barely separates the non-OLS methods --- as a marginal score it is not
+built to --- but the zero mass separates
 them sharply. The full estimator holds zero-share error to 0.6 and 1.3
-percentage points (dividends, interest); the ungated/unchained forest
-drifts to 4.4 points on
-dividends; linear quantile regression misses by 25--27 points because a
+percentage points (dividends, interest); the \microimpute{} forest, which
+has no gate, drifts to 4.4 points on dividends, a contrast that does not
+isolate gating (Section~\ref{sec:ablations}); linear quantile regression misses by 25--27 points because a
 99-level linear quantile grid cannot hold a five-sixths zero mass; and OLS
 misses the dividend zero share by 84 points --- with normal residual draws,
 nearly every adult becomes a dividend recipient. Hot deck, which donates
@@ -124,16 +132,21 @@ block of the population-view experiment
 \centering
 \footnotesize
 \resizebox{\textwidth}{!}{\input{tables/ablations}}
-\caption{Paired-seed deltas, ablation minus the full estimator, mean (sd)
-over ten seeds. Positive means the ablation is worse on these
-lower-is-better metrics; a delta near zero means the knocked-out design
-choice is inert on that task.}
+\caption{Paired-seed deltas from the full estimator, mean (sd) over ten
+seeds, for its two ablations and for the \microimpute{} forest baseline.
+Positive means the comparison row is worse on these lower-is-better
+metrics. For the two ablations, a delta near zero means the knocked-out
+design choice is inert on that task; the forest baseline differs from the
+full estimator in more than one respect, so its column is a comparison,
+not an attribution.}
 \label{tab:ablations}
 \end{table}
 
-Table~\ref{tab:ablations} attributes the full estimator's behavior to its
-design choices. Each cell answers one question: on the same ten splits, how
-much did this metric worsen when one design choice was knocked out? The
+Table~\ref{tab:ablations} attributes the full estimator's behavior to the
+two design choices it can knock out, and sets the \microimpute{} forest
+beside them. Each ablation cell answers one question: on the same ten
+splits, how much did this metric worsen when one design choice was knocked
+out? The
 $+693{,}287$ under $\Delta$ unweighted on net-worth $W_1$, for instance,
 reads: refitting the identical estimator without weights raised the
 marginal-fit distance by \$693,287 on average. Because ablation and
@@ -143,16 +156,20 @@ across the ten splits.
 
 The ordering is task-dependent in an informative way. On the \scf{} ---
 informative weights, heavy tails --- weighting dominates ($+693{,}287$
-net-worth $W_1$ when removed), the structural forest machinery matters next
-($+98{,}496$), and chaining contributes a smaller $+22{,}735$ mean shift,
-though with wide seed-to-seed dispersion (sd $70{,}684$). On the \cps{} components
---- weakly informative weights, extreme zero inflation --- weighting is
-approximately free ($\Delta \approx 0$), while gating carries the load
-($+534$ dividend $W_1$ for the plain forest, and the zero-share drift of
-Table~\ref{tab:cps-components}). The design choices are complements across
-regimes, not redundant safeguards: which one binds depends on the survey's
-design and the target's structure, and none of them hurts where it does not
-help.
+net-worth $W_1$ when removed), and chaining contributes a smaller
+$+22{,}735$ mean shift, though with wide seed-to-seed dispersion (sd
+$70{,}684$); the \microimpute{} forest trails by $+98{,}496$ (sd
+$179{,}722$). On the \cps{} components --- weakly informative weights,
+extreme zero inflation --- weighting has a small effect (removing it raises
+dividend $W_1$ by 36, from 102, on eight of the ten seeds, and leaves the
+other metrics within seed noise) and chaining is inert. The one large contrast there is with the \microimpute{} forest
+($+309$ dividend $W_1$, and the zero-share drift of
+Table~\ref{tab:cps-components}), which this surface cannot attribute to
+gating alone. Which choice binds depends on the survey's
+design and the target's structure. Where a choice does not bind, its cost is
+small: the unweighted ablation is slightly ahead on \scf{} debt zero share
+(0.012 against 0.020, Table~\ref{tab:scf-wealth}) and on the uniform-weight
+OpenML suite (Section~\ref{sec:results-openml}).
 
 \subsection{Cross-dataset transfer}
 \label{sec:results-openml}
@@ -163,18 +180,22 @@ help.
 \resizebox{\textwidth}{!}{\input{tables/openml}}
 \caption{Wasserstein-1 to the donor distribution across the six OpenML
 regression datasets (uniform weights), mean over ten paired seeds, with mean
-rank across datasets.}
+rank across datasets among the eight methods shown. The two datasets with
+more than 20,000 rows (\texttt{house\_sales}, 21,613, and
+\texttt{onlinenewspopularity}, 39,644) are capped at 20,000 by a fixed
+uniform subsample.}
 \label{tab:openml}
 \end{table}
 
 Table~\ref{tab:openml} runs the surface over the six OpenML regression
 datasets under uniform weights. Two observations. First, with weights
-uninformative by construction, the full estimator and its unweighted ablation are
-statistically the same method, and they rank near the top (mean ranks 3.8 and
-3.3) alongside the unconditional marginal draw (3.3); the linear methods rank
-last (7.8 and 8.8). Second --- and more important for this paper's argument --- the best
-mean rank on a \emph{marginal} distance is achieved by a method with no
-conditional structure at all. Marginal metrics saturate: they reward drawing
+uninformative by construction, the full estimator and its unweighted ablation
+differ only by a uniform resample of the training rows, and they rank near the
+top (mean ranks 3.5 and 3.0) alongside the unconditional marginal draw (3.2);
+the linear methods rank last (7.0 and 7.8). Second --- and more important for
+this paper's argument --- a method with no conditional structure at all ranks
+second of the eight on a \emph{marginal} distance, ahead of the full estimator
+and of every baseline. Marginal metrics saturate: they reward drawing
 from the right marginal and cannot rank what imputation is actually for.
 The population-view harness exists because of exactly this ceiling.
 
@@ -186,7 +207,8 @@ The population-view harness exists because of exactly this ceiling.
 \footnotesize
 \resizebox{\textwidth}{!}{\input{tables/harness}}
 \caption{The population-view experiment, \emph{minimal} profile (six shared
-predictors, two targets, ASEC 2025 receiver): candidates assembled from real
+predictors, two targets, a fixed subsample of 20,000 of the 55,762 ASEC 2025
+receiver households): candidates assembled from real
 \cps{} demographics plus each method's imputed wealth, under \cps{}
 household weights, scored against the held-out \scf{} through the \scf{}
 view. The first row is the sampling-noise floor; cells are mean (sd) over
@@ -202,8 +224,9 @@ non-reference value per column under those conventions.}
 \footnotesize
 \resizebox{\textwidth}{!}{\input{tables/harness_scale}}
 \caption{The population-view experiment, \emph{production-scale} profile (ten
-shared predictors, four chain-ordered balance-sheet targets, pooled ASEC
-2023--2025 receiver). Columns, cell format, and bolding as in
+shared predictors, four chain-ordered balance-sheet targets, a fixed
+subsample of 20,000 of the 168,852 pooled ASEC 2023--2025 receiver
+households). Columns, cell format, and bolding as in
 Table~\ref{tab:harness}.}
 \label{tab:harness-scale}
 \end{table}
@@ -236,15 +259,18 @@ the accounting identity networth = fin + nfin $-$ debt exactly in the donor,
 fitting them independently costs 5.8 points of C2ST AUC (0.819 vs.\ 0.761)
 while leaving every marginal and tail statistic essentially unchanged ---
 the classifier detects balance sheets that do not add up, which no marginal
-metric can. The same pattern holds for gating: the ungated/unchained forest
-loses 5.6 AUC points at scale (0.817).
+metric can. The \microimpute{} forest sits at the same level (0.817). It
+differs from the full estimator in more than one respect
+(Section~\ref{sec:ablations}), so this experiment credits no part of that
+gap to gating.
 
 Third, \emph{richer conditioning makes the classifier two-sample test ---
 the scorecard's omnibus block --- decisive}. The
-unconditional weighted marginal draw --- which ties or beats every method on
-marginal metrics throughout this paper --- moves from AUC 0.848 in the
+unconditional weighted marginal draw --- at or near the top on marginal
+metrics throughout this paper --- moves from AUC 0.848 in the
 minimal profile to 0.968 at production scale, while the full estimator stays
-closest to the floor (0.732 and 0.761). With ten shared predictors and a
+the closest to the floor after its own unweighted ablation (0.732 and 0.761,
+against 0.731 and 0.754). With ten shared predictors and a
 four-component wealth block, a classifier finds the missing
 demographics--wealth coupling almost perfectly. This is the empirical case
 for carrying strong auxiliary predictors in a production imputation stack:
@@ -254,16 +280,20 @@ into obvious.
 Fourth, \emph{hot-deck matching is a genuine near-peer on this task}. It
 sits within noise of the full estimator on energy and coverage in both
 profiles, within 2.1 and 0.7 AUC points, and its donated values slightly
-beat the full estimator's on tail $W_1$ at scale (0.024 vs.\ 0.027) ---
-donation preserves marginals and tails by construction. The full
+beat the full estimator's on tail $W_1$ at scale (0.024 vs.\ 0.027). The full
 estimator's advantages over matching
 live where this task does not press hard: informative-weight regimes
-(Table~\ref{tab:scf-wealth}), extreme zero inflation
+(Table~\ref{tab:scf-wealth}, where the matching baseline also selects
+donors without weights), extreme zero inflation
 (Table~\ref{tab:cps-components}), and multi-target coherence (the chaining
 result above, which matching handles only through whole-record donation at
-the cost of reusing donors). One more tail observation cuts against every
-conditional method, the full estimator included: forest draws do not extrapolate
-beyond training support, so their imputed q99 ratios sit at 0.70--0.81 ---
-they understate the extreme tail by 20--30 percent where donation-based
-draws sit near 1. No method in this surface gets the extreme tail right for
-free; the tail block is what keeps that visible.
+the cost of reusing donors). One more tail observation cuts against the full
+estimator: its imputed net-worth q99 falls short of the holdout's, at a
+ratio of 0.70 in the minimal profile and 0.77 at production scale. Hot deck,
+which donates observed values, shows the same shortfall (0.76 and 0.75),
+while the unconditional marginal draw, which draws from the donor's weighted
+marginal without conditioning, sits near 1 (1.09 and 1.12, against a floor
+of 1.10). The shortfall is therefore shared by a forest and a donation method
+that both condition on the receiver's demographics, and this experiment does
+not isolate its cause. No method in this surface gets the extreme tail right
+for free; the tail block is what keeps that visible.
