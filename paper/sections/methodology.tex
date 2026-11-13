@@ -14,7 +14,10 @@ change which values a quantile query reads out. \populacefit{} therefore
 materializes weights into the data: before each forest is grown, training rows
 are resampled with replacement with probability proportional to weight, so
 leaf distributions reflect the weighted population. Draws from the fitted
-forest then sample the \emph{weighted} conditional.
+forest then sample the \emph{weighted} conditional. Resampling to undo an
+unequal-probability design is an established device
+\citep{hinkins1997inverse, dong2014nonparametric}; Section~\ref{sec:background-weights}
+places this one in that literature.
 
 \paragraph{Regime gates.} Economic variables are rarely smooth. Most adults
 hold zero dividend income; net worth is negative for some households, exactly
