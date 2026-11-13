@@ -1,12 +1,14 @@
 # imputation-paper
 
-Paper and experiment workspace for populace's weight-aware imputation
+Paper and experiment workspace for Microcosm's weight-aware imputation
 approach: the regime-gated, sequentially-chained, weighted-bootstrap
 quantile-regression forest in
-[`populace-fit`](https://github.com/PolicyEngine/populace/tree/main/packages/populace-fit),
+[`microcosm-fit`](https://github.com/PolicyEngine/microcosm/tree/main/packages/microcosm-fit),
 benchmarked against standard survey-imputation methods (plain QRF, OLS,
 quantile regression, hot-deck statistical matching) with ablations attributing
-the gains to each design choice.
+the gains to each design choice. (Microcosm was first released under the name
+Populace; the reported sweeps pin a pre-rename commit, so the experiment code
+and its pinned dependencies keep the legacy `populace` spellings.)
 
 Sibling of [l0-paper](https://github.com/PolicyEngine/l0-paper) (which covers
 record selection and weighting; this paper covers filling records in) and the
@@ -24,8 +26,9 @@ quarto render paper/index.qmd       # builds the manuscript
 ```
 
 The real method surface installs with the `methods` extra
-(`uv sync --extra methods`), which pulls populace-fit/populace-frame (git),
-microimpute (PyPI), and py-statmatch (git). CI deliberately runs without it:
+(`uv sync --extra methods`), which pulls populace-fit/populace-frame (git,
+pinned to a pre-rename commit of the microcosm repo), microimpute (PyPI), and
+py-statmatch (git). CI deliberately runs without it:
 the registry imports methods lazily, and sweeps record unavailable methods in
 `skipped.csv` rather than failing or silently dropping them.
 
@@ -45,7 +48,7 @@ the registry imports methods lazily, and sweeps record unavailable methods in
 
 ## Boundary
 
-- populace packages must not import from this repository.
+- microcosm packages must not import from this repository.
 - Sweeps take explicit, pinned inputs; they do not discover artifacts from
   working directories.
 - Every number in the manuscript regenerates from a committed run config;

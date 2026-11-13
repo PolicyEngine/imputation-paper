@@ -1,7 +1,7 @@
 # Experiment plan
 
 The paper's claim structure: (1) survey imputation in common practice is
-weight-blind in ways that distort population statistics; (2) populace-fit's
+weight-blind in ways that distort population statistics; (2) microcosm-fit's
 estimator — a regime-gated, sequentially-chained, weighted-bootstrap
 quantile-regression forest — addresses this by construction; (3) each of its
 three design choices earns its place empirically, against standard methods and
@@ -71,7 +71,7 @@ table, not drift.
    wealth, jointly). `scf_sample_reference` — the donor split scored as a
    candidate — anchors the sampling-noise floor. Two profiles: **minimal**
    (6 shared predictors, 2 targets, ASEC 2025 receiver — the controlled
-   instantiation) and **populace-scale** (10 shared predictors incl. edcl/
+   instantiation) and **production-scale** (10 shared predictors incl. edcl/
    race/housecl/lf, pooled ASEC 2023–2025 receiver mirroring the production
    spine, 4 chain-ordered targets with the exact balance-sheet identity
    networth = fin + nfin − debt). The scale profile tests whether the joint
@@ -93,7 +93,7 @@ table, not drift.
    weights: transfer beyond economic microdata.
 
 Full multi-view synthesis (CPS+SIPP+PSID candidates scored on all views at
-once) is the populace release-gate use case and future work; PSID requires
+once) is the microcosm release-gate use case and future work; PSID requires
 registered access and is out of scope here.
 
 ## Protocol
@@ -138,7 +138,7 @@ weighted classifier two-sample AUC, and closed-form reweight fragility
 - Adapters, metrics, views, task registry, `imp sweep`/`imp harness`:
   implemented with tests.
 - Remaining: data loaders finalize → full runs → results/discussion prose →
-  PyPI publication of populace-frame/populace-fit + standalone quickstart.
+  PyPI publication of microcosm-frame/microcosm-fit + standalone quickstart.
 
 ## Relationship to prior work in this org
 
