@@ -535,14 +535,54 @@ def test_headline_keys_are_unique_and_macro_safe() -> None:
 # ---------------------------------------------------------------------------
 
 
+def _assert_same_table(regenerated: Path, committed: Path) -> None:
+    """The two CSVs hold the same table, with numbers equal to rounding noise.
+
+    The report's CSVs carry full-precision floats. A mean or standard
+    deviation over seeds comes out a unit or two in the last place apart on
+    another platform (the summation order differs), so a byte comparison of
+    these files holds only on the machine that wrote the committed copy.
+    Text and boolean cells must still match exactly.
+    """
+    new, old = pd.read_csv(regenerated), pd.read_csv(committed)
+    assert list(new.columns) == list(old.columns), regenerated.name
+    assert len(new) == len(old), regenerated.name
+    for column in old.columns:
+        where = f"{regenerated.name}: {column}"
+        if pd.api.types.is_float_dtype(old[column]):
+            np.testing.assert_allclose(
+                new[column].to_numpy(dtype=np.float64),
+                old[column].to_numpy(dtype=np.float64),
+                rtol=1e-9,
+                atol=1e-9,
+                equal_nan=True,
+                err_msg=where,
+            )
+        else:
+            assert new[column].equals(old[column]), where
+
+
 def test_committed_report_and_tables_are_current(tmp_path: Path) -> None:
-    """Regenerating from the committed runs changes no committed output."""
+    """Regenerating from the committed runs changes no committed output.
+
+    The report, the tables and the appendix inputs print rounded numbers and
+    are compared byte for byte. The CSVs beside the report carry full
+    precision and are compared as tables (see :func:`_assert_same_table`).
+    """
     docs, tables = tmp_path / "docs", tmp_path / "tables"
     assert report_cli.make_replication(RUNS, docs, tables) == 0
     assert make_tables(RUNS, tables) == 0
     committed_docs = ROOT / "docs" / "scf-2025-replication"
+    assert {path.name for path in docs.iterdir()} == {
+        path.name for path in committed_docs.iterdir()
+    }
     for path in sorted(docs.iterdir()):
-        assert path.read_bytes() == (committed_docs / path.name).read_bytes(), path.name
+        if path.suffix == ".csv":
+            _assert_same_table(path, committed_docs / path.name)
+        else:
+            assert path.read_bytes() == (committed_docs / path.name).read_bytes(), (
+                path.name
+            )
     committed_tables = ROOT / "paper" / "tables"
     for name in (
         "scf2025_verdicts_wealth.tex",
@@ -559,6 +599,32 @@ def test_committed_report_and_tables_are_current(tmp_path: Path) -> None:
         assert (tables / name).read_bytes() == (committed_tables / name).read_bytes(), (
             name
         )
+
+
+def test_table_comparison_tolerates_only_rounding_noise(tmp_path: Path) -> None:
+    """Last-place differences pass; a changed number, word or row does not."""
+    committed = ROOT / "docs" / "scf-2025-replication" / "headline_numbers.csv"
+    table = pd.read_csv(committed)
+    noisy = table.copy()
+    noisy["A"] = np.nextafter(noisy["A"].to_numpy(), np.inf)
+    noisy.to_csv(tmp_path / "noisy.csv", index=False)
+    _assert_same_table(tmp_path / "noisy.csv", committed)
+
+    moved = table.copy()
+    moved.loc[0, "A"] = moved.loc[0, "A"] * (1.0 + 1e-6)
+    moved.to_csv(tmp_path / "moved.csv", index=False)
+    with pytest.raises(AssertionError):
+        _assert_same_table(tmp_path / "moved.csv", committed)
+
+    relabelled = table.copy()
+    relabelled.loc[0, "kind"] = "something else"
+    relabelled.to_csv(tmp_path / "relabelled.csv", index=False)
+    with pytest.raises(AssertionError):
+        _assert_same_table(tmp_path / "relabelled.csv", committed)
+
+    table.iloc[:-1].to_csv(tmp_path / "shorter.csv", index=False)
+    with pytest.raises(AssertionError):
+        _assert_same_table(tmp_path / "shorter.csv", committed)
 
 
 def test_appendix_cites_only_generated_numbers() -> None:
