@@ -47,12 +47,12 @@ class's forest.
 For dividend income the regime is $\{0, +\}$ and the gate is a zero hurdle;
 for net worth it is $\{-, 0, +\}$ and the gate is three-way.
 The gate's probabilities are those of the classifier as fitted on the
-training rows: the only behaviour at the version evaluated here, and still
+training rows: the only behavior at the version evaluated here, and still
 the package's default. For a rare sign class such a gate can be
 overconfident on rows it has not seen, and later versions of \populacefit{}
 add an opt-in out-of-fold calibration of the gate for that case
 \citep{microcosm2026}. The tasks in this paper contain no rare sign class on
-which the methods differ, so the gate's behaviour on rare classes is not
+which the methods differ, so the gate's behavior on rare classes is not
 evaluated here.
 Section~\ref{sec:results-cps} compares the gated estimator with ungated
 baselines on zero-inflated targets.
@@ -233,7 +233,7 @@ receiver row counted once, and it is scored against every held-out value
 under the receiver weights. As computed, pinball loss is therefore a
 \emph{marginal} score. It does not test conditional calibration and cannot
 separate a conditional method from an unconditional one. Because the
-predicted quantiles are read without weights, it also favours a draw whose
+predicted quantiles are read without weights, it also favors a draw whose
 unweighted quantiles already match the weighted population.
 
 \paragraph{Wasserstein-1 distance.} Marginal fit is scored by the weighted

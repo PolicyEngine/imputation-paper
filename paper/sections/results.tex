@@ -60,8 +60,8 @@ weighted marginal draw posts the best pinball loss on both targets. Pinball
 loss as computed here is a marginal score whose predicted quantiles are read
 without receiver weights (Section~\ref{sec:metrics}). In a survey that
 oversamples the wealthy, a conditional method's pooled draw follows the
-receiver sample's composition, while the marginal draw is centred on the
-weighted population by construction, so this column favours the marginal
+receiver sample's composition, while the marginal draw is centered on the
+weighted population by construction, so this column favors the marginal
 draw for a reason unrelated to conditional fit, and we do not read its lead
 as evidence about the methods. More generally, no receiver-side marginal
 metric can distinguish a method that draws from the correct weighted
@@ -160,9 +160,9 @@ net-worth $W_1$ when removed), and chaining contributes a smaller
 $+22{,}735$ mean shift, though with wide seed-to-seed dispersion (sd
 $70{,}684$); the \microimpute{} forest trails by $+98{,}496$ (sd
 $179{,}722$). On the \cps{} components --- weakly informative weights,
-extreme zero inflation --- weighting matters little (its largest delta,
-$+36$ dividend $W_1$, is smaller than its spread across seeds) and chaining
-is inert. The one large contrast there is with the \microimpute{} forest
+extreme zero inflation --- weighting has a small effect (removing it raises
+dividend $W_1$ by 36, from 102, on eight of the ten seeds, and leaves the
+other metrics within seed noise) and chaining is inert. The one large contrast there is with the \microimpute{} forest
 ($+309$ dividend $W_1$, and the zero-share drift of
 Table~\ref{tab:cps-components}), which this surface cannot attribute to
 gating alone. Which choice binds depends on the survey's
