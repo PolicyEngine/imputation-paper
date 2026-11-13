@@ -18,6 +18,24 @@ import argparse
 from pathlib import Path
 
 
+def _add_scf_wave_arguments(parser: argparse.ArgumentParser, subject: str) -> None:
+    """Add the SCF wave and dollar-basis options shared by sweep and harness."""
+    parser.add_argument(
+        "--scf-year",
+        type=int,
+        default=2022,
+        help=f"SCF wave for {subject}: 2022 (the paper's) or 2025 (the "
+        "replication wave).",
+    )
+    parser.add_argument(
+        "--scf-dollar-year",
+        type=int,
+        default=None,
+        help=f"Dollar basis for {subject} (default: the survey year's own "
+        "dollars, whichever file the Fed currently serves).",
+    )
+
+
 def main(argv: list[str] | None = None) -> int:
     """Entry point for the ``imp`` console script."""
     parser = argparse.ArgumentParser(
@@ -69,6 +87,7 @@ def main(argv: list[str] | None = None) -> int:
         default=20_000,
         help="Deterministic row cap applied to the task before splitting.",
     )
+    _add_scf_wave_arguments(sweep, "the scf_wealth task")
 
     harness = subcommands.add_parser(
         "harness",
@@ -103,6 +122,7 @@ def main(argv: list[str] | None = None) -> int:
         default=20_000,
         help="Deterministic cap on the CPS receiver sample.",
     )
+    _add_scf_wave_arguments(harness, "the SCF donor")
 
     tables = subcommands.add_parser(
         "tables",
@@ -116,6 +136,68 @@ def main(argv: list[str] | None = None) -> int:
         type=Path,
         default=Path("paper/tables"),
         help="Directory the manuscript \\input's tables from.",
+    )
+
+    replication = subcommands.add_parser(
+        "replication",
+        help="Score the SCF 2025 replication against the paper's 2022 runs.",
+    )
+    replication.add_argument(
+        "--runs-dir", type=Path, default=Path("runs"), help="Runs root."
+    )
+    replication.add_argument(
+        "--docs-out",
+        type=Path,
+        default=Path("docs/scf-2025-replication"),
+        help="Directory for the comparison document and its CSVs.",
+    )
+    replication.add_argument(
+        "--tables-out",
+        type=Path,
+        default=Path("paper/tables"),
+        help="Directory for the appendix's generated LaTeX inputs.",
+    )
+
+    scf_checks = subcommands.add_parser(
+        "scf-checks",
+        help="Check SCF weights, the balance-sheet identity, and the Fed's "
+        "published tables on both waves.",
+    )
+    scf_checks.add_argument(
+        "--out",
+        type=Path,
+        default=Path("runs/scf-population-checks"),
+        help="Run directory to write manifest.json into.",
+    )
+
+    hotdeck_reuse = subcommands.add_parser(
+        "hotdeck-reuse",
+        help="Measure hot-deck donor reuse in the population view, both waves "
+        "(needs the methods extra).",
+    )
+    hotdeck_reuse.add_argument(
+        "--out",
+        type=Path,
+        default=Path("runs/scf-hotdeck-reuse"),
+        help="Run directory to write manifest.json into.",
+    )
+    hotdeck_reuse.add_argument(
+        "--runs-dir", type=Path, default=Path("runs"), help="Runs root."
+    )
+
+    pinball_weighting = subcommands.add_parser(
+        "pinball-weighting",
+        help="Within-SCF pinball loss as coded and with weighted imputed "
+        "quantiles, both waves (needs the methods extra).",
+    )
+    pinball_weighting.add_argument(
+        "--out",
+        type=Path,
+        default=Path("runs/scf-pinball-weighting"),
+        help="Run directory to write manifest.json into.",
+    )
+    pinball_weighting.add_argument(
+        "--runs-dir", type=Path, default=Path("runs"), help="Runs root."
     )
 
     figures = subcommands.add_parser(
@@ -144,6 +226,8 @@ def main(argv: list[str] | None = None) -> int:
             methods=args.methods,
             n_seeds=args.seeds,
             max_rows=args.max_rows,
+            scf_year=args.scf_year,
+            scf_dollar_year=args.scf_dollar_year,
         )
     if args.command == "harness":
         from imputation_paper.cli.harness import run_harness
@@ -154,11 +238,33 @@ def main(argv: list[str] | None = None) -> int:
             n_seeds=args.seeds,
             max_receiver_rows=args.max_receiver_rows,
             profile=args.profile,
+            scf_year=args.scf_year,
+            scf_dollar_year=args.scf_dollar_year,
         )
     if args.command == "tables":
         from imputation_paper.cli.tables import make_tables
 
         return make_tables(runs_dir=args.runs_dir, out_dir=args.out)
+    if args.command == "replication":
+        from imputation_paper.cli.replication import make_replication
+
+        return make_replication(
+            runs_dir=args.runs_dir,
+            docs_out=args.docs_out,
+            tables_out=args.tables_out,
+        )
+    if args.command == "scf-checks":
+        from imputation_paper.cli.replication import make_population_checks
+
+        return make_population_checks(out=args.out)
+    if args.command == "hotdeck-reuse":
+        from imputation_paper.cli.replication import make_hotdeck_reuse
+
+        return make_hotdeck_reuse(out=args.out, runs_dir=args.runs_dir)
+    if args.command == "pinball-weighting":
+        from imputation_paper.cli.replication import make_pinball_weighting
+
+        return make_pinball_weighting(out=args.out, runs_dir=args.runs_dir)
     if args.command == "figures":
         from imputation_paper.cli.figures import make_figures
 
