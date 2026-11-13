@@ -11,7 +11,9 @@ from __future__ import annotations
 from pathlib import Path
 
 import pandas as pd
+import pytest
 
+from imputation_paper.cli import tables
 from imputation_paper.cli.tables import make_tables
 
 #: Wasserstein-1 by method, identical on both toy datasets. The two forest keys
@@ -67,3 +69,88 @@ def test_openml_mean_ranks_cover_only_printed_rows(tmp_path: Path) -> None:
     assert len(ranks) == len(W1_BY_METHOD) - 1  # the duplicate key prints once
     assert sorted(ranks.values()) == [1.0, 2.0, 3.0, 4.0]
     assert max(ranks.values()) == len(ranks)
+
+
+# ---------------------------------------------------------------------------
+# Arms added after a task's first sweep
+# ---------------------------------------------------------------------------
+
+
+def _write_long(run: Path, values: dict[str, list[float]]) -> None:
+    """One ``wasserstein1`` row per (method, seed); seeds follow list order."""
+    run.mkdir(parents=True)
+    rows = [
+        {
+            "method": method,
+            "seed": seed,
+            "target": "y",
+            "metric": "wasserstein1",
+            "value": value,
+        }
+        for method, per_seed in values.items()
+        for seed, value in enumerate(per_seed)
+    ]
+    pd.DataFrame(rows).to_csv(run / "metrics_long.csv", index=False)
+
+
+def test_added_arms_are_read_with_their_run(tmp_path: Path) -> None:
+    """New methods join the table; the re-run controls are counted once."""
+    runs_dir = tmp_path / "runs"
+    _write_long(
+        runs_dir / "openml-alpha",
+        {"populace_fit": [1.0, 3.0], "statmatch_hotdeck": [4.0, 6.0]},
+    )
+    _write_long(
+        runs_dir / "openml-alpha-added-arms",
+        {"populace_fit": [1.0, 3.0], "populace_fit_ungated": [2.0, 2.5]},
+    )
+
+    merged = tables._read_long(runs_dir / "openml-alpha", "metrics_long.csv")
+    assert merged is not None
+    assert merged.groupby("method").size().to_dict() == {
+        "populace_fit": 2,
+        "populace_fit_ungated": 2,
+        "statmatch_hotdeck": 2,
+    }
+
+    out_dir = tmp_path / "tables"
+    assert make_tables(runs_dir=runs_dir, out_dir=out_dir) == 0
+    table = (out_dir / "openml.tex").read_text()
+    # One dataset column: the added-arms directory is not a dataset of its own.
+    assert "Method & alpha & Mean rank" in table
+    assert _mean_ranks(table) == {
+        "microcosm-fit": 1.0,
+        r"\quad -- ungated": 2.0,
+        "NND hot deck (py-statmatch)": 3.0,
+    }
+
+
+def test_added_arms_must_reproduce_the_rows_they_share(tmp_path: Path) -> None:
+    """A control that comes out differently means different data or splits."""
+    runs_dir = tmp_path / "runs"
+    _write_long(runs_dir / "openml-alpha", {"populace_fit": [1.0, 3.0]})
+    _write_long(
+        runs_dir / "openml-alpha-added-arms",
+        {"populace_fit": [1.0, 3.0000001], "populace_fit_ungated": [2.0, 2.5]},
+    )
+    with pytest.raises(ValueError, match="disagrees.*populace_fit"):
+        tables._read_long(runs_dir / "openml-alpha", "metrics_long.csv")
+
+
+def test_added_arms_must_cover_the_runs_seeds(tmp_path: Path) -> None:
+    runs_dir = tmp_path / "runs"
+    _write_long(runs_dir / "openml-alpha", {"populace_fit": [1.0, 3.0, 2.0]})
+    _write_long(
+        runs_dir / "openml-alpha-added-arms", {"populace_fit_ungated": [2.0, 2.5]}
+    )
+    with pytest.raises(ValueError, match="populace_fit_ungated.*seeds"):
+        tables._read_long(runs_dir / "openml-alpha", "metrics_long.csv")
+
+
+def test_added_arms_without_their_run_write_nothing(tmp_path: Path) -> None:
+    runs_dir = tmp_path / "runs"
+    _write_long(
+        runs_dir / "openml-alpha-added-arms", {"populace_fit_ungated": [2.0, 2.5]}
+    )
+    assert tables._read_long(runs_dir / "openml-alpha", "metrics_long.csv") is None
+    assert make_tables(runs_dir=runs_dir, out_dir=tmp_path / "tables") == 1

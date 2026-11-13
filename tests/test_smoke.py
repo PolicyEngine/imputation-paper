@@ -28,6 +28,7 @@ from imputation_paper.methods import (
     BASELINE_KEYS,
     CANDIDATE_KEYS,
     REGISTRY,
+    VARIANT_KEYS,
     get_method,
     list_methods,
 )
@@ -38,11 +39,17 @@ EXPECTED_METHOD_KEYS = {
     "populace_fit",
     "populace_fit_unweighted",
     "populace_fit_unchained",
+    "populace_fit_ungated",
+    "populace_fit_ungated_unchained",
+    "populace_fit_derived",
+    "populace_fit_unchained_derived",
     "plain_qrf",
     "microimpute_qrf",
     "microimpute_ols",
     "microimpute_quantreg",
     "statmatch_hotdeck",
+    "statmatch_rand_hotdeck",
+    "statmatch_constrained_hotdeck",
     "weighted_marginal",
 }
 
@@ -53,14 +60,21 @@ def test_registry_exposes_the_committed_method_surface() -> None:
     assert set(list_methods()) == EXPECTED_METHOD_KEYS
     assert CANDIDATE_KEYS == ("populace_fit",)
     # `plain_qrf` is microimpute's QRF as shipped (a baseline), not a
-    # knock-out of the candidate, so only two ablations are registered.
+    # knock-out of the candidate. The knock-outs are the candidate itself with
+    # one or two design choices off.
     assert set(ABLATION_KEYS) == {
         "populace_fit_unweighted",
         "populace_fit_unchained",
+        "populace_fit_ungated",
+        "populace_fit_ungated_unchained",
+    }
+    assert set(VARIANT_KEYS) == {
+        "populace_fit_derived",
+        "populace_fit_unchained_derived",
     }
     assert set(BASELINE_KEYS) == EXPECTED_METHOD_KEYS - set(CANDIDATE_KEYS) - set(
         ABLATION_KEYS
-    )
+    ) - set(VARIANT_KEYS)
     with pytest.raises(KeyError, match="Unknown method"):
         get_method("nope")
 
