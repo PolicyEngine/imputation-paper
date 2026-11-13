@@ -15,25 +15,13 @@
   year      = {2006}
 }
 
-@article{dorazio2021statistical,
-  title     = {Statistical matching and imputation of survey data with R},
-  author    = {D'Orazio, Marcello and Di Zio, Marco and Scanu, Mauro},
-  journal   = {Journal of Statistical Software},
-  volume    = {98},
-  number    = {1},
-  pages     = {1--35},
-  year      = {2021}
-}
-
-@article{meinfelder2011simulation,
-  title={On the simulation of contingency tables with given margins and statistical matching when observed information is incomplete},
-  author={Meinfelder, Florian},
-  journal={Computational Statistics \& Data Analysis},
-  volume={55},
-  number={12},
-  pages={3257--3267},
-  year={2011},
-  publisher={Elsevier}
+@manual{dorazio2025statmatch,
+  title  = {{StatMatch}: Statistical Matching or Data Fusion},
+  author = {D'Orazio, Marcello},
+  year   = {2025},
+  note   = {R package version 1.4.3},
+  doi    = {10.32614/CRAN.package.StatMatch},
+  url    = {https://CRAN.R-project.org/package=StatMatch}
 }
 
 @article{andridge2010review,
@@ -84,14 +72,14 @@
   year={1993}
 }
 
-@article{raghunathan2003multiple,
-  title={Multiple imputation for statistical disclosure limitation},
-  author={Raghunathan, Trivellore E and Reiter, Jerome P and Rubin, Donald B},
-  journal={Journal of Official Statistics},
-  volume={19},
-  number={1},
-  pages={1--16},
-  year={2003}
+@article{raghunathan2001multivariate,
+  title   = {A multivariate technique for multiply imputing missing values using a sequence of regression models},
+  author  = {Raghunathan, Trivellore E. and Lepkowski, James M. and Van Hoewyk, John and Solenberger, Peter},
+  journal = {Survey Methodology},
+  volume  = {27},
+  number  = {1},
+  pages   = {85--95},
+  year    = {2001}
 }
 
 @article{vanbuuren2011mice,
@@ -102,16 +90,6 @@
   number    = {3},
   pages     = {1--67},
   year      = {2011}
-}
-
-@article{dugoff2014generalizing,
-  title     = {Generalizing observational study results: Applying propensity score methods to complex surveys},
-  author    = {DuGoff, Eva H. and Schuler, Megan and Stuart, Elizabeth A.},
-  journal   = {Health Services Research},
-  volume    = {49},
-  number    = {1},
-  pages     = {284--303},
-  year      = {2014}
 }
 
 % === Regression, quantile regression, and forests ===
@@ -152,31 +130,15 @@
   year      = {2001}
 }
 
-@article{tang2017random,
-  title     = {Random forest missing data algorithms},
-  author    = {Tang, Fei and Ishwaran, Hemant},
-  journal   = {Statistical Analysis and Data Mining: The ASA Data Science Journal},
-  volume    = {10},
-  number    = {6},
-  pages     = {363--377},
-  year      = {2017}
-}
-
-@article{wei2014multiple,
-  title     = {Multiple imputation in quantile regression},
-  author    = {Wei, Ying and Ma, Yang and Carroll, Raymond J.},
-  journal   = {Biometrics},
-  volume    = {70},
-  number    = {1},
-  pages     = {196--205},
-  year      = {2014}
-}
-
-@techreport{vonhippel2007should,
-  title       = {Should a normal imputation model be modified to impute skewed variables?},
-  author      = {Von Hippel, Paul T.},
-  institution = {LBJ School of Public Affairs, University of Texas at Austin},
-  year        = {2007}
+@article{vonhippel2013should,
+  title   = {Should a normal imputation model be modified to impute skewed variables?},
+  author  = {von Hippel, Paul T.},
+  journal = {Sociological Methods \& Research},
+  volume  = {42},
+  number  = {1},
+  pages   = {105--138},
+  year    = {2013},
+  doi     = {10.1177/0049124112464866}
 }
 
 @misc{ghenis2018quantile,
@@ -188,11 +150,15 @@
   url     = {https://medium.com/data-science/quantile-regression-from-linear-models-to-trees-to-deep-learning-af3738b527c3}
 }
 
-@misc{zillow2024quantile,
-  title  = {quantile-forest: Scikit-learn compatible quantile regression forests},
-  author = {{Zillow Group}},
-  year   = {2024},
-  url    = {https://zillow.github.io/quantile-forest/}
+@article{johnson2024quantile,
+  title   = {quantile-forest: A {Python} Package for Quantile Regression Forests},
+  author  = {Johnson, Reid A.},
+  journal = {Journal of Open Source Software},
+  volume  = {9},
+  number  = {93},
+  pages   = {5976},
+  year    = {2024},
+  doi     = {10.21105/joss.05976}
 }
 
 % === Zero-inflation / hurdle models ===
@@ -216,16 +182,6 @@
   number={1},
   pages={1--14},
   year={1992}
-}
-
-@article{kleinke2020multiple,
-  title     = {Multiple imputation of incomplete zero-inflated count data},
-  author    = {Kleinke, Kristian and Reinecke, Jost},
-  journal   = {Statistica Neerlandica},
-  volume    = {74},
-  number    = {4},
-  pages     = {515--539},
-  year      = {2020}
 }
 
 % === Distributional-fidelity evaluation (PRDC) ===
@@ -280,45 +236,11 @@
   year      = {2013}
 }
 
-@techreport{nunns2012tax,
-  title       = {How {TPC} distributes the corporate income tax},
-  author      = {Nunns, James R.},
-  institution = {Urban-Brookings Tax Policy Center},
-  year        = {2012},
-  note        = {Technical documentation of the Tax Policy Center microsimulation model}
-}
-
-@misc{itep2023model,
-  title  = {{ITEP} Tax Microsimulation Model Overview},
-  author = {{Institute on Taxation and Economic Policy}},
-  year   = {2023},
-  url    = {https://itep.org/itep-tax-model/}
-}
-
-@article{meyer2015,
-  title   = {Household Surveys in Crisis},
-  author  = {Meyer, Bruce D. and Mok, Wallace K. C. and Sullivan, James X.},
-  journal = {Journal of Economic Perspectives},
-  volume  = {29},
-  number  = {4},
-  pages   = {199--226},
-  year    = {2015},
-  doi     = {10.1257/jep.29.4.199}
-}
-
 @techreport{woodruff2024enhancing,
   title     = {Enhancing survey microdata with administrative records: A novel approach to microsimulation dataset construction},
   author    = {Woodruff, Nikhil and Ghenis, Max},
-  publisher = {PolicyEngine},
+  institution = {PolicyEngine},
   year      = {2024}
-}
-
-@misc{policyengine_us,
-  title  = {PolicyEngine {US}},
-  author = {{PolicyEngine}},
-  year   = {2024},
-  url    = {https://github.com/PolicyEngine/policyengine-us},
-  note   = {Open-source tax-benefit microsimulation model for the United States}
 }
 
 @misc{policyengine2025microimpute,
@@ -347,13 +269,21 @@
   note={Prepared for the August 1998 Joint Statistical Meetings, Dallas, TX}
 }
 
-@techreport{barcelo2006imputation,
-  title       = {Imputation of household wealth components in the Spanish survey of household finances},
-  author      = {Barcel{\'o}, Cristina},
-  institution = {Banco de Espa{\~n}a},
-  number      = {0629},
-  series      = {Documentos de Trabajo},
-  year        = {2006}
+@techreport{fed2026scf,
+  title       = {Changes in {U.S.} Family Finances from 2022 to 2025: Evidence from the {Survey of Consumer Finances}},
+  author      = {{Board of Governors of the Federal Reserve System}},
+  year        = {2026},
+  institution = {Board of Governors of the Federal Reserve System},
+  month       = {October},
+  url         = {https://www.federalreserve.gov/publications/files/scf26.pdf}
+}
+
+@manual{fed2026scfcodebook,
+  title        = {Codebook for the 2025 {Survey of Consumer Finances}},
+  author       = {{Board of Governors of the Federal Reserve System}},
+  organization = {Board of Governors of the Federal Reserve System},
+  year         = {2026},
+  url          = {https://www.federalreserve.gov/econres/files/codebk2025.txt}
 }
 
 @techreport{fed2023scf,
@@ -374,14 +304,6 @@
   url         = {https://www2.census.gov/programs-surveys/cps/datasets/2025/march/asecpub25csv.zip}
 }
 
-@techreport{census2024,
-  title       = {Current Population Survey, 2024 Annual Social and Economic ({ASEC}) Supplement},
-  author      = {{U.S. Census Bureau}},
-  institution = {U.S. Census Bureau},
-  year        = {2024},
-  url         = {https://www2.census.gov/programs-surveys/cps/datasets/2024/march/asec2024_ddl_pub_full.pdf}
-}
-
 @misc{census2023sipp,
   title={{Survey of Income and Program Participation (SIPP)}: 2022 Panel},
   author={{U.S. Census Bureau}},
@@ -396,16 +318,6 @@
   year={2023},
   howpublished={Ann Arbor, MI: Survey Research Center},
   url={https://psidonline.isr.umich.edu/}
-}
-
-@techreport{bryant2023a,
-  title       = {General Description Booklet for the 2015 Public Use Tax File},
-  author      = {Bryant, Victoria},
-  institution = {Statistics of Income Division, Internal Revenue Service},
-  year        = {2023},
-  month       = {February},
-  type        = {Technical Documentation},
-  url         = {https://www.irs.gov/statistics/soi-tax-stats-individual-public-use-microdata-files}
 }
 
 @article{vanschoren2014openml,
