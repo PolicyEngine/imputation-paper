@@ -8,7 +8,8 @@ oversamples wealthy households, removing the weighted bootstrap costs a
 factor of six on net-worth marginal fit within the donor survey and inflates
 the imputed 99th percentile on the population view by a factor of 1.9 to
 2.3. That effect is larger than the gap between the full estimator and every
-competing method except OLS. On the \cps{} components task, whose person weights carry little outcome
+competing method except OLS and the random hot deck, whose draw is
+weight-blind too. On the \cps{} components task, whose person weights carry little outcome
 information, weighting matters far less: removing it raises dividend $W_1$
 by about a third and leaves the other metrics within seed noise. An estimator cannot know in
 advance which regime it is in, which is the argument for weighting by
@@ -33,17 +34,16 @@ Against matching, what the estimator adds is on the joint, and it is modest.
 A hot deck that draws its donor among the nearest in proportion to weight
 equals the full estimator on within-survey marginal fit, where the
 nearest-neighbour hot deck is 3.7 times worse on \scf{} net worth. That gap
-belongs to the nearest-donor rule, not to matching. On the \scf{}, whose
-weights are informative, the hot deck that uses them to choose the donor
-closes it and the constrained hot deck, which does not, leaves it open; on
-the \cps{}, whose weights carry little outcome information, both close it.
-All three hot decks preserve the zero mass by donation. On the population
-view the order reverses: the weighted random hot deck is the weaker of the
-two on the classifier score and on the extreme tail, and the full
-estimator's AUC is the lowest of the three in the minimal profile (by 2.1
-and 2.9 points) and, with net worth derived, at production scale (by 2.4
-and 3.3). Those margins are one to one and a half times the floor's
-seed-to-seed standard deviation.
+is weight-blind donor choice, not matching. On the \scf{}, whose weights
+are informative, the same draw without the weights closes none of it; on
+the \cps{}, whose weights carry little outcome information, the draw closes
+it with or without them. All four hot decks preserve the zero mass by
+donation. On the population view the order reverses: the weighted random
+hot deck is weaker than the nearest-neighbour one on the classifier score
+and on the extreme tail, and the full estimator's AUC is lower than both in
+the minimal profile (by 2.1 and 2.9 points) and, with net worth derived, at
+production scale (by 2.4 and 3.3). Those margins are one to one and a half
+times the floor's seed-to-seed standard deviation.
 
 The evaluation findings are as load-bearing as the method findings, and one
 of them corrected this paper's own harness. Marginal metrics saturate: with

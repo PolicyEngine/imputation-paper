@@ -12,7 +12,8 @@ regression, and the hot decks are the standard-practice baselines
 (Table~\ref{tab:methods}), and the weighted marginal draw is the
 unconditional lower bound. A row appears only where its method applies: the
 net-worth-derived variants at production scale, the constrained hot deck on
-the within-survey tasks.
+the within-survey tasks, the random hot deck wherever the donor weights are
+not uniform.
 Unless a caption says otherwise, every cell is the mean over the ten paired
 seeds with the standard deviation across seeds in parentheses, and bold
 marks the best non-reference value in a column: lowest for distances and
@@ -54,12 +55,15 @@ fit (13,770 vs.\ 13,001) but is 3.7 times worse on net
 worth (509,013). The weighted random hot deck, which draws among the nearest
 donors in proportion to their weights, is not: it posts the lowest debt
 $W_1$ of any method (11,395) and 172,984 on net worth, 1.3 times the full
-estimator and inside its seed-to-seed spread. The constrained hot deck,
-whose cap counts receivers and ignores the weights, does no better than the
-nearest-neighbour one (642,051). Within the survey, then, the full
-estimator's large margin over nearest-neighbour matching is not a margin
-over matching as such: the one hot deck whose choice of donor uses the
-weights closes most of it, and the two whose choice ignores them do not.
+estimator and inside its seed-to-seed spread. The weights do that, and not
+the draw: the random hot deck, which makes the same draw with every near
+donor equally likely, closes none of the gap (1,033,450 on net worth).
+The constrained hot deck, whose cap counts receivers and ignores the
+weights, does no better than the nearest-neighbour one (642,051). Within
+the survey, then, the full estimator's large margin over nearest-neighbour
+matching is a margin over weight-blind donor choice, not over matching: the
+one hot deck whose choice of donor uses the weights closes most of it, and
+the three whose choice ignores them do not.
 Among the other baselines,
 the \microimpute{} forest sits at 234,367 on net worth, and OLS is
 catastrophic on both targets (156,295 and 3.6 million): normal residuals cannot
@@ -129,10 +133,11 @@ nearly every adult becomes a dividend recipient. The hot decks, which donate
 observed values, hold the zero mass within 0.7--2.1 points, as expected. On
 marginal fit the nearest-neighbour hot deck's $W_1$ is more than twice the
 full estimator's on both components (227 and 760 against 102 and 290),
-while the weighted random and constrained hot decks match or beat it (107
-and 232; 98 and 231). The pattern differs from the \scf{}'s in one respect.
-There the constrained hot deck, which ignores the weights, did no better
-than the nearest-neighbour one; here it does as well as the weighted one.
+while the other three hot decks match or beat it within seed noise (random
+125 and 299; weighted random 107 and 232; constrained 98 and 231). The
+pattern differs from the \scf{}'s in one respect. There the hot decks whose
+choice ignores the weights did no better than the nearest-neighbour one;
+here they do as well as the weighted one.
 With person weights that carry little outcome information, what the
 nearest-donor rule loses on this task it loses to donor reuse, which the
 cap and the random draw both limit, and not to weight-blindness.
@@ -212,7 +217,8 @@ OpenML suite (Section~\ref{sec:results-openml}).
 regression datasets (uniform weights), mean over ten paired seeds, with mean
 rank across datasets among the ten methods shown. The two unchained arms are
 omitted: with a single target they coincide with their chained
-counterparts. The two datasets with
+counterparts. So is the random hot deck, which under uniform weights is the
+weighted random one. The two datasets with
 more than 20,000 rows (\texttt{house\_sales}, 21,613, and
 \texttt{onlinenewspopularity}, 39,644) are capped at 20,000 by a fixed
 uniform subsample.}
@@ -322,20 +328,26 @@ for carrying strong auxiliary predictors in a production imputation stack:
 richer conditioning is what turns joint-structure failures from undetectable
 into obvious.
 
-Fourth, \emph{hot-deck matching is a near-peer on this task, and the
-weighted random hot deck does not improve on it here}. The nearest-neighbour hot
-deck sits within noise of the full estimator on energy and coverage in both
+Fourth, \emph{hot-deck matching is a near-peer on this task, and drawing
+among near donors does not improve on the nearest one here}. The
+nearest-neighbour hot deck sits within noise of the full estimator on energy and coverage in both
 profiles, within 2.1 and 0.7 AUC points, and its donated values slightly
 beat the full estimator's on tail $W_1$ at scale (0.024 vs.\ 0.027). The
 weighted random hot deck, which closed the gap within the \scf{}, does not
-carry that over: its AUC is the higher of the two hot decks' in both
-profiles (0.761 and 0.777, against 0.753 and 0.768), and its tail fit is
-worse at scale (0.037). What the full estimator adds over matching is
+carry that over: its AUC is higher than the nearest-neighbour hot deck's in
+both profiles (0.761 and 0.777, against 0.753 and 0.768), and its tail fit
+is worse at scale (0.037). The random hot deck separates the draw from the
+weights again. Its AUC is about the weighted one's (0.764 and 0.782), so
+the higher AUC comes with the draw. Its q99 ratio is about twice the
+weighted one's (1.08 and 1.57, against 0.52 and 0.60), so the weights lower
+the imputed tail, as they do for the estimator in the first finding. What
+the full estimator adds over matching is
 therefore not within-survey marginal fit, once the donor is chosen with the
 weights (Table~\ref{tab:scf-wealth}), and not the zero mass, which donation
 preserves (Table~\ref{tab:cps-components}). It is a modest margin on the
-joint. In the minimal profile its AUC is 2.1 and 2.9 points below the two
-hot decks' (0.732 against 0.753 and 0.761). At scale it ties the
+joint. In the minimal profile its AUC is 2.1 points below the
+nearest-neighbour hot deck's and 2.9 below the weighted random one's (0.732
+against 0.753 and 0.761). At scale it ties the
 nearest-neighbour hot deck as specified, and sits 2.4 points below it once
 net worth is derived (0.744 against 0.768), so that both files' balance
 sheets add up. Each of these margins is of the order of one floor standard
@@ -350,16 +362,19 @@ still (0.52 and 0.60), while the unconditional marginal draw, which draws
 from the donor's weighted marginal without conditioning, sits near 1 (1.09
 and 1.12, against a floor of 1.10). The shortfall is therefore shared by a
 forest and two donation methods that all condition on the receiver's
-demographics, and this experiment does not isolate its cause. No method in
+demographics, and this experiment does not isolate its cause. The random
+hot deck's higher ratios (1.08 and 1.57) come from leaving the weights out
+of its draw, and sit on top of the same shortfall. No method in
 this surface gets the extreme tail right for free; the tail block is what
 keeps that visible.
 
 The arms that distinguish these findings --- the gates-off ablations, the
-net-worth-derived variants, and the weighted random hot deck --- were also
-run on the 2025 wave of the \scf{}
+net-worth-derived variants, and the random and weighted random hot decks
+--- were also run on the 2025 wave of the \scf{}
 (Tables~\ref{tab:scf-wealth-2025}--\ref{tab:harness-scale-2025}), outside
 the pre-registered replication of Appendix~\ref{app:scf2025}. Each pattern
 repeats there: the debt zero share drifts with the gates off, the weighted
 random hot deck closes most of the nearest-neighbour hot deck's
-within-survey gap on net worth, and at production scale the identity
+within-survey gap on net worth where the random one leaves most of it open,
+and at production scale the identity
 recovers the unchained loss while chaining adds about a point more.

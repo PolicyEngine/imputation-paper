@@ -93,7 +93,8 @@ QRF (\microimpute{}) & design & no & yes & \microimpute{} QRF, as shipped \\
 OLS & design & no & no & \microimpute{} \\
 Linear quantile regression & design & no & no & \microimpute{} \\
 NND hot deck & standardization only & \multicolumn{2}{l}{via donation} & \pystatmatch{}, nearest donor \\
-Weighted random hot deck & standardization, donor choice & \multicolumn{2}{l}{via donation} & \pystatmatch{}, RANDwNND \\
+Random hot deck & standardization only & \multicolumn{2}{l}{via donation} & \pystatmatch{}, equal-chance draw among near donors \\
+Weighted random hot deck & standardization, donor choice & \multicolumn{2}{l}{via donation} & \pystatmatch{}, the same draw by weight (RANDwNND) \\
 Constrained hot deck & standardization only & \multicolumn{2}{l}{via donation} & \pystatmatch{}, capped donor use \\
 Weighted marginal draw & design & --- & --- & unconditional weighted draw \\
 \hline
@@ -112,7 +113,8 @@ hot decks donate all target values from one
 matched donor record, which preserves zero masses and cross-target structure
 by construction rather than by modeling them; they differ in which donor is
 taken, and only the weighted random hot deck uses the donor weights for that
-choice.}
+choice. The random hot deck is its control: the same draw with the weights
+left out.}
 \label{tab:methods}
 \end{table}
 
@@ -155,13 +157,16 @@ index. Under the level sampling used for all baselines here, that draws
 the lowest and highest levels 25 and 21 percent of the time, against 10
 percent each for a uniform draw. Its random state is also fixed.
 
-The three hot decks share one distance: Euclidean on the matching variables,
+The four hot decks share one distance: Euclidean on the matching variables,
 which \pystatmatch{} standardizes by weighted moments when the donor weights
 are unequal. They differ in the donor taken. The nearest-neighbour hot deck
 takes the closest donor, so the weights do not enter its choice. The weighted
 random hot deck draws one of the $\lceil\sqrt{n}\rceil$ nearest of the $n$
 donors with probability proportional to its weight
-\citep{dorazio2006statistical}. The constrained hot deck finds the assignment
+\citep{dorazio2006statistical}. The random hot deck draws among the same
+donors with equal probability. It is a control and not a recommendation:
+the pair separates what the weights contribute from what the draw itself
+does, and under equal weights the two coincide. The constrained hot deck finds the assignment
 of least total distance in which no donor serves more than
 $\lceil n_{\text{receivers}} / n \rceil$ receivers; the cap counts receivers
 and does not use the weights. Its assignment problem is dense, and at the
