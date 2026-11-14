@@ -1628,7 +1628,9 @@ def number_macros(
     """Macro key -> text for every number the appendix prose may cite.
 
     Keys: ``<headline key>:2022`` and ``:2025`` (and ``:2022r`` for a dollar
-    amount re-based to 2025 dollars); ``<finding id>:verdict``,
+    amount re-based to 2025 dollars); ``<headline key>:rebased`` for the same
+    number from arm C, the 2022 wave rerun with the donor in 2025 dollars, when
+    that arm was run; ``<finding id>:verdict``,
     ``:status2022``, ``:status2025``; ``rank:<n replicated>`` style counts; and
     the published-table check when its manifest exists.
     """
@@ -1639,6 +1641,9 @@ def number_macros(
         macros[f"{row.key}:2025"] = _show(row.B, row.kind)
         if row.kind == "dollars":
             macros[f"{row.key}:2022r"] = _show(a_value * REBASE_2022_TO_2025, row.kind)
+        rebased = getattr(row, "C", float("nan"))
+        if pd.notna(rebased):
+            macros[f"{row.key}:rebased"] = _show(rebased, row.kind)
     for row in report.findings.itertuples():
         macros[f"{row.id}:verdict"] = row.verdict.lower()
         macros[f"{row.id}:status2022"] = row.status_2022
