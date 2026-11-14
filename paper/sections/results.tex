@@ -84,10 +84,16 @@ Section~\ref{sec:results-harness}, which scores the joint, is for.
 \subsection{Zero-inflated components and reweighting fragility}
 \label{sec:results-cps}
 
-\landscapefloat{table}{Zero-inflated income components in the \cps{}}{tab:cps-components}{%
-\generatedtable[3pt]{cps_components}}{%
+\begin{table}[p]
+\caption{Zero-inflated income components in the \cps{}}\label{tab:cps-components}
+\centering
+{\tablefont Panel A: interest income}\\[2pt]
+\generatedtable{cps_components_interest}\\[10pt]
+{\tablefont Panel B: dividend income}\\[2pt]
+\generatedtable{cps_components_dividends}
+\tablenote{%
 Notes: Interest and dividend income are imputed for adults, on a fixed subsample of 20,000 of the file's 108,044 adults. Columns give the weighted pinball loss, the Wasserstein-1 distance to the weighted donor distribution ($W_1$), and the absolute error in the share of zeros. Cells are means over the ten paired seeds, with the standard deviation across seeds in parentheses. Bold marks the best value in a column; lower is better. Indented rows are the full estimator with design choices knocked out or, for net worth derived, with net worth computed from imputed components; the other rows are baselines (Table~\ref{tab:methods}). Source: authors' calculations from the 2025 \cps{} ASEC.}
-
+\end{table}
 \landscapefloat{table}{Reweighting fragility at $\kappa=5$}{tab:fragility}{%
 \generatedtable[3pt]{fragility}}{%
 Notes: Fragility is the worst-case share of a component's aggregate that a single record can carry over bounded multiplicative reweightings. Each component's column is followed by the held-out truth's own fragility. The target is the truth's exposure, and bold marks the closest method: substantially lower means the method fails to generate realistic tails, substantially higher means it plants landmines. Cells are means over the ten paired seeds, with the standard deviation across seeds in parentheses. Indented rows are the full estimator with design choices knocked out or, for net worth derived, with net worth computed from imputed components; the other rows are baselines (Table~\ref{tab:methods}). Source: authors' calculations from the 2025 \cps{} ASEC.}

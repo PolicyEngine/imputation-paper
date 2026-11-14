@@ -102,17 +102,6 @@ def _fmt(value: float) -> str:
     return f"{value:.3f}"
 
 
-def _stacked(top: str, bottom: str) -> str:
-    """A two-line, right-aligned column header.
-
-    Each line carries an invisible rule of font-relative height, so the lines
-    are evenly spaced and the header does not touch the rule above it. (A
-    ``\\strut`` would follow the manuscript's line spacing and open a gap.)
-    """
-    prop = r"\rule{0pt}{2.2ex}"
-    return rf"\shortstack[r]{{{prop}{top}\\{prop}{bottom}}}"
-
-
 def _cell(mean: float, sd: float, *, bold: bool = False) -> str:
     """A ``mean (sd)`` cell, optionally bolding the mean."""
     body = _fmt(mean)
@@ -549,40 +538,26 @@ def make_tables(
 
     cps = _long_to_summary(runs_dir / "cps-components", "metrics_long.csv", "target")
     if cps is not None:
-        (out_dir / "cps_components.tex").write_text(
-            _tabular(
-                cps,
-                [
-                    # Two-line headers: this is the widest table, and at the
-                    # journal's 10 pt float font one-line headers push it past
-                    # a landscape page.
-                    (
-                        "interest_income",
-                        "pinball_loss",
-                        _stacked("Interest", "pinball"),
-                    ),
-                    ("interest_income", "wasserstein1", _stacked("Interest", "$W_1$")),
-                    (
-                        "interest_income",
-                        "zero_share_error",
-                        _stacked("Interest", "zero-share"),
-                    ),
-                    (
-                        "dividend_income",
-                        "pinball_loss",
-                        _stacked("Dividend", "pinball"),
-                    ),
-                    ("dividend_income", "wasserstein1", _stacked("Dividend", "$W_1$")),
-                    (
-                        "dividend_income",
-                        "zero_share_error",
-                        _stacked("Dividend", "zero-share"),
-                    ),
-                ],
-                "CPS zero-inflated components, mean (sd) over 10 paired seeds.",
+        # One panel per component. At the journal's 10 pt float font the two
+        # side by side are wider than a landscape page; one above the other
+        # they fit a portrait page.
+        for stem, target, label in (
+            ("cps_components_interest", "interest_income", "interest"),
+            ("cps_components_dividends", "dividend_income", "dividend"),
+        ):
+            (out_dir / f"{stem}.tex").write_text(
+                _tabular(
+                    cps,
+                    [
+                        (target, "pinball_loss", "Pinball loss"),
+                        (target, "wasserstein1", "$W_1$"),
+                        (target, "zero_share_error", "Zero-share error"),
+                    ],
+                    f"CPS zero-inflated components, {label} income, mean (sd) "
+                    "over 10 paired seeds.",
+                )
             )
-        )
-        written.append("cps_components.tex")
+            written.append(f"{stem}.tex")
         (out_dir / "fragility.tex").write_text(
             _tabular(
                 cps,

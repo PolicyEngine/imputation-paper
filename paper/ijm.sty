@@ -42,8 +42,9 @@
 \RequirePackage{afterpage}
 \RequirePackage{longtable}
 
-% Interior font of a float.
-\newcommand{\tablefont}{\fontsize{10}{12}\selectfont\sffamily}
+% Interior font of a float, with a little air between table rows.
+\newcommand{\tablefont}{\fontsize{10}{12}\selectfont\sffamily
+  \renewcommand{\arraystretch}{1.15}}
 
 % \fitwidth{<material>}: the material at its natural size, or scaled down to
 % the line width if it is wider. No float should need the scaling at present;
@@ -73,6 +74,7 @@
   \afterpage{\clearpage
     \begin{landscape}%
     \begin{#1}[H]%
+      \singlespacing % as in every other float; [H] does not get it by itself
       \caption{#2}\label{#3}%
       \centering #4%
       \tablenote{#5}%
@@ -92,6 +94,7 @@
 \newcommand{\landscapelongtable}[4]{%
   \afterpage{\clearpage
     \begin{landscape}%
+    \singlespacing
     \captionof{table}{#1}\label{#2}%
     \addtocounter{table}{-1}%
     \begingroup

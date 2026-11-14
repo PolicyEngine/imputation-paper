@@ -76,7 +76,7 @@ weight-blindness failure mode of Section~2.3 unrepresentable by accident.
 \label{sec:ablations}
 
 \landscapefloat{table}{The method surface}{tab:methods}{%
-\fitwidth{\tablefont\setlength{\tabcolsep}{4pt}%
+\fitwidth{\tablefont\setlength{\tabcolsep}{3pt}%
 \begin{tabular}{lllll}
 \hline
 Method & Weights & Gates & Chaining & Implementation \\
@@ -92,8 +92,8 @@ QRF (\microimpute{}) & design & no & yes & \microimpute{} QRF, as shipped \\
 OLS & design & no & no & \microimpute{} \\
 Linear quantile regression & design & no & no & \microimpute{} \\
 NND hot deck & standardization only & \multicolumn{2}{l}{via donation} & \pystatmatch{}, nearest donor \\
-Random hot deck & standardization only & \multicolumn{2}{l}{via donation} & \pystatmatch{}, equal-chance draw among near donors \\
-Weighted random hot deck & standardization, donor choice & \multicolumn{2}{l}{via donation} & \pystatmatch{}, the same draw by weight \\
+Random hot deck & standardization only & \multicolumn{2}{l}{via donation} & \pystatmatch{}, equal-chance draw \\
+Weighted random hot deck & standardization, donor choice & \multicolumn{2}{l}{via donation} & \pystatmatch{}, weighted draw (RANDwNND) \\
 Constrained hot deck & standardization only & \multicolumn{2}{l}{via donation} & \pystatmatch{}, capped donor use \\
 Weighted marginal draw & design & --- & --- & unconditional weighted draw \\
 \hline
