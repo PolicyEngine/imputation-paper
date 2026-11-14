@@ -48,9 +48,11 @@ def test_added_arms_are_registered_under_the_right_categories() -> None:
         "populace_fit_derived",
         "populace_fit_unchained_derived",
     }
-    assert {"statmatch_rand_hotdeck", "statmatch_constrained_hotdeck"} <= set(
-        BASELINE_KEYS
-    )
+    assert {
+        "statmatch_rand_hotdeck_unweighted",
+        "statmatch_rand_hotdeck",
+        "statmatch_constrained_hotdeck",
+    } <= set(BASELINE_KEYS)
     assert get_method("populace_fit_derived").category == MethodCategory.VARIANT
 
 
@@ -313,6 +315,34 @@ def test_weighted_random_hot_deck_picks_near_donors_in_proportion_to_weight() ->
     assert set(drawn.unique()) <= {1.0, 2.0}  # never a far donor
     share = float((drawn == 1.0).mean())
     assert 0.87 < share < 0.93  # 0.9 expected; sd of the share is 0.007
+
+
+def test_random_hot_deck_without_weights_picks_near_donors_equally() -> None:
+    """The control for the weighted draw: same near donors, weights left out."""
+    pytest.importorskip("statmatch")
+    donors, receivers = _two_near_donors()
+    fit = get_method("statmatch_rand_hotdeck_unweighted").constructor()
+    drawn = fit(donors, ["x"], ["y"], "weight", seed=0)(receivers)["y"]
+
+    # The four nearest donors, whatever their weights (9, 1 and two of 1e-9).
+    assert set(drawn.unique()) == {1.0, 2.0, 3.0, 4.0}
+    shares = drawn.value_counts(normalize=True)
+    assert shares.between(0.21, 0.29).all()  # 0.25 expected; sd is 0.01
+
+
+def test_random_hot_decks_coincide_when_the_donor_weights_are_equal() -> None:
+    """Under uniform weights the weighted draw is the unweighted one.
+
+    The OpenML table relies on this to print the two as one row.
+    """
+    pytest.importorskip("statmatch")
+    donors, receivers = _two_near_donors()
+    donors = donors.assign(weight=1.0)
+    drawn = [
+        get_method(key).constructor()(donors, ["x"], ["y"], "weight", seed=3)(receivers)
+        for key in ("statmatch_rand_hotdeck_unweighted", "statmatch_rand_hotdeck")
+    ]
+    pd.testing.assert_frame_equal(drawn[0], drawn[1])
 
 
 def test_weighted_random_hot_deck_is_seeded_and_leaves_numpys_generator_alone() -> None:

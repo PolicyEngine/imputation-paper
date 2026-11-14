@@ -65,14 +65,14 @@ the registry imports methods lazily, and sweeps record unavailable methods in
 
 ### Arms added after the first sweeps
 
-Six methods joined the surface after the first sweeps were committed: the
-gates-off ablations, the net-worth-derived variants, and two hot decks. Their
+Seven methods joined the surface after the first sweeps were committed: the
+gates-off ablations, the net-worth-derived variants, and three hot decks. Their
 runs go into `runs/<name>-added-arms/`, beside the committed run and never
 into it:
 
 ```bash
 export OMP_NUM_THREADS=1
-ARMS=(populace_fit weighted_marginal statmatch_hotdeck populace_fit_ungated populace_fit_ungated_unchained populace_fit_derived populace_fit_unchained_derived statmatch_rand_hotdeck statmatch_constrained_hotdeck)
+ARMS=(populace_fit weighted_marginal statmatch_hotdeck populace_fit_ungated populace_fit_ungated_unchained populace_fit_derived populace_fit_unchained_derived statmatch_rand_hotdeck statmatch_constrained_hotdeck statmatch_rand_hotdeck_unweighted)
 uv run imp sweep --task scf_wealth --methods "${ARMS[@]}" --out runs/scf-wealth-added-arms
 uv run imp harness --profile populace-scale --methods "${ARMS[@]}" --out runs/scf-to-cps-harness-scale-added-arms
 uv run imp tables

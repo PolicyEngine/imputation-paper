@@ -48,6 +48,7 @@ EXPECTED_METHOD_KEYS = {
     "microimpute_ols",
     "microimpute_quantreg",
     "statmatch_hotdeck",
+    "statmatch_rand_hotdeck_unweighted",
     "statmatch_rand_hotdeck",
     "statmatch_constrained_hotdeck",
     "weighted_marginal",

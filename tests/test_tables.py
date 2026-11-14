@@ -185,6 +185,27 @@ def test_openml_table_prints_an_unchained_arm_once_with_its_chained_twin(
     }
 
 
+def test_openml_table_prints_the_random_hot_decks_once_under_equal_weights(
+    tmp_path: Path,
+) -> None:
+    """With uniform weights the weighted draw is the unweighted one: one row."""
+    runs_dir = tmp_path / "runs"
+    _write_long(
+        runs_dir / "openml-alpha",
+        {
+            "populace_fit": [1.0, 3.0],
+            "statmatch_rand_hotdeck_unweighted": [4.0, 6.0],
+            "statmatch_rand_hotdeck": [4.0, 6.0],
+        },
+    )
+    out_dir = tmp_path / "tables"
+    assert make_tables(runs_dir=runs_dir, out_dir=out_dir) == 0
+    assert _mean_ranks((out_dir / "openml.tex").read_text()) == {
+        "microcosm-fit": 1.0,
+        "Weighted random hot deck": 2.0,
+    }
+
+
 def test_openml_table_keeps_an_unchained_arm_that_differs(tmp_path: Path) -> None:
     """The twin is dropped only when the two rows really are the same."""
     runs_dir = tmp_path / "runs"

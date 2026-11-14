@@ -79,6 +79,7 @@ def test_populace_fit_weighting_actually_differs() -> None:
         "populace_fit",
         "populace_fit_ungated",
         "microimpute_qrf",
+        "statmatch_rand_hotdeck_unweighted",
         "statmatch_rand_hotdeck",
     ],
 )
@@ -182,7 +183,12 @@ def test_derived_net_worth_arms_are_skipped_without_a_balance_sheet(
 
 @pytest.mark.parametrize(
     "method_key",
-    ["statmatch_hotdeck", "statmatch_rand_hotdeck", "statmatch_constrained_hotdeck"],
+    [
+        "statmatch_hotdeck",
+        "statmatch_rand_hotdeck_unweighted",
+        "statmatch_rand_hotdeck",
+        "statmatch_constrained_hotdeck",
+    ],
 )
 def test_statmatch_donates_observed_donor_values(method_key: str) -> None:
     """Hot-deck imputations are actual donor values, per target."""

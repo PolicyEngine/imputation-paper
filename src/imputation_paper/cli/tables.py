@@ -43,6 +43,7 @@ METHOD_ORDER: tuple[tuple[str, str], ...] = (
     ("microimpute_ols", "OLS"),
     ("microimpute_quantreg", "Quantile regression"),
     ("statmatch_hotdeck", "NND hot deck (py-statmatch)"),
+    ("statmatch_rand_hotdeck_unweighted", "Random hot deck"),
     ("statmatch_rand_hotdeck", "Weighted random hot deck"),
     ("statmatch_constrained_hotdeck", "Constrained hot deck"),
     ("weighted_marginal", "Weighted marginal draw"),
@@ -114,13 +115,15 @@ def _cell(mean: float, sd: float, *, bold: bool = False) -> str:
 #: keys); showing both would duplicate a row.
 _DISPLAY_EXCLUDE = {"microimpute_qrf"}
 
-#: Unchained arms and the chained arm each coincides with on a task that has
-#: one target: with nothing to chain on, the two are the same fit. The OpenML
-#: table (all single-target tasks) prints the chained arm only, so a pair of
-#: identical rows does not share a rank.
-_SINGLE_TARGET_TWINS: dict[str, str] = {
+#: Arms that coincide with another arm on the OpenML suite, whose tasks have
+#: one target and uniform weights. An unchained arm is its chained arm when
+#: there is nothing to chain on, and the random hot deck is the weighted
+#: random one when every donor weight is equal. The OpenML table prints one
+#: arm of each pair, so a pair of identical rows does not share a rank.
+_OPENML_TWINS: dict[str, str] = {
     "populace_fit_unchained": "populace_fit",
     "populace_fit_ungated_unchained": "populace_fit_ungated",
+    "statmatch_rand_hotdeck_unweighted": "statmatch_rand_hotdeck",
 }
 
 #: Columns of the ablations table: the candidate with one or two of its
@@ -327,15 +330,15 @@ def _openml_table(runs_dir: Path, out_dir: Path, written: list[str]) -> None:
     # otherwise take a rank of its own and push every method below it down one
     # place, so the printed ranks would run past the number of printed rows.
     methods = _ordered_methods(set(pivot.index))
-    # An unchained arm is its chained twin on a single-target task. Print the
+    # Some arms are another arm on these tasks (see _OPENML_TWINS). Print the
     # twin only, after checking that the two rows really are the same.
-    for unchained, twin in _SINGLE_TARGET_TWINS.items():
+    for duplicate, twin in _OPENML_TWINS.items():
         if (
-            unchained in methods
+            duplicate in methods
             and twin in methods
-            and pivot.loc[unchained].equals(pivot.loc[twin])
+            and pivot.loc[duplicate].equals(pivot.loc[twin])
         ):
-            methods.remove(unchained)
+            methods.remove(duplicate)
     pivot = pivot.loc[methods]
     ranks = pivot.rank(axis=0)  # lower W1 = better rank
     pivot["mean_rank"] = ranks.mean(axis=1)

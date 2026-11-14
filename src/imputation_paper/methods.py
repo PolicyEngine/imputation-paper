@@ -533,10 +533,10 @@ def _statmatch_hotdeck_constructor(selection: str = "nearest") -> FitFn:
     py-statmatch is a Python port of R's StatMatch. Each receiver is matched
     to a donor on the matching variables and ``create_fused`` donates that
     donor's target values, so zero masses and cross-target structure come
-    over whole. The three selections share one distance: Euclidean on the
+    over whole. The selections share one distance: Euclidean on the
     matching variables, standardized by pooled weighted moments when the donor
-    weights are not all equal (what ``nnd_hotdeck`` does itself). They differ
-    only in which donor is taken.
+    weights are not all equal (what ``nnd_hotdeck`` does itself). The four
+    selections differ only in which donor is taken.
 
     Args:
         selection: How the donor is chosen.
@@ -544,9 +544,14 @@ def _statmatch_hotdeck_constructor(selection: str = "nearest") -> FitFn:
             * ``"nearest"`` -- ``nnd_hotdeck``: the nearest donor. Donor
               weights enter the standardization only. Deterministic given the
               donor pool, so ``seed`` only varies with the split.
+            * ``"random"`` -- ``rand_hotdeck`` without ``weight_don``: one
+              donor among the ``ceil(sqrt(n))`` nearest, each equally likely.
+              It is the control for ``"weighted_random"``: the same draw with
+              the donor weights left out of it.
             * ``"weighted_random"`` -- ``rand_hotdeck`` with ``weight_don``
               (StatMatch's RANDwNND): one donor among the ``ceil(sqrt(n))``
               nearest, drawn with probability proportional to its weight.
+              Under equal donor weights it is the ``"random"`` draw.
             * ``"constrained"`` -- ``nnd_hotdeck`` with ``constr_alg``: the
               assignment of least total distance in which no donor serves
               more than ``ceil(n_receivers / n_donors)`` receivers. The cap
@@ -558,7 +563,7 @@ def _statmatch_hotdeck_constructor(selection: str = "nearest") -> FitFn:
     Returns:
         A :class:`FitFn`.
     """
-    if selection not in {"nearest", "weighted_random", "constrained"}:
+    if selection not in {"nearest", "random", "weighted_random", "constrained"}:
         raise ValueError(f"Unknown hot-deck selection {selection!r}.")
 
     def fit(
@@ -610,7 +615,7 @@ def _statmatch_hotdeck_constructor(selection: str = "nearest") -> FitFn:
                 rec, don = _weighted_standardize(rec, don, np.ones(len(rec)), vector)
             standardized = pd.DataFrame(don, columns=predictors)
             weight_column = None
-            if vector is not None:
+            if selection == "weighted_random" and vector is not None:
                 weight_column = "__donor_weight__"
                 standardized[weight_column] = vector
             # rand_hotdeck draws from numpy's global generator. Seed it for
@@ -826,6 +831,17 @@ REGISTRY: dict[str, Method] = {
         ),
         citation_key="dorazio2025statmatch",
         constructor=_statmatch_hotdeck_constructor,
+    ),
+    "statmatch_rand_hotdeck_unweighted": Method(
+        key="statmatch_rand_hotdeck_unweighted",
+        category=MethodCategory.BASELINE,
+        description=(
+            "py-statmatch random hot deck without donor weights: one donor among "
+            "the nearest, each equally likely. The control that separates the "
+            "random draw from the weights in statmatch_rand_hotdeck."
+        ),
+        citation_key="dorazio2025statmatch",
+        constructor=lambda: _statmatch_hotdeck_constructor("random"),
     ),
     "statmatch_rand_hotdeck": Method(
         key="statmatch_rand_hotdeck",

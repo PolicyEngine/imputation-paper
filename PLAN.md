@@ -39,7 +39,7 @@ joint — future work beyond this paper.
 ## Method surface
 
 The registry in `src/imputation_paper/methods.py` is the single source of
-truth. Committed surface (15 methods):
+truth. Committed surface (16 methods):
 
 | Key | Category | What it isolates |
 | --- | --- | --- |
@@ -55,6 +55,7 @@ truth. Committed surface (15 methods):
 | `microimpute_ols` | baseline | OLS with normal residual draws |
 | `microimpute_quantreg` | baseline | Linear quantile regression (per-quantile fits) |
 | `statmatch_hotdeck` | baseline | Classical nearest-neighbour-distance hot deck (py-statmatch) |
+| `statmatch_rand_hotdeck_unweighted` | baseline | Random hot deck among the nearest donors, each equally likely. The control for the weighted draw below |
 | `statmatch_rand_hotdeck` | baseline | Random hot deck among the nearest donors, drawn in proportion to donor weight (StatMatch's RANDwNND) |
 | `statmatch_constrained_hotdeck` | baseline | Nearest-neighbour hot deck with a cap on donor use. Within-survey tasks only: too large an assignment problem on the population view |
 | `weighted_marginal` | harness | Dependency-free lower bound; CI only |
@@ -64,9 +65,9 @@ an R dependency in the dev tree), so the matching baselines are py-statmatch's
 hot decks. Adding or removing a method is a deliberate change to this
 table, not drift.
 
-Six of these were added after the first sweeps: the two gates-off
-ablations, the two net-worth-derived variants, and the weighted random and
-constrained hot decks. Their results live in `runs/<name>-added-arms/`, beside the
+Seven of these were added after the first sweeps: the two gates-off
+ablations, the two net-worth-derived variants, and the random, weighted
+random and constrained hot decks. Their results live in `runs/<name>-added-arms/`, beside the
 committed runs and never inside them. Each added-arms run re-runs
 `populace_fit`, `weighted_marginal` and `statmatch_hotdeck`, and `imp tables`
 refuses to write a table unless those rows equal the committed run's.
