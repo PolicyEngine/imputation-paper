@@ -77,56 +77,96 @@ weight-blindness failure mode of Section~2.3 unrepresentable by accident.
 
 \begin{table}[t]
 \centering
-\footnotesize
+\resizebox{\textwidth}{!}{%
 \begin{tabular}{lllll}
 \hline
 Method & Weights & Gates & Chaining & Implementation \\
 \hline
 \populacefit{} & design & yes & yes & \populacefit{} \\
-\quad -- unweighted & none & yes & yes & \populacefit{}, \texttt{weights="none"} \\
-\quad -- unchained & design & yes & no & \populacefit{}, targets fit independently \\
+\quad -- unweighted & none & yes & yes & \texttt{weights="none"} \\
+\quad -- unchained & design & yes & no & targets fit independently \\
+\quad -- ungated & design & no & yes & single-sign path (see text) \\
+\quad -- ungated, unchained & design & no & no & both of the above \\
+\quad -- net worth derived & design & yes & yes & net worth computed from three imputed components \\
+\quad -- unchained, net worth derived & design & yes & no & the same, components fit independently \\
 QRF (\microimpute{}) & design & no & yes & \microimpute{} QRF, as shipped \\
 OLS & design & no & no & \microimpute{} \\
 Linear quantile regression & design & no & no & \microimpute{} \\
-NND hot deck & standardization only & via donation & via donation & \pystatmatch{} \\
+NND hot deck & standardization only & \multicolumn{2}{l}{via donation} & \pystatmatch{}, nearest donor \\
+Weighted random hot deck & standardization, donor choice & \multicolumn{2}{l}{via donation} & \pystatmatch{}, RANDwNND \\
+Constrained hot deck & standardization only & \multicolumn{2}{l}{via donation} & \pystatmatch{}, capped donor use \\
 Weighted marginal draw & design & --- & --- & unconditional weighted draw \\
 \hline
-\end{tabular}
+\end{tabular}%
+}
 \caption{The method surface. Every fit that has a weights column uses the
 survey's design weights; the one exception is the unweighted ablation, whose
-sole difference from the full estimator is \texttt{weights="none"}. The
-\microimpute{} forest is an external baseline run as shipped. It keeps the
+sole difference from the full estimator is \texttt{weights="none"}. The four
+ablations are the full estimator with one or two design choices knocked out
+and nothing else changed. The two net-worth-derived variants run only in the
+production-scale profile, where the targets form a balance sheet. The
+\microimpute{} forest is an external baseline run as shipped: it keeps the
 design weights and chains its targets, but it has no gate and it draws
-through its own sampler, so it is not a knockout of the full estimator.
-Hot deck donates all target values from one matched donor record, which
-preserves zero masses and cross-target structure by construction rather
-than by modeling them; its donor weights standardize the matching
-variables and do not enter the choice of donor.}
+through its own sampler, so it is not a knockout of the full estimator. The
+hot decks donate all target values from one
+matched donor record, which preserves zero masses and cross-target structure
+by construction rather than by modeling them; they differ in which donor is
+taken, and only the weighted random hot deck uses the donor weights for that
+choice.}
 \label{tab:methods}
 \end{table}
 
-Table~\ref{tab:methods} lays out the method surface. Two design choices are
-evaluated by knocking them out with everything else held fixed: the full
+Table~\ref{tab:methods} lays out the method surface. Each design choice is
+evaluated by knocking it out with everything else held fixed: the full
 estimator versus itself with \texttt{weights="none"} (the weighted
-bootstrap's contribution), and versus fitting each target independently
-(chaining's contribution). Gating has no such knockout in this surface:
-\populacefit{} does not expose a gates-off switch, and the nearest ungated
-comparator, the \microimpute{} forest, differs from the full estimator in
-more than the gate. It chains its targets as the full estimator does, but
+bootstrap's contribution), versus fitting each target independently
+(chaining's contribution), and versus itself with the gates off (gating's
+contribution). \populacefit{} exposes no gates-off switch, but it builds a
+gate only for a target whose training values fall in more than one sign
+class; a strictly positive target is fitted with one forest and no gate. The
+gates-off ablation uses that path. Each target with more than one sign class
+is shifted by a constant that makes all its training values positive, the
+estimator is fitted as usual, and the constant is subtracted from the draws.
+The weighted bootstrap, the forests, the draw, and the chaining are the
+estimator's own; the one difference is that a single forest covers all rows,
+zeros included, where the full estimator has a classifier and a forest per
+sign. A target that already has one sign class is not shifted, and there the
+ablation is the full estimator. Knocking out gates and chaining together
+completes a two-by-two design.
+
+Where the targets satisfy an accounting identity, a practitioner would impute
+all but one of them and compute the last. The net-worth-derived variants do
+so in the production-scale profile: they impute the three balance-sheet
+components, chained or independently, and set net worth to their signed sum.
+They separate what chaining contributes through the identity from what it
+contributes through the dependence among the components.
+
+Baselines are
+standard practice: quantile-regression-forest, ordinary-least-squares, and
+linear quantile-regression imputers from \microimpute{}
+\citep{policyengine2025microimpute}, and distance hot-deck
+statistical matching from \pystatmatch{}, a Python port of the R package StatMatch
+\citep{dorazio2025statmatch}. The \microimpute{} forest is built on the same
+forest library as the full estimator \citep{johnson2024quantile}, but it is
+not a knockout of it. It chains its targets, and
 it turns each requested quantile level into a draw from a ten-level
 conditional quantile grid (levels $1/11$ to $10/11$) at a randomly chosen
 index. Under the level sampling used for all baselines here, that draws
 the lowest and highest levels 25 and 21 percent of the time, against 10
-percent each for a uniform draw. Its random state is also fixed. Contrasts
-with it are therefore comparisons against standard practice, not
-attributions to gating. Baselines are
-standard practice: quantile-regression-forest, ordinary-least-squares, and
-linear quantile-regression imputers from \microimpute{}
-\citep{policyengine2025microimpute}, and nearest-neighbour-distance hot-deck
-statistical matching from \pystatmatch{}, a Python port of the R package StatMatch
-\citep{dorazio2025statmatch}. The
-full estimator and the \microimpute{} forest are built on the same forest
-library \citep{johnson2024quantile}.
+percent each for a uniform draw. Its random state is also fixed.
+
+The three hot decks share one distance: Euclidean on the matching variables,
+which \pystatmatch{} standardizes by weighted moments when the donor weights
+are unequal. They differ in the donor taken. The nearest-neighbour hot deck
+takes the closest donor, so the weights do not enter its choice. The weighted
+random hot deck draws one of the $\lceil\sqrt{n}\rceil$ nearest of the $n$
+donors with probability proportional to its weight
+\citep{dorazio2006statistical}. The constrained hot deck finds the assignment
+of least total distance in which no donor serves more than
+$\lceil n_{\text{receivers}} / n \rceil$ receivers; the cap counts receivers
+and does not use the weights. Its assignment problem is dense, and at the
+population view's 20,000 receivers one split took thirteen minutes against
+seconds for every other method, so it is run on the within-survey tasks only.
 
 \subsection{The population-view harness}
 \label{sec:harness}

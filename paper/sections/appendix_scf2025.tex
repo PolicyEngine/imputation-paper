@@ -60,6 +60,12 @@ Where the paper states an effect size, it holds if the 2025 effect is within
 a factor of two of the 2022 effect. Each rule is also applied to the 2022
 runs; \rep{count:status2022:notmet} of the paper's 2022 claims do not meet
 these rules on the 2022 data themselves, and for those the best possible 2025 verdict is inconclusive.
+The rules name the methods as the paper did when they were frozen. The
+candidate is the full estimator. The ungated forest is the \microimpute{}
+forest of Table~\ref{tab:methods}, an external baseline that has no gate
+but also chains its targets and draws through its own sampler. It is not the
+gates-off ablation of Section~\ref{sec:ablations}, which was added after the
+verdicts were scored.
 
 \paragraph{Verdicts.}
 Tables~\ref{tab:scf2025-verdicts-wealth}--\ref{tab:scf2025-verdicts-view-b}
@@ -215,6 +221,23 @@ units within the \scf{} leaves OLS and the marginal draw unchanged and moves
 the forest-based methods' ten-seed $W_1$ means by up to
 \rep{units:forest-max} percent. One new wave is one more draw. Where 2022 and
 2025 disagree, these runs cannot say which is the unusual year.
+
+\paragraph{Arms added later.} The gates-off ablations, the
+net-worth-derived variants, and the weighted random and constrained hot
+decks joined the method surface after this replication was scored. Their
+rows in Tables~\ref{tab:scf-wealth-2025}--\ref{tab:harness-scale-2025} come
+from runs on the same splits and inputs. They are outside the pre-registered
+rules, and no verdict above uses them; where the text above speaks of the
+estimator's ablations or of hot deck, it means the weights-off and
+chaining-off ablations and the nearest-neighbour hot deck. The added rows
+repeat the patterns of the body's tables. The gates-off ablation is the
+control that G1 lacked: G1 compared the full estimator with the
+\microimpute{} forest, which differs from it in more than the gate. With the
+estimator's own gates off, its debt zero-share error is several times its
+error with them on, in both waves (Tables~\ref{tab:scf-wealth}
+and~\ref{tab:scf-wealth-2025}). The weighted random hot deck shows none of
+the tail inflation that donor reuse produces in the nearest-neighbour hot
+deck at scale, and understates the tail as it does on the earlier wave.
 
 \begin{table}[p]
 \centering

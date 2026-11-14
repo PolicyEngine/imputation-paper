@@ -63,6 +63,31 @@ py-statmatch (git). CI deliberately runs without it:
 the registry imports methods lazily, and sweeps record unavailable methods in
 `skipped.csv` rather than failing or silently dropping them.
 
+### Arms added after the first sweeps
+
+Six methods joined the surface after the first sweeps were committed: the
+gates-off ablations, the net-worth-derived variants, and two hot decks. Their
+runs go into `runs/<name>-added-arms/`, beside the committed run and never
+into it:
+
+```bash
+export OMP_NUM_THREADS=1
+ARMS=(populace_fit weighted_marginal statmatch_hotdeck populace_fit_ungated populace_fit_ungated_unchained populace_fit_derived populace_fit_unchained_derived statmatch_rand_hotdeck statmatch_constrained_hotdeck)
+uv run imp sweep --task scf_wealth --methods "${ARMS[@]}" --out runs/scf-wealth-added-arms
+uv run imp harness --profile populace-scale --methods "${ARMS[@]}" --out runs/scf-to-cps-harness-scale-added-arms
+uv run imp tables
+```
+
+The first three keys are controls: methods the first sweep also ran. `imp
+tables` reads the two directories together and refuses to write a table
+unless the controls' rows are identical in both, so the added arms appear
+only when they saw the same data, splits, and environment. The same holds for
+the other tasks and for the 2025 wave (`--scf-year 2025`, into
+`runs/<name>-2025-added-arms`). An arm that does not apply to a task is
+recorded in that run's `skipped.csv`: the net-worth-derived variants outside
+the production-scale profile, and the constrained hot deck on the population
+view, where its assignment problem is too large.
+
 ## Installing the estimator on its own
 
 The estimator is one package in the
