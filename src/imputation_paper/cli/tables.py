@@ -42,7 +42,7 @@ METHOD_ORDER: tuple[tuple[str, str], ...] = (
     ("microimpute_qrf", "QRF (microimpute)"),
     ("microimpute_ols", "OLS"),
     ("microimpute_quantreg", "Quantile regression"),
-    ("statmatch_hotdeck", "NND hot deck (py-statmatch)"),
+    ("statmatch_hotdeck", "NND hot deck"),
     ("statmatch_rand_hotdeck_unweighted", "Random hot deck"),
     ("statmatch_rand_hotdeck", "Weighted random hot deck"),
     ("statmatch_constrained_hotdeck", "Constrained hot deck"),
@@ -100,6 +100,17 @@ def _fmt(value: float) -> str:
     if magnitude >= 1:
         return f"{value:,.2f}"
     return f"{value:.3f}"
+
+
+def _stacked(top: str, bottom: str) -> str:
+    """A two-line, right-aligned column header.
+
+    Each line carries an invisible rule of font-relative height, so the lines
+    are evenly spaced and the header does not touch the rule above it. (A
+    ``\\strut`` would follow the manuscript's line spacing and open a gap.)
+    """
+    prop = r"\rule{0pt}{2.2ex}"
+    return rf"\shortstack[r]{{{prop}{top}\\{prop}{bottom}}}"
 
 
 def _cell(mean: float, sd: float, *, bold: bool = False) -> str:
@@ -542,12 +553,31 @@ def make_tables(
             _tabular(
                 cps,
                 [
-                    ("interest_income", "pinball_loss", "Interest pinball"),
-                    ("interest_income", "wasserstein1", "Interest $W_1$"),
-                    ("interest_income", "zero_share_error", "Interest zero-share"),
-                    ("dividend_income", "pinball_loss", "Dividend pinball"),
-                    ("dividend_income", "wasserstein1", "Dividend $W_1$"),
-                    ("dividend_income", "zero_share_error", "Dividend zero-share"),
+                    # Two-line headers: this is the widest table, and at the
+                    # journal's 10 pt float font one-line headers push it past
+                    # a landscape page.
+                    (
+                        "interest_income",
+                        "pinball_loss",
+                        _stacked("Interest", "pinball"),
+                    ),
+                    ("interest_income", "wasserstein1", _stacked("Interest", "$W_1$")),
+                    (
+                        "interest_income",
+                        "zero_share_error",
+                        _stacked("Interest", "zero-share"),
+                    ),
+                    (
+                        "dividend_income",
+                        "pinball_loss",
+                        _stacked("Dividend", "pinball"),
+                    ),
+                    ("dividend_income", "wasserstein1", _stacked("Dividend", "$W_1$")),
+                    (
+                        "dividend_income",
+                        "zero_share_error",
+                        _stacked("Dividend", "zero-share"),
+                    ),
                 ],
                 "CPS zero-inflated components, mean (sd) over 10 paired seeds.",
             )

@@ -121,7 +121,7 @@ def test_added_arms_are_read_with_their_run(tmp_path: Path) -> None:
     assert _mean_ranks(table) == {
         "microcosm-fit": 1.0,
         r"\quad -- ungated": 2.0,
-        "NND hot deck (py-statmatch)": 3.0,
+        "NND hot deck": 3.0,
     }
 
 
@@ -181,7 +181,7 @@ def test_openml_table_prints_an_unchained_arm_once_with_its_chained_twin(
     assert _mean_ranks((out_dir / "openml.tex").read_text()) == {
         "microcosm-fit": 1.0,
         r"\quad -- ungated": 2.0,
-        "NND hot deck (py-statmatch)": 3.0,
+        "NND hot deck": 3.0,
     }
 
 
