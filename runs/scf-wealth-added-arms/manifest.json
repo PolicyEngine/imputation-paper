@@ -25,7 +25,8 @@
     "populace_fit_derived",
     "populace_fit_unchained_derived",
     "statmatch_rand_hotdeck",
-    "statmatch_constrained_hotdeck"
+    "statmatch_constrained_hotdeck",
+    "statmatch_rand_hotdeck_unweighted"
   ],
   "predictors": [
     "age",
