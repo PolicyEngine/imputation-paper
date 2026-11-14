@@ -154,3 +154,76 @@ def test_added_arms_without_their_run_write_nothing(tmp_path: Path) -> None:
     )
     assert tables._read_long(runs_dir / "openml-alpha", "metrics_long.csv") is None
     assert make_tables(runs_dir=runs_dir, out_dir=tmp_path / "tables") == 1
+
+
+# ---------------------------------------------------------------------------
+# Rows that coincide by construction, and the ablations table's columns
+# ---------------------------------------------------------------------------
+
+
+def test_openml_table_prints_an_unchained_arm_once_with_its_chained_twin(
+    tmp_path: Path,
+) -> None:
+    """With one target there is nothing to chain on: the twins share one row."""
+    runs_dir = tmp_path / "runs"
+    _write_long(
+        runs_dir / "openml-alpha",
+        {
+            "populace_fit": [1.0, 3.0],
+            "populace_fit_unchained": [1.0, 3.0],
+            "populace_fit_ungated": [4.0, 4.0],
+            "populace_fit_ungated_unchained": [4.0, 4.0],
+            "statmatch_hotdeck": [5.0, 7.0],
+        },
+    )
+    out_dir = tmp_path / "tables"
+    assert make_tables(runs_dir=runs_dir, out_dir=out_dir) == 0
+    assert _mean_ranks((out_dir / "openml.tex").read_text()) == {
+        "microcosm-fit": 1.0,
+        r"\quad -- ungated": 2.0,
+        "NND hot deck (py-statmatch)": 3.0,
+    }
+
+
+def test_openml_table_keeps_an_unchained_arm_that_differs(tmp_path: Path) -> None:
+    """The twin is dropped only when the two rows really are the same."""
+    runs_dir = tmp_path / "runs"
+    _write_long(
+        runs_dir / "openml-alpha",
+        {"populace_fit": [1.0, 3.0], "populace_fit_unchained": [1.0, 5.0]},
+    )
+    out_dir = tmp_path / "tables"
+    assert make_tables(runs_dir=runs_dir, out_dir=out_dir) == 0
+    assert _mean_ranks((out_dir / "openml.tex").read_text()) == {
+        "microcosm-fit": 1.0,
+        r"\quad -- unchained": 2.0,
+    }
+
+
+def test_ablations_table_has_one_column_per_knockout_present(tmp_path: Path) -> None:
+    """Paired deltas from the candidate, for the knockouts only."""
+    runs_dir = tmp_path / "runs"
+    _write_long(
+        runs_dir / "scf-wealth",
+        {
+            "populace_fit": [10.0, 20.0, 30.0],
+            "populace_fit_unweighted": [12.0, 25.0, 30.0],
+            "plain_qrf": [50.0, 50.0, 50.0],
+        },
+    )
+    _write_long(
+        runs_dir / "scf-wealth-added-arms",
+        {
+            "populace_fit": [10.0, 20.0, 30.0],
+            "populace_fit_ungated": [11.0, 21.0, 31.0],
+        },
+    )
+    out_dir = tmp_path / "tables"
+    assert make_tables(runs_dir=runs_dir, out_dir=out_dir) == 0
+    table = (out_dir / "ablations.tex").read_text()
+    assert (
+        r"Task & Target & Metric & $\Delta$ unweighted & $\Delta$ ungated \\" in table
+    )
+    assert "microimpute" not in table  # a baseline, not a knockout
+    # unweighted: deltas 2, 5, 0 -> mean 2.33, sd 2.52; ungated: 1, 1, 1.
+    assert r"scf wealth & y & wasserstein1 & 2.33 (2.52) & 1.00 (0.000) \\" in table

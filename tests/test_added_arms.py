@@ -373,3 +373,35 @@ def test_constrained_hot_deck_is_skipped_above_its_size_limit(monkeypatch) -> No
         predict(receivers)
     monkeypatch.setattr(methods, "CONSTRAINED_MAX_CELLS", 30 * 12 * 3)
     assert len(predict(receivers)) == 30
+
+
+def test_pooled_leaves_overstate_a_zero_atom() -> None:
+    """Why the gates matter: an ungated forest draws too many zeros.
+
+    In a forest grown to purity, a zero atom forms larger leaves than the
+    positive values do. Pooling leaf samples across trees, which is the forest
+    library's default and what the estimator's forests do, weights each tree
+    by its leaf's size, so the atom is over-represented in a row's
+    conditional. Giving each tree's leaf equal weight removes the excess.
+    """
+    quantile_forest = pytest.importorskip("quantile_forest")
+    rng = np.random.default_rng(0)
+    n, m = 4000, 2000
+    x = rng.normal(size=(n + m, 2))
+    positive = rng.random(n + m) < 1.0 / (1.0 + np.exp(-(x[:, 0] - 1.7)))
+    y = np.where(positive, np.exp(rng.normal(size=n + m) + x[:, 1]), 0.0)
+    forest = quantile_forest.RandomForestQuantileRegressor(
+        n_estimators=100, max_samples_leaf=None, random_state=0
+    ).fit(x[:n], y[:n])
+    grid = list(np.linspace(1 / 202, 1 - 1 / 202, 201))
+    level = rng.integers(0, len(grid), size=m)
+
+    def drawn_zero_share(weighted_leaves: bool) -> float:
+        predictions = np.asarray(
+            forest.predict(x[n:], quantiles=grid, weighted_leaves=weighted_leaves)
+        )
+        return float((predictions[np.arange(m), level] == 0.0).mean())
+
+    truth = float((y[n:] == 0.0).mean())
+    assert drawn_zero_share(weighted_leaves=False) - truth > 0.08
+    assert abs(drawn_zero_share(weighted_leaves=True) - truth) < 0.06
