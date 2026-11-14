@@ -45,9 +45,12 @@ circulation or submission. -->
 \input{sections/conclusion}
 \input{sections/disclosures}
 
-% IJM: appendixes follow the references and are numbered A.1, A.2, ...
-% The document template puts the bibliography at the very end, so it is
-% called here and the template's own call is turned off.
+<!-- IJM: appendixes follow the references and are numbered A.1, A.2, ...
+The document template puts the bibliography at the very end, so it is
+called here and the template's own call is turned off. Comments in this
+file are HTML comments: Pandoc reads it as Markdown, where a line that
+starts with a percent sign is text and is printed. -->
+
 \bibliography{bibliography/references}
 \renewcommand{\bibliography}[1]{}
 
