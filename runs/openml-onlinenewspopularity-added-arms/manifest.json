@@ -1,0 +1,49 @@
+{
+  "task": "openml_onlinenewspopularity",
+  "rows_used": 20000,
+  "rows_available": 39644,
+  "row_cap_applied": true,
+  "max_rows": 20000,
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+  ],
+  "methods_requested": [
+    "populace_fit",
+    "weighted_marginal",
+    "statmatch_hotdeck",
+    "populace_fit_ungated",
+    "populace_fit_ungated_unchained",
+    "populace_fit_derived",
+    "populace_fit_unchained_derived",
+    "statmatch_rand_hotdeck",
+    "statmatch_constrained_hotdeck",
+    "statmatch_rand_hotdeck_unweighted"
+  ],
+  "predictors": [
+    "kw_avg_avg",
+    "LDA_03",
+    "kw_max_avg",
+    "LDA_02",
+    "self_reference_avg_sharess",
+    "self_reference_min_shares",
+    "data_channel_is_world",
+    "self_reference_max_shares",
+    "num_hrefs",
+    "kw_avg_max",
+    "kw_min_avg",
+    "num_imgs"
+  ],
+  "targets": [
+    "shares"
+  ],
+  "weight_column": "weight"
+}

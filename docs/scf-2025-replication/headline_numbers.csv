@@ -1,0 +1,138 @@
+key,number,where,kind,A,B,C,D
+nw-w1-candidate,"Net-worth W1, candidate",SCF wealth table,dollars,135871.00608644736,165930.92078115183,155902.98869009243,135871.00608644736
+nw-w1-unweighted,"Net-worth W1, unweighted",SCF wealth table,dollars,829158.0601272986,711568.5265839385,916245.182648669,829158.0601272986
+nw-w1-unweighted-ratio,"Net-worth W1, unweighted over candidate ('six times worse')","Abstract, results, discussion, conclusion",ratio,6.102538606358373,4.288341939127996,5.87702128321608,6.102538606358373
+debt-w1-candidate,"Debt W1, candidate",SCF wealth table,dollars,13000.82808541522,12411.93547732946,14645.483846921712,13000.82808541522
+debt-w1-unweighted,"Debt W1, unweighted",SCF wealth table,dollars,32246.718615998096,18536.96603844654,35083.29791166079,32246.718615998096
+debt-w1-unweighted-ratio,"Debt W1, unweighted over candidate ('factor of 2.5')",Results,ratio,2.4803588205410994,1.4934790848940938,2.395502823830217,2.4803588205410994
+nw-w1-forest,"Net-worth W1, ungated/unchained forest",SCF wealth table,dollars,234367.125402789,195415.64215862253,243346.3746606416,234367.125402789
+nw-w1-forest-ratio,"Net-worth W1, ungated forest over candidate ('1.7 times')",Results,ratio,1.7249237504996018,1.177692748516465,1.5608833204883015,1.7249237504996018
+nw-w1-unchained,"Net-worth W1, unchained",SCF wealth table,dollars,158606.31559128925,203814.4020707445,176625.49660906277,158606.31559128925
+nw-w1-unchained-ratio,"Net-worth W1, unchained over candidate ('17 percent')",Results,ratio,1.1673301034539822,1.228308751082974,1.1329192473671112,1.1673301034539822
+debt-w1-hotdeck,"Debt W1, hot deck",SCF wealth table,dollars,13770.094596936546,12740.52007040162,15074.532616365017,13770.094596936546
+debt-w1-hotdeck-ratio,"Debt W1, hot deck over candidate",Results ('nearly ties'),ratio,1.059170577940671,1.0264732759586388,1.0292956363837364,1.059170577940671
+nw-w1-hotdeck,"Net-worth W1, hot deck",SCF wealth table,dollars,509013.04905697796,434089.973832371,557139.4275339561,509013.04905697796
+nw-w1-hotdeck-ratio,"Net-worth W1, hot deck over candidate ('3.7 times worse')",Results,ratio,3.7462963123502635,2.6160885010991843,3.573628909972026,3.7462963123502635
+debt-w1-ols,"Debt W1, OLS",SCF wealth table,dollars,156294.9832887124,125965.60541477808,171045.8580826553,156294.9832887124
+nw-w1-ols,"Net-worth W1, OLS",SCF wealth table,dollars,3565923.1173267984,2703592.856628802,3902469.3347528637,3565923.1173267984
+debt-zero-quantreg,"Debt zero-share error, quantile regression ('15 percent')",Results,plain,0.15099104411439782,0.15743068807746435,0.14775699346255708,0.15099104411439782
+debt-zero-forest-max,"Debt zero-share error, largest forest-based ('at most 2 percent')",Results,plain,0.019836332751007,0.02723044855029188,0.019836332751007,0.019836332751007
+debt-zero-candidate,"Debt zero-share error, candidate",SCF wealth table,plain,0.019836332751007,0.017324536429630617,0.019836332751007,0.019836332751007
+debt-zero-forest,"Debt zero-share error, ungated forest",SCF wealth table,plain,0.01849655942809138,0.02723044855029188,0.016816720328252432,0.01849655942809138
+debt-pinball-marginal,"Debt pinball, marginal draw",SCF wealth table,dollars,48276.97124342909,52793.48518215892,52833.27588774724,48276.97124342909
+debt-pinball-candidate,"Debt pinball, candidate",SCF wealth table,dollars,49200.897287820226,53883.40349055389,53875.959949399854,49200.897287820226
+nw-pinball-marginal,"Net-worth pinball, marginal draw",SCF wealth table,dollars,443553.9524852665,531501.756757966,485415.87715995015,443553.9524852665
+nw-pinball-candidate,"Net-worth pinball, candidate",SCF wealth table,dollars,551317.0948315843,691571.1639379273,603250.7344911599,551317.0948315843
+delta-unweighted,"Ablation delta on net-worth W1, unweighted",Ablations table,dollars,693287.0540408511,545637.6058027867,760342.1939585765,693287.0540408511
+delta-forest,"Ablation delta on net-worth W1, ungated forest",Ablations table,dollars,98496.11931634163,29484.721377470705,87443.38597054916,98496.11931634163
+delta-unchained,"Ablation delta on net-worth W1, unchained",Ablations table,dollars,22735.30950484191,37883.481289592666,20722.507918970292,22735.30950484191
+min-floor-energy,"Floor energy distance, minimal",Minimal-profile table,plain,0.009468669861741382,0.00951534253267638,0.00946866986174134,0.009468669861741382
+min-floor-coverage,"Floor coverage, minimal",Minimal-profile table,plain,0.9872240256657641,0.9914804885590041,0.9872240256657641,0.9872240256657641
+min-floor-auc,"Floor C2ST AUC, minimal",Minimal-profile table,plain,0.49552242919441003,0.5063068314765343,0.4955239167624862,0.49552242919441003
+min-floor-q99,"Floor net-worth q99 ratio, minimal",Minimal-profile table,plain,1.1015190099185497,0.9904847948553168,1.1015190099185497,1.1015190099185497
+min-energy-candidate,"Energy distance, candidate, minimal",Minimal-profile table,plain,0.13850977651584814,0.09787439393546786,0.13664531731590684,0.13850977651584814
+min-energy-unweighted,"Energy distance, unweighted, minimal",Minimal-profile table,plain,0.14005135044042274,0.099234331269326,0.13619780437814452,0.14005135044042274
+min-energy-hotdeck,"Energy distance, hot deck, minimal",Minimal-profile table,plain,0.14090380937791794,0.10163599760708113,0.13886024669429411,0.14090380937791794
+min-coverage-candidate,"Coverage, candidate, minimal",Minimal-profile table,plain,0.9597501447868158,0.9641807933260024,0.9610960963491392,0.9597501447868158
+min-coverage-unweighted,"Coverage, unweighted, minimal",Minimal-profile table,plain,0.9582603338142619,0.9659841910973543,0.9612832645447765,0.9582603338142619
+min-coverage-hotdeck,"Coverage, hot deck, minimal",Minimal-profile table,plain,0.9617082335231876,0.9652615062070437,0.9630707097547445,0.9617082335231876
+min-auc-candidate,"C2ST AUC, candidate, minimal",Minimal-profile table,plain,0.7324662785720777,0.7192570483198796,0.7285706218395788,0.7324662785720777
+min-auc-unweighted,"C2ST AUC, unweighted, minimal",Minimal-profile table,plain,0.7305847155627697,0.7117289380019347,0.7285440124595115,0.7305847155627697
+min-auc-unchained,"C2ST AUC, unchained, minimal",Minimal-profile table,plain,0.7416756139621902,0.7271853968012744,0.7378970781844494,0.7416756139621902
+min-auc-unchained-gap,"AUC points lost by unchaining, minimal","Abstract, results ('5.8 points' at scale)",points,0.9209335390112483,0.7928348481394787,0.9326456344870615,0.9209335390112483
+min-auc-forest,"C2ST AUC, ungated forest, minimal",Minimal-profile table,plain,0.7750250464794186,0.7639802954069992,0.7727316844367274,0.7750250464794186
+min-auc-forest-gap,"AUC points lost by the ungated forest, minimal","Results, discussion ('5.6 points' at scale)",points,4.255876790734092,4.472324708711961,4.416106259714859,4.255876790734092
+min-auc-hotdeck,"C2ST AUC, hot deck, minimal",Minimal-profile table,plain,0.7525270212920616,0.7306197950685245,0.7506425983105719,0.7525270212920616
+min-auc-hotdeck-gap,"AUC points, hot deck above candidate, minimal",Results ('within 2.1 and 0.7 AUC points'),points,2.0060742719983926,1.1362746748644903,2.2071976470993127,2.0060742719983926
+min-auc-marginal,"C2ST AUC, marginal draw, minimal","Abstract, results ('0.848' and '0.968')",plain,0.8476004829617251,0.8449508510358568,0.8454976334180093,0.8476004829617251
+min-auc-quantreg,"C2ST AUC, quantile regression, minimal",Minimal-profile table,plain,0.9271112765085906,0.9074374056847644,0.9277150156697808,0.9271112765085906
+min-auc-ols,"C2ST AUC, OLS, minimal",Minimal-profile table,plain,0.9875769266476198,0.9830343657655737,0.9878464625189093,0.9875769266476198
+min-tail-candidate,"Net-worth W1/sd, candidate, minimal",Minimal-profile table,plain,0.03125240286792608,0.040120153116969565,0.032582421730624006,0.03125240286792608
+min-tail-unweighted,"Net-worth W1/sd, unweighted, minimal",Minimal-profile table,plain,0.1588322697537402,0.1251085120008,0.14569944156775813,0.1588322697537402
+min-tail-unweighted-ratio,"Net-worth W1/sd, unweighted over candidate, minimal",Results ('five times'),ratio,5.082241849529837,3.1183458257511742,4.471719222479285,5.082241849529837
+min-tail-hotdeck,"Net-worth W1/sd, hot deck, minimal",Minimal-profile table,plain,0.0507745149685662,0.05822198203648028,0.03245920074259651,0.0507745149685662
+min-tail-unchained,"Net-worth W1/sd, unchained, minimal",Minimal-profile table,plain,0.029287099325643447,0.04603159465592439,0.02966814872288608,0.029287099325643447
+min-q99-candidate,"Net-worth q99 ratio, candidate, minimal",Minimal-profile table,plain,0.6961937708757354,0.6419049293071373,0.6159500287204909,0.6961937708757354
+min-q99-unweighted,"Net-worth q99 ratio, unweighted, minimal","Abstract, results, discussion, conclusion ('1.9 to 2.3')",plain,1.9321826809442662,1.7909714555657874,1.7584274367817962,1.9321826809442662
+min-q99-unchained,"Net-worth q99 ratio, unchained, minimal",Minimal-profile table,plain,0.7648600085835955,0.7281972587467719,0.6867879512095667,0.7648600085835955
+min-q99-forest,"Net-worth q99 ratio, ungated forest, minimal",Minimal-profile table,plain,0.8047915465089934,0.6992860464299355,0.7209801378526519,0.8047915465089934
+min-q99-hotdeck,"Net-worth q99 ratio, hot deck, minimal",Minimal-profile table,plain,0.7621168342261722,1.102363309965997,0.6481796539349158,0.7621168342261722
+min-q99-marginal,"Net-worth q99 ratio, marginal draw, minimal",Minimal-profile table,plain,1.092193100593577,0.9942858710459836,1.092193100593577,1.092193100593577
+min-q90-floor,"Net-worth q90 ratio, floor, minimal",Not cited (reported without a verdict),plain,1.0504422487777614,0.9905217561411316,1.0504422487777614,1.0504422487777614
+min-q90-candidate,"Net-worth q90 ratio, candidate, minimal",Not cited (reported without a verdict),plain,1.0824705285972884,0.8434919531203313,0.9456470808799526,1.0824705285972884
+min-q90-unweighted,"Net-worth q90 ratio, unweighted, minimal",Not cited (reported without a verdict),plain,1.433860299229957,1.0923081496461244,1.2593827040903998,1.433860299229957
+min-q90-hotdeck,"Net-worth q90 ratio, hot deck, minimal",Not cited (reported without a verdict),plain,1.07336088010504,0.6875376665310656,0.9826914298155256,1.07336088010504
+min-q90-marginal,"Net-worth q90 ratio, marginal draw, minimal",Not cited (reported without a verdict),plain,1.0417040352656948,0.9993000285034345,1.0417040352656948,1.0417040352656948
+scale-floor-energy,"Floor energy distance, scale",Populace-scale table,plain,0.012462591718376659,0.01275601449602006,0.012462591718376752,0.012462591718376659
+scale-floor-coverage,"Floor coverage, scale",Populace-scale table,plain,0.986392310506164,0.989961495447389,0.986392310506164,0.986392310506164
+scale-floor-auc,"Floor C2ST AUC, scale",Populace-scale table,plain,0.4988782885897704,0.5098070005329508,0.49885436341065137,0.4988782885897704
+scale-floor-q99,"Floor net-worth q99 ratio, scale",Populace-scale table,plain,1.1015190099185497,0.9904847948553168,1.1015190099185497,1.1015190099185497
+scale-energy-candidate,"Energy distance, candidate, scale",Populace-scale table,plain,0.11761848182059986,0.08498480331468036,0.11668062665224857,0.11761848182059986
+scale-energy-unweighted,"Energy distance, unweighted, scale",Populace-scale table,plain,0.12034506930216601,0.08564793930758667,0.11810121732315867,0.12034506930216601
+scale-energy-hotdeck,"Energy distance, hot deck, scale",Populace-scale table,plain,0.11876036086506925,0.08893019045972816,0.1181719739674431,0.11876036086506925
+scale-coverage-candidate,"Coverage, candidate, scale",Populace-scale table,plain,0.9690818238856764,0.9756516902671135,0.9694395807468948,0.9690818238856764
+scale-coverage-unweighted,"Coverage, unweighted, scale",Populace-scale table,plain,0.970953468371112,0.9763458082215305,0.9702477135464835,0.970953468371112
+scale-coverage-hotdeck,"Coverage, hot deck, scale",Populace-scale table,plain,0.9709317210470022,0.9754576399784376,0.9703894848828488,0.9709317210470022
+scale-auc-candidate,"C2ST AUC, candidate, scale",Populace-scale table,plain,0.7611982572951066,0.7569679178366321,0.7610293447834204,0.7611982572951066
+scale-auc-unweighted,"C2ST AUC, unweighted, scale",Populace-scale table,plain,0.7538153042238898,0.7352631286569664,0.7511224687481143,0.7538153042238898
+scale-auc-unchained,"C2ST AUC, unchained, scale",Populace-scale table,plain,0.8187713218615459,0.8060411904080528,0.8151635147048208,0.8187713218615459
+scale-auc-unchained-gap,"AUC points lost by unchaining, scale","Abstract, results ('5.8 points' at scale)",points,5.75730645664393,4.907327257142069,5.413416992140041,5.75730645664393
+scale-auc-forest,"C2ST AUC, ungated forest, scale",Populace-scale table,plain,0.8173892822604694,0.815611249835787,0.8127477285939161,0.8173892822604694
+scale-auc-forest-gap,"AUC points lost by the ungated forest, scale","Results, discussion ('5.6 points' at scale)",points,5.619102496536277,5.864333199915494,5.1718383810495645,5.619102496536277
+scale-auc-hotdeck,"C2ST AUC, hot deck, scale",Populace-scale table,plain,0.7676719142727637,0.7538006850858135,0.7637482910886844,0.7676719142727637
+scale-auc-hotdeck-gap,"AUC points, hot deck above candidate, scale",Results ('within 2.1 and 0.7 AUC points'),points,0.6473656977657116,-0.31672327508185383,0.2718946305263925,0.6473656977657116
+scale-auc-marginal,"C2ST AUC, marginal draw, scale","Abstract, results ('0.848' and '0.968')",plain,0.9678115676527408,0.9677981944469091,0.9679173515979006,0.9678115676527408
+scale-auc-quantreg,"C2ST AUC, quantile regression, scale",Populace-scale table,plain,0.9704768887398902,0.9648340051666194,0.9707272126446898,0.9704768887398902
+scale-auc-ols,"C2ST AUC, OLS, scale",Populace-scale table,plain,0.9950416361221011,0.9930967013736497,0.9954468053049357,0.9950416361221011
+scale-tail-candidate,"Net-worth W1/sd, candidate, scale",Populace-scale table,plain,0.026819359969885936,0.04762986065876315,0.03137487011146468,0.026819359969885936
+scale-tail-unweighted,"Net-worth W1/sd, unweighted, scale",Populace-scale table,plain,0.13257442961120272,0.08056022286155526,0.11424090306828591,0.13257442961120272
+scale-tail-unweighted-ratio,"Net-worth W1/sd, unweighted over candidate, scale",Results ('five times'),ratio,4.9432361458313565,1.6913806118123387,3.6411593948413254,4.9432361458313565
+scale-tail-hotdeck,"Net-worth W1/sd, hot deck, scale",Populace-scale table,plain,0.024002220035408212,0.10262982420019925,0.02651900112169951,0.024002220035408212
+scale-tail-unchained,"Net-worth W1/sd, unchained, scale",Populace-scale table,plain,0.028371753378836757,0.061998814145985015,0.03208035211050577,0.028371753378836757
+scale-q99-candidate,"Net-worth q99 ratio, candidate, scale",Populace-scale table,plain,0.7670512201112183,0.6304661950473853,0.6718152369044272,0.7670512201112183
+scale-q99-unweighted,"Net-worth q99 ratio, unweighted, scale","Abstract, results, discussion, conclusion ('1.9 to 2.3')",plain,2.248965930834488,1.7769282244318074,2.112124437306531,2.248965930834488
+scale-q99-unchained,"Net-worth q99 ratio, unchained, scale",Populace-scale table,plain,0.6993566920252396,0.6918160186613955,0.6324194850208293,0.6993566920252396
+scale-q99-forest,"Net-worth q99 ratio, ungated forest, scale",Populace-scale table,plain,1.1520301334391245,0.9163173295594638,1.1023206475136598,1.1520301334391245
+scale-q99-hotdeck,"Net-worth q99 ratio, hot deck, scale",Populace-scale table,plain,0.74659065549653,2.854964230503717,0.6851394665673189,0.74659065549653
+scale-q99-marginal,"Net-worth q99 ratio, marginal draw, scale",Populace-scale table,plain,1.1155320409634535,1.004170033432748,1.1155320409634535,1.1155320409634535
+scale-q90-floor,"Net-worth q90 ratio, floor, scale",Not cited (reported without a verdict),plain,1.0504422487777614,0.9905217561411316,1.0504422487777614,1.0504422487777614
+scale-q90-candidate,"Net-worth q90 ratio, candidate, scale",Not cited (reported without a verdict),plain,0.999808009768314,0.7509122726128622,0.8902198491995363,0.999808009768314
+scale-q90-unweighted,"Net-worth q90 ratio, unweighted, scale",Not cited (reported without a verdict),plain,1.3437754492324765,1.0392934802751153,1.2098207511464396,1.3437754492324765
+scale-q90-hotdeck,"Net-worth q90 ratio, hot deck, scale",Not cited (reported without a verdict),plain,1.07336088010504,0.7605735198821482,1.0626772647474794,1.07336088010504
+scale-q90-marginal,"Net-worth q90 ratio, marginal draw, scale",Not cited (reported without a verdict),plain,1.0572686235591229,0.988018227739962,1.0572686235591229,1.0572686235591229
+scale-q99-fin-candidate,"fin q99 ratio, candidate, scale",Not cited (reported without a verdict),plain,0.6504909208010503,0.6439030186285069,0.5903085737705781,0.6504909208010503
+scale-q99-fin-unweighted,"fin q99 ratio, unweighted, scale",Not cited (reported without a verdict),plain,1.2920345721572226,1.1477916140367204,1.183327388098787,1.2920345721572226
+scale-q99-nfin-candidate,"nfin q99 ratio, candidate, scale",Not cited (reported without a verdict),plain,0.7721929444052531,0.810594653030391,0.7122409513305998,0.7721929444052531
+scale-q99-nfin-unweighted,"nfin q99 ratio, unweighted, scale",Not cited (reported without a verdict),plain,3.082586479367869,1.7106420980565986,2.882817312223979,3.082586479367869
+scale-q99-debt-candidate,"debt q99 ratio, candidate, scale",Not cited (reported without a verdict),plain,1.0826916270225824,0.956528733313538,1.0040233766383255,1.0826916270225824
+scale-q99-debt-unweighted,"debt q99 ratio, unweighted, scale",Not cited (reported without a verdict),plain,1.5720753331093316,1.3160408646798256,1.5045101049875005,1.5720753331093316
+seeds-nw-w1-unweighted,"Seeds unweighted worse, net-worth W1",Verdict detail,count,10.0,10.0,10.0,10.0
+seeds-debt-w1-unweighted,"Seeds unweighted worse, debt W1",Verdict detail,count,10.0,9.0,9.0,10.0
+seeds-nw-w1-forest,"Seeds ungated forest worse, net-worth W1",Verdict detail,count,6.0,6.0,5.0,6.0
+seeds-nw-w1-unchained,"Seeds unchained worse, net-worth W1",Verdict detail,count,7.0,8.0,7.0,7.0
+seeds-nw-w1-hotdeck,"Seeds hot deck worse, net-worth W1",Verdict detail,count,9.0,9.0,9.0,9.0
+seeds-debt-zero-forest,"Seeds ungated forest worse, debt zero share",Verdict detail,count,4.0,8.0,4.0,4.0
+seeds-scale-auc-unchained,"Seeds unchained higher AUC, scale",Verdict detail,count,9.0,9.0,9.0,9.0
+seeds-scale-auc-forest,"Seeds ungated forest higher AUC, scale",Verdict detail,count,10.0,9.0,9.0,10.0
+min-auc-unchained-sd,"AUC, unchained minus candidate, floor sds, minimal",Verdict detail,sd,0.3968081556608589,0.35618906386232546,0.4018593260790612,0.3968081556608589
+min-auc-forest-sd,"AUC, ungated forest minus candidate, floor sds, minimal",Verdict detail,sd,1.8337551500884657,2.0092370498378918,1.9028164822736653,1.8337551500884657
+min-auc-hotdeck-sd,"AUC, hot deck minus candidate, floor sds, minimal",Verdict detail,sd,0.8643692495389421,0.5104828750656132,0.9510396298315978,0.8643692495389421
+min-auc-unweighted-sd,"AUC, unweighted minus candidate, floor sds, minimal",Verdict detail,sd,-0.08107203352424219,-0.33820796009326504,-0.0011465477503759649,-0.08107203352424219
+min-energy-unweighted-sd,"Energy, unweighted minus candidate, floor sds, minimal",Verdict detail,sd,0.2700428507098754,0.36102687494040897,-0.078392393330232,0.2700428507098754
+min-energy-hotdeck-sd,"Energy, hot deck minus candidate, floor sds, minimal",Verdict detail,sd,0.4193710392090661,0.9986048507648028,0.38799686082248513,0.4193710392090661
+min-coverage-unweighted-sd,"Coverage, unweighted minus candidate, floor sds, minimal",Verdict detail,sd,-0.1628673354745482,0.3871569686658736,0.020461377900057497,-0.1628673354745482
+min-coverage-hotdeck-sd,"Coverage, hot deck minus candidate, floor sds, minimal",Verdict detail,sd,0.2140598377852445,0.23200955977029747,0.21586632793553293,0.2140598377852445
+min-q99-unweighted-sd,"Net-worth q99 ratio, unweighted minus candidate, floor sds, minimal",Verdict detail,sd,6.105712186170059,7.519676116103133,5.6437708914695115,6.105712186170059
+min-tail-hotdeck-sd,"Net-worth W1/sd, hot deck minus candidate, floor sds, minimal",Verdict detail,sd,6.238521464229825,3.4554478103058175,-0.03937672187774995,6.238521464229825
+min-tail-unchained-sd,"Net-worth W1/sd, unchained minus candidate, floor sds, minimal",Verdict detail,sd,-0.6280359557947158,1.1284317077770953,-0.9312903551456686,-0.6280359557947158
+scale-auc-unchained-sd,"AUC, unchained minus candidate, floor sds, scale",Verdict detail,sd,2.6961502835760895,2.537247149502626,2.539129312893108,2.6961502835760895
+scale-auc-forest-sd,"AUC, ungated forest minus candidate, floor sds, scale",Verdict detail,sd,2.631429280961137,3.032050221139029,2.425818379396122,2.631429280961137
+scale-auc-hotdeck-sd,"AUC, hot deck minus candidate, floor sds, scale",Verdict detail,sd,0.30316176891961377,-0.16375619247993686,0.12753047241514706,0.30316176891961377
+scale-auc-unweighted-sd,"AUC, unweighted minus candidate, floor sds, scale",Verdict detail,sd,-0.34574416294305693,-1.12220790648338,-0.46467581154320237,-0.34574416294305693
+scale-energy-unweighted-sd,"Energy, unweighted minus candidate, floor sds, scale",Verdict detail,sd,0.5743971238397365,0.2007059841223692,0.2992690317259631,0.5743971238397365
+scale-energy-hotdeck-sd,"Energy, hot deck minus candidate, floor sds, scale",Verdict detail,sd,0.24055418846833804,1.194118277640271,0.31417499503881813,0.24055418846833804
+scale-coverage-unweighted-sd,"Coverage, unweighted minus candidate, floor sds, scale",Verdict detail,sd,0.7162006684734131,0.1260413368718952,0.3092388836580322,0.7162006684734131
+scale-coverage-hotdeck-sd,"Coverage, hot deck minus candidate, floor sds, scale",Verdict detail,sd,0.7078788700836632,-0.03523660157389869,0.36348889035812576,0.7078788700836632
+scale-q99-unweighted-sd,"Net-worth q99 ratio, unweighted minus candidate, floor sds, scale",Verdict detail,sd,7.320571110646994,7.502631869758784,7.115042347961186,7.320571110646994
+scale-tail-hotdeck-sd,"Net-worth W1/sd, hot deck minus candidate, floor sds, scale",Verdict detail,sd,-0.90025033451181,10.498911708380694,-1.5517502800910925,-0.90025033451181
+scale-tail-unchained-sd,"Net-worth W1/sd, unchained minus candidate, floor sds, scale",Verdict detail,sd,0.49608564650907006,2.7428813455579277,0.22544510404185686,0.49608564650907006

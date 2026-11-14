@@ -43,7 +43,7 @@ and sign-mixed variables --- ubiquitous in economic microdata
 \citep{mullahy1986specification, lambert1992zero} --- keep their mass
 structure. \emph{Sequential chaining} conditions each imputed variable on
 the ones already drawn, so joint structure among targets survives the
-imputation \citep{raghunathan2003multiple, vanbuuren2011mice}. The interface
+imputation \citep{raghunathan2001multivariate, vanbuuren2011mice}. The interface
 enforces the first choice: fits are weighted by construction, and an
 unweighted fit must be requested explicitly.
 
@@ -60,7 +60,7 @@ variable subsets, designs, measurement idioms --- and score any candidate
 weighted file by projecting it through each view against that survey's
 holdout. The score has four blocks: a strictly proper joint score
 \citep{gneiting2007strictly, szekely2013energy}, a support-based coverage
-axis that no reweighting of the candidate can change
+axis that is invariant to reweighting of the candidate by definition
 \citep{naeem2020reliable}, a weighted classifier two-sample test, and an
 uncapped tail block on imputed columns. We added the tail block after
 finding that capped sample-geometry metrics are blind to twofold errors in
@@ -71,12 +71,13 @@ right from what calibration can later change.
 \item \textbf{A benchmark against standard practice with attribution, plus a
 reweighting stress test.} We compare the estimator against unweighted and
 weighted quantile regression forests \citep{meinshausen2006quantile},
-ordinary least squares imputation \citep{vonhippel2007should}, linear
-quantile regression \citep{koenker1978regression}, and nearest-neighbour
-hot-deck statistical matching \citep{andridge2010review,
-dorazio2021statistical}, under a paired, repeated holdout protocol. Ablations
-knock out one design choice at a time, so weighting, gating, and chaining
-each get their own attribution. A closed-form fragility diagnostic
+ordinary least squares imputation \citep{vonhippel2013should}, linear
+quantile regression \citep{koenker1978regression}, and distance
+hot-deck statistical matching, with the donor chosen with and without its
+weight \citep{andridge2010review, dorazio2006statistical}, under a paired,
+repeated holdout protocol. Ablations knock out one design choice at a time, so
+weighting, gating, and chaining each get their own attribution. A
+closed-form fragility diagnostic
 measures each method's worst-case single-record exposure under bounded
 reweightings of the imputed file --- the landmine failure mode.
 \end{enumerate}

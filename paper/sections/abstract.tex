@@ -3,27 +3,28 @@
 Policy microsimulation models rely on imputation to attach variables one
 survey observes to records from another, and the imputed file is then
 reweighted downstream: calibrated to administrative totals, filtered to
-subpopulations, stressed under reform scenarios. Common practice fits
-imputation models to survey records while ignoring their design weights,
-which biases imputed conditionals toward the sample rather than the
-population. We present the imputation operator of \populace{},
+subpopulations, stressed under reform scenarios. Fitting imputation models
+to survey records while ignoring their design weights biases imputed
+conditionals toward the sample rather than the population. We present the imputation operator of \populace{},
 \policyengine{}'s open-source microdata stack: a regime-gated, sequentially
 chained, weighted-bootstrap quantile-regression-forest estimator whose
 interface makes an unweighted fit impossible to request by accident. To
 evaluate it we formalize a \emph{population-view harness}: one latent
 population observed through survey views, with any candidate weighted file
 scored by projecting it through each view against that survey's holdout.
-Benchmarked against standard survey-imputation methods on four task
-families, each design choice earns its place where its failure mode lives.
+Benchmarks against standard methods on four task families knock out each
+design choice.
 Fit without weights, the identical estimator is six times worse on
 net-worth marginal fit and imputes a 99th percentile 1.9 to 2.3 times the
-holdout's --- an inflation that capped joint-geometry metrics miss entirely
-and only an uncapped tail axis detects. Regime gating holds dividend
-zero-share error to 0.6 percentage points against 4.4 for the same forest
-ungated. Chaining is worth 5.8 points of classifier two-sample AUC once
-four imputed components must satisfy a balance-sheet identity. The
-estimator is available standalone as \populacefit{}, and every number in
-the paper regenerates from the accompanying repository.
+holdout's --- an inflation that capped joint-geometry metrics miss and an
+uncapped tail axis detects. With its gates off, it misses the
+dividend zero share by 7.2 percentage points, not 0.6. Fitting four
+balance-sheet components independently costs 5.8 points of classifier
+two-sample AUC; the accounting identity recovers them, and chaining adds
+1.2. A hot deck that draws donors in proportion to weight matches the
+estimator on marginal fit within a survey and trails it by 1.6 to 2.9 AUC
+points across surveys. The estimator is available standalone as
+\populacefit{}, and every number regenerates from the repository.
 
 \vspace{1em}
 \noindent\textbf{Keywords:} microsimulation, imputation, survey weights,

@@ -19,6 +19,8 @@ impute \texttt{debt} (zero-inflated and nonnegative) and \texttt{networth}
 education class, marital status, children, total income, and wage income.
 The two targets are chosen deliberately: their sign structures exercise the
 regime gates, and their strong mutual dependence exercises chaining.
+Appendix~\ref{app:scf2025} reruns this task and both profiles of the next
+on the 2025 wave, which no method here was tuned on.
 
 \subsection{Task 2: the SCF\texorpdfstring{$\to$}{->}CPS population view}
 \label{sec:task-harness}
@@ -41,7 +43,10 @@ production support spine does. And the targets widen to a four-component
 chained balance sheet --- financial assets, nonfinancial assets, debt, then
 net worth --- whose accounting identity
 $\text{networth} = \text{fin} + \text{nfin} - \text{debt}$ holds exactly in
-the extract, so chaining's contribution is directly interpretable. The
+the extract, so chaining's contribution is directly interpretable. In both
+profiles each run imputes onto a fixed uniform subsample of 20,000 receiver
+households (of 55,762 in the minimal profile and 168,852 at production
+scale), the same for every method and seed. The
 candidate population --- \cps{} demographics plus imputed wealth,
 under \cps{} household weights --- is then scored through the harness of
 Section~\ref{sec:harness} against the \emph{held-out} SCF: the joint of
@@ -69,10 +74,11 @@ files publish per-person design weights; \populace{}'s production convention
 deliberately carries calibrated \emph{household} weights onto persons, since
 its calibration operates at household grain. The task fixes the survey's own
 published weights, and because every method shares whatever weights the task
-fixes, the method comparison does not turn on this choice.) Both components
-are zero for most adults (41.7 and 85.2 percent, respectively) with heavy
-positive tails --- the regime surface where gating and weighting matter
-most. Public-use ASEC amounts are topcoded, which truncates the
+fixes, the method comparison does not turn on this choice.) Interest is zero
+for 41.7 percent of adults and dividends for 84.7 percent (weighted shares),
+both with heavy positive tails --- the regime surface the gates are built
+for. The task runs on a fixed uniform subsample of 20,000
+of the file's 108,044 adults. Public-use ASEC amounts are topcoded, which truncates the
 extreme tail relative to an administrative or SCF-style source; the fragility
 comparisons of Section~\ref{sec:results-cps} are therefore conservative.
 This task also carries the reweighting stress test of
@@ -91,4 +97,6 @@ the six OpenML AutoML Benchmark regression datasets used in the
 \texttt{space\_ga}, \texttt{elevators}, \texttt{brazilian\_houses},
 \texttt{onlinenewspopularity}, \texttt{abalone}, and \texttt{house\_sales}
 --- treating each dataset's target as the imputed column under uniform
-weights.
+weights. The two datasets with more than 20,000 rows, \texttt{house\_sales}
+and \texttt{onlinenewspopularity}, are capped at 20,000 by a fixed uniform
+subsample.

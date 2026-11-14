@@ -1,0 +1,66 @@
+{
+  "experiment": "scf_to_cps_population_view",
+  "profile": "populace-scale",
+  "receiver_asec_years": [
+    2023,
+    2024,
+    2025
+  ],
+  "shared_predictors": [
+    "age",
+    "hhsex",
+    "edcl",
+    "married",
+    "kids",
+    "income",
+    "wageinc",
+    "race",
+    "housecl",
+    "lf"
+  ],
+  "donor_only_predictors_dropped": [],
+  "targets": [
+    "fin",
+    "nfin",
+    "debt",
+    "networth"
+  ],
+  "receiver_rows_used": 20000,
+  "receiver_rows_available": 168852,
+  "donor_rows": 4595,
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+  ],
+  "methods_requested": [
+    "populace_fit",
+    "populace_fit_unweighted",
+    "populace_fit_unchained",
+    "plain_qrf",
+    "microimpute_qrf",
+    "microimpute_ols",
+    "microimpute_quantreg",
+    "statmatch_hotdeck",
+    "weighted_marginal"
+  ],
+  "reference_key": "scf_sample_reference",
+  "donor_input_provenance": {
+    "scf_year": 2022,
+    "file": "rscfp2022.dta",
+    "zip_sha256": "3bb4d890ae2463ff6039ec7692e375f544dd98a55a37ca2cb2340354b9cc9d80",
+    "file_dollar_year": 2022,
+    "file_description": "SCF 2022 in 2022 dollars (rscfp2022.dta dated 2024-03-29), served until 2026-10-09; the input of the paper's committed 2022 runs",
+    "dollar_year": 2025,
+    "rebase_factor": 1.0943784277879343,
+    "url": "https://www.federalreserve.gov/econres/files/scfp2022s.zip",
+    "profile": "populace-scale"
+  }
+}

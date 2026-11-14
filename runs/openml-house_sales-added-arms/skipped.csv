@@ -1,0 +1,3 @@
+method,reason
+populace_fit_derived,"The derived-target arm sets 'networth' from ['fin', 'nfin', 'debt']; this task's targets ['price'] lack ['networth', 'fin', 'nfin', 'debt']."
+populace_fit_unchained_derived,"The derived-target arm sets 'networth' from ['fin', 'nfin', 'debt']; this task's targets ['price'] lack ['networth', 'fin', 'nfin', 'debt']."
