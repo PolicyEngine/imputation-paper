@@ -250,61 +250,25 @@ and~\ref{tab:scf-wealth-2025}). The weighted random hot deck shows none of
 the tail inflation that donor reuse produces in the nearest-neighbour hot
 deck at scale, and understates the tail as it does on the earlier wave.
 
-\begin{table}[p]
-\centering
-\scriptsize
-\input{tables/scf2025_verdicts_wealth}
-\caption{Replication verdicts, within-\scf{} wealth task. Each cell gives the
-numbers the rule was applied to. Dollar amounts are in each wave's own
-dollars; ratios and seed counts are comparable across waves. An asterisk
-marks a finding the abstract or conclusion states.}
-\label{tab:scf2025-verdicts-wealth}
-\end{table}
+\landscapelongtable{Replication verdicts, within-\scf{} wealth task}{tab:scf2025-verdicts-wealth}{scf2025_verdicts_wealth}{%
+Notes: Each cell gives the numbers the pre-registered rule was applied to. Dollar amounts are in each wave's own dollars; ratios and seed counts are comparable across waves. An asterisk marks a finding that the abstract or conclusion stated when the rules were frozen. The candidate is the full estimator and the ungated forest is the \microimpute{} forest. Source: authors' calculations from the 2022 and 2025 Surveys of Consumer Finances.}
 
-\begin{table}[p]
-\centering
-\scriptsize
-\input{tables/scf2025_verdicts_view_a}
-\caption{Replication verdicts, population view: the floor, weighting, and
-chaining. ``Floor sd'' is the seed-to-seed standard deviation of the
-sampling-floor row. An asterisk marks a finding the abstract or conclusion
-states.}
-\label{tab:scf2025-verdicts-view}
-\end{table}
+\landscapelongtable{Replication verdicts, population view: the floor, weighting, and chaining}{tab:scf2025-verdicts-view}{scf2025_verdicts_view_a}{%
+Notes: Each cell gives the numbers the pre-registered rule was applied to. ``Floor sd'' is the seed-to-seed standard deviation of the sampling-floor row. An asterisk marks a finding that the abstract or conclusion stated when the rules were frozen. The candidate is the full estimator and the ungated forest is the \microimpute{} forest. Source: authors' calculations from the 2022 and 2025 Surveys of Consumer Finances and the \cps{} ASEC.}
 
-\begin{table}[p]
-\centering
-\scriptsize
-\input{tables/scf2025_verdicts_view_b}
-\caption{Replication verdicts, population view, continued: the marginal
-draw, hot deck, and the tail.}
-\label{tab:scf2025-verdicts-view-b}
-\end{table}
+\landscapelongtable{Replication verdicts, population view, continued: the marginal draw, hot deck, and the tail}{tab:scf2025-verdicts-view-b}{scf2025_verdicts_view_b}{%
+Notes: Each cell gives the numbers the pre-registered rule was applied to. ``Floor sd'' is the seed-to-seed standard deviation of the sampling-floor row. An asterisk marks a finding that the abstract or conclusion stated when the rules were frozen. The candidate is the full estimator and the ungated forest is the \microimpute{} forest. Source: authors' calculations from the 2022 and 2025 Surveys of Consumer Finances and the \cps{} ASEC.}
 
-\begin{table}[p]
-\centering
-\footnotesize
-\resizebox{\textwidth}{!}{\input{tables/scf_wealth_2025}}
-\caption{Table~\ref{tab:scf-wealth} on the 2025 wave (2025 dollars).}
-\label{tab:scf-wealth-2025}
-\end{table}
+\landscapefloat{table}{Wealth imputation within the \scf{}, 2025 wave}{tab:scf-wealth-2025}{%
+\generatedtable{scf_wealth_2025}}{%
+Notes: Table~\ref{tab:scf-wealth} rerun on the 2025 wave, with the same seeds, columns and conventions. Dollar amounts are in 2025 dollars. Cells are means over ten paired seeds, with the standard deviation in parentheses. Bold marks the best value in a column; lower is better. Source: authors' calculations from the 2025 Survey of Consumer Finances.}
 
-\begin{table}[p]
-\centering
-\footnotesize
-\resizebox{\textwidth}{!}{\input{tables/harness_2025}}
-\caption{Table~\ref{tab:harness} on the 2025 wave: the population view,
-minimal profile, with the \scf{} 2025 donor.}
-\label{tab:harness-2025}
-\end{table}
+\landscapefloat{table}{The population-view experiment on the 2025 wave, minimal profile}{tab:harness-2025}{%
+\generatedtable{harness_2025}}{%
+Notes: Table~\ref{tab:harness} rerun with the \scf{} 2025 donor: the same receiver subsample, seeds, columns and conventions. The first row is the sampling-noise floor. Cells are means over ten paired donor splits, with the standard deviation in parentheses. Energy distance and net-worth $W_1$/sd: lower is better. Coverage: higher is better. C2ST AUC: 0.5 is indistinguishable from the holdout. Net-worth q99 ratio: one is a perfect extreme tail. Bold marks the best non-reference value in a column. Source: authors' calculations from the 2025 Survey of Consumer Finances and the 2025 \cps{} ASEC.}
 
-\begin{table}[p]
-\centering
-\footnotesize
-\resizebox{\textwidth}{!}{\input{tables/harness_scale_2025}}
-\caption{Table~\ref{tab:harness-scale} on the 2025 wave: the population view,
-production-scale profile, with the \scf{} 2025 donor.}
-\label{tab:harness-scale-2025}
-\end{table}
+\landscapefloat{table}{The population-view experiment on the 2025 wave, production-scale profile}{tab:harness-scale-2025}{%
+\generatedtable{harness_scale_2025}}{%
+Notes: Table~\ref{tab:harness-scale} rerun with the \scf{} 2025 donor: the same receiver subsample, seeds, columns and conventions. The first row is the sampling-noise floor. Cells are means over ten paired donor splits, with the standard deviation in parentheses. Energy distance and net-worth $W_1$/sd: lower is better. Coverage: higher is better. C2ST AUC: 0.5 is indistinguishable from the holdout. Net-worth q99 ratio: one is a perfect extreme tail. Bold marks the best non-reference value in a column. Source: authors' calculations from the 2025 Survey of Consumer Finances and the 2023--2025 \cps{} ASEC.}
 
 \clearpage

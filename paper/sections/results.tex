@@ -26,16 +26,9 @@ for fragility.
 \subsection{Wealth within the SCF}
 \label{sec:results-scf}
 
-\begin{table}[t]
-\centering
-\footnotesize
-\resizebox{\textwidth}{!}{\input{tables/scf_wealth}}
-\caption{Wealth imputation within the \scf{} (debt and net worth from
-demographics and income): weighted pinball loss, Wasserstein-1 to the weighted
-donor distribution, and zero-share error, mean (sd) over ten paired seeds.
-Bold marks the best non-reference value per column. Lower is better.}
-\label{tab:scf-wealth}
-\end{table}
+\landscapefloat{table}{Wealth imputation within the \scf{}}{tab:scf-wealth}{%
+\generatedtable[2pt]{scf_wealth}}{%
+Notes: Debt and net worth are imputed from demographics and income, within the 2022 \scf{}. Columns give the weighted pinball loss, the Wasserstein-1 distance to the weighted donor distribution ($W_1$), and the absolute error in the share of zeros, in 2022 dollars except the zero share. Cells are means over the ten paired seeds, with the standard deviation across seeds in parentheses. Bold marks the best value in a column; lower is better. Indented rows are the full estimator with design choices knocked out or, for net worth derived, with net worth computed from imputed components; the other rows are baselines (Table~\ref{tab:methods}). Source: authors' calculations from the 2022 Survey of Consumer Finances.}
 
 Table~\ref{tab:scf-wealth} reports the within-\scf{} task. The headline is the
 weighting ablation: switching the full estimator to \texttt{weights="none"}
@@ -91,30 +84,13 @@ Section~\ref{sec:results-harness}, which scores the joint, is for.
 \subsection{Zero-inflated components and reweighting fragility}
 \label{sec:results-cps}
 
-\begin{table}[t]
-\centering
-\footnotesize
-\resizebox{\textwidth}{!}{\input{tables/cps_components}}
-\caption{Zero-inflated income components in the raw \cps{} (interest and
-dividend income for adults, on a fixed subsample of 20,000 of the file's
-108,044 adults): weighted pinball loss, Wasserstein-1 to the weighted donor
-distribution, and zero-share error, mean
-(sd) over ten paired seeds. Bold marks the best non-reference value per
-column; lower is better.}
-\label{tab:cps-components}
-\end{table}
+\landscapefloat{table}{Zero-inflated income components in the \cps{}}{tab:cps-components}{%
+\generatedtable[3pt]{cps_components}}{%
+Notes: Interest and dividend income are imputed for adults, on a fixed subsample of 20,000 of the file's 108,044 adults. Columns give the weighted pinball loss, the Wasserstein-1 distance to the weighted donor distribution ($W_1$), and the absolute error in the share of zeros. Cells are means over the ten paired seeds, with the standard deviation across seeds in parentheses. Bold marks the best value in a column; lower is better. Indented rows are the full estimator with design choices knocked out or, for net worth derived, with net worth computed from imputed components; the other rows are baselines (Table~\ref{tab:methods}). Source: authors' calculations from the 2025 \cps{} ASEC.}
 
-\begin{table}[t]
-\centering
-\footnotesize
-\resizebox{\textwidth}{!}{\input{tables/fragility}}
-\caption{Reweighting fragility at $\kappa=5$: worst-case single-record share
-of each component's aggregate over bounded multiplicative reweightings, next
-to the held-out truth's own fragility. The target is the truth's exposure ---
-bold marks the closest method; substantially lower means the method fails to
-generate realistic tails, substantially higher means it plants landmines.}
-\label{tab:fragility}
-\end{table}
+\landscapefloat{table}{Reweighting fragility at $\kappa=5$}{tab:fragility}{%
+\generatedtable[3pt]{fragility}}{%
+Notes: Fragility is the worst-case share of a component's aggregate that a single record can carry over bounded multiplicative reweightings. Each component's column is followed by the held-out truth's own fragility. The target is the truth's exposure, and bold marks the closest method: substantially lower means the method fails to generate realistic tails, substantially higher means it plants landmines. Cells are means over the ten paired seeds, with the standard deviation across seeds in parentheses. Indented rows are the full estimator with design choices knocked out or, for net worth derived, with net worth computed from imputed components; the other rows are baselines (Table~\ref{tab:methods}). Source: authors' calculations from the 2025 \cps{} ASEC.}
 
 Table~\ref{tab:cps-components} reports the \cps{} components task. Pinball
 loss barely separates the non-OLS methods --- as a marginal score it is not
@@ -167,19 +143,9 @@ block of the population-view experiment
 \subsection{Ablations: attributing the gains}
 \label{sec:results-ablations}
 
-\begin{table}[t]
-\centering
-\footnotesize
-\resizebox{\textwidth}{!}{\input{tables/ablations}}
-\caption{Paired-seed deltas from the full estimator, mean (sd) over ten
-seeds, for its four ablations: weights off, chaining off, gates off, and
-gates and chaining off. Positive means the ablation is worse on these
-lower-is-better metrics; a delta near zero means the knocked-out design
-choice is inert on that task. On each task's first target (interest, debt)
-there is nothing to chain on, so the chaining column is zero and the two
-gates-off columns agree.}
-\label{tab:ablations}
-\end{table}
+\landscapefloat{table}{Paired-seed deltas from the full estimator for its four ablations}{tab:ablations}{%
+\generatedtable[2pt]{ablations}}{%
+Notes: The ablations are weights off, chaining off, gates off, and gates and chaining off. Each cell is the mean over ten seeds of the ablation's metric minus the full estimator's on the same split, with the standard deviation of that difference in parentheses. Positive means the ablation is worse on these lower-is-better metrics; a delta near zero means the knocked-out design choice is inert on that task. On each task's first target (interest, debt) there is nothing to chain on, so the chaining column is zero and the two gates-off columns agree. Source: authors' calculations from the 2025 \cps{} ASEC and the 2022 Survey of Consumer Finances.}
 
 Table~\ref{tab:ablations} attributes the full estimator's behavior to its
 design choices. Each cell answers one question: on the same ten splits, how
@@ -211,21 +177,9 @@ OpenML suite (Section~\ref{sec:results-openml}).
 \subsection{Cross-dataset transfer}
 \label{sec:results-openml}
 
-\begin{table}[t]
-\centering
-\footnotesize
-\resizebox{\textwidth}{!}{\input{tables/openml}}
-\caption{Wasserstein-1 to the donor distribution across the six OpenML
-regression datasets (uniform weights), mean over ten paired seeds, with mean
-rank across datasets among the ten methods shown. The two unchained arms are
-omitted: with a single target they coincide with their chained
-counterparts. So is the random hot deck, which under uniform weights is the
-weighted random one. The two datasets with
-more than 20,000 rows (\texttt{house\_sales}, 21,613, and
-\texttt{onlinenewspopularity}, 39,644) are capped at 20,000 by a fixed
-uniform subsample.}
-\label{tab:openml}
-\end{table}
+\landscapefloat{table}{Wasserstein-1 distance to the donor distribution on six OpenML regression datasets}{tab:openml}{%
+\generatedtable[3pt]{openml}}{%
+Notes: All six tasks have uniform weights and one target. Cells are means over ten paired seeds; the last column is the mean rank across datasets among the ten methods shown, and bold marks the best. The two unchained arms are omitted: with a single target they coincide with their chained counterparts. So is the random hot deck, which under uniform weights is the weighted random one. The two datasets with more than 20,000 rows (\texttt{house\_sales}, 21,613, and \texttt{onlinenewspopularity}, 39,644) are capped at 20,000 by a fixed uniform subsample. Source: authors' calculations from OpenML.}
 
 Table~\ref{tab:openml} runs the surface over the six OpenML regression
 datasets under uniform weights. Two observations. First, with weights
@@ -246,34 +200,13 @@ The population-view harness exists because of exactly this ceiling.
 \subsection{The SCF\texorpdfstring{$\to$}{->}CPS population view}
 \label{sec:results-harness}
 
-\begin{table}[t]
-\centering
-\footnotesize
-\resizebox{\textwidth}{!}{\input{tables/harness}}
-\caption{The population-view experiment, \emph{minimal} profile (six shared
-predictors, two targets, a fixed subsample of 20,000 of the 55,762 ASEC 2025
-receiver households): candidates assembled from real
-\cps{} demographics plus each method's imputed wealth, under \cps{}
-household weights, scored against the held-out \scf{} through the \scf{}
-view. The first row is the sampling-noise floor; cells are mean (sd) over
-the ten paired donor splits. Energy distance lower is better; coverage
-higher; C2ST AUC of 0.5 is indistinguishable; net-worth $W_1$/sd lower is
-better; a q99 ratio of 1 is a perfect extreme tail. Bold marks the best
-non-reference value per column under those conventions.}
-\label{tab:harness}
-\end{table}
+\landscapefloat{table}{The population-view experiment, minimal profile}{tab:harness}{%
+\generatedtable[3pt]{harness}}{%
+Notes: Six shared predictors, two targets, and a fixed subsample of 20,000 of the 55,762 ASEC 2025 receiver households. Candidates are assembled from real \cps{} demographics plus each method's imputed wealth, under \cps{} household weights, and scored against the held-out \scf{} through the \scf{} view. The first row is the sampling-noise floor: another sample of the \scf{} itself. Cells are means over the ten paired donor splits, with the standard deviation in parentheses. Energy distance: lower is better. Coverage: higher is better. C2ST AUC: 0.5 is indistinguishable from the holdout. Net-worth $W_1$/sd: lower is better. Net-worth q99 ratio: 1 is a perfect extreme tail. Bold marks the best non-reference value in a column under those conventions. Indented rows are the full estimator with design choices knocked out or, for net worth derived, with net worth computed from imputed components; the other rows are baselines (Table~\ref{tab:methods}). Source: authors' calculations from the 2022 Survey of Consumer Finances and the 2025 \cps{} ASEC.}
 
-\begin{table}[t]
-\centering
-\footnotesize
-\resizebox{\textwidth}{!}{\input{tables/harness_scale}}
-\caption{The population-view experiment, \emph{production-scale} profile (ten
-shared predictors, four chain-ordered balance-sheet targets, a fixed
-subsample of 20,000 of the 168,852 pooled ASEC 2023--2025 receiver
-households). Columns, cell format, and bolding as in
-Table~\ref{tab:harness}.}
-\label{tab:harness-scale}
-\end{table}
+\landscapefloat{table}{The population-view experiment, production-scale profile}{tab:harness-scale}{%
+\generatedtable[3pt]{harness_scale}}{%
+Notes: Ten shared predictors, four chain-ordered balance-sheet targets, and a fixed subsample of 20,000 of the 168,852 pooled ASEC 2023--2025 receiver households. Candidates are assembled from real \cps{} demographics plus each method's imputed wealth, under \cps{} household weights, and scored against the held-out \scf{} through the \scf{} view. The first row is the sampling-noise floor. Cells are means over the ten paired donor splits, with the standard deviation in parentheses. Energy distance: lower is better. Coverage: higher is better. C2ST AUC: 0.5 is indistinguishable from the holdout. Net-worth $W_1$/sd: lower is better. Net-worth q99 ratio: 1 is a perfect extreme tail. Bold marks the best non-reference value in a column. Indented rows are the full estimator with design choices knocked out or, for net worth derived, with net worth computed from imputed components; the other rows are baselines (Table~\ref{tab:methods}). Source: authors' calculations from the 2022 Survey of Consumer Finances and the 2023--2025 \cps{} ASEC.}
 
 Tables \ref{tab:harness} and \ref{tab:harness-scale} report the
 population-view experiment in its two profiles. The floor behaves as designed

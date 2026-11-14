@@ -25,6 +25,14 @@ uv run imp figures runs/toy-sweep   # aggregates to summary.csv / summary.tex
 quarto render paper/index.qmd       # builds the manuscript
 ```
 
+The manuscript follows the International Journal of Microsimulation's
+submission format: APA references (`apacite`), float labels above and notes
+below, float text in a 10 pt sans serif, and wide floats on landscape pages
+(`pdflscape`, `afterpage`, `longtable`, `caption`). `paper/ijm.sty` and
+`paper/ijmarticle.cls` hold the layout. A TeX distribution without those
+packages needs them installed first; Quarto's TinyTeX fetches missing
+packages on the first build.
+
 ### SCF 2025 replication
 
 The paper's SCF experiments run on the 2022 wave. The 2025 wave (released
@@ -123,7 +131,7 @@ each package: `populace-fit` and `populace-frame` at the pinned commit, or
   donor/receiver splits, the condition runner.
 - `src/imputation_paper/cli/` — `imp demo` / `imp sweep` / `imp figures`.
 - `paper/` — Quarto + LaTeX manuscript (IJM style), sections under
-  `paper/sections/`.
+  `paper/sections/`, generated tables under `paper/tables/`.
 - `runs/` — sweep artifacts (`metrics_long.csv`, `skipped.csv`, summaries);
   large data artifacts stay out of git.
 
