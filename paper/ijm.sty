@@ -47,7 +47,12 @@
 
 % Interior font of a float, with a little air between table rows.
 \newcommand{\tablefont}{\fontsize{10}{12}\selectfont\sffamily
-  \renewcommand{\arraystretch}{1.15}}
+  \renewcommand{\arraystretch}{1.15}\ijm@blacklinks}
+
+% Cross-references inside a float and its notes print in black, not in the
+% link colour of the running text.
+\newcommand{\ijm@blacklinks}{%
+  \hypersetup{linkcolor=black,citecolor=black,urlcolor=black}}
 
 % \fitwidth{<material>}: the material at its natural size, or scaled down to
 % the line width if it is wider. No float should need the scaling at present;
@@ -56,6 +61,8 @@
 \newcommand{\fitwidth}[1]{%
   \sbox{\ijm@fitbox}{#1}%
   \ifdim\wd\ijm@fitbox>\linewidth
+    \PackageWarning{ijm}{A float is wider than the line
+      (\the\wd\ijm@fitbox\space against \the\linewidth) and was scaled}%
     \resizebox{\linewidth}{!}{\usebox{\ijm@fitbox}}%
   \else
     \usebox{\ijm@fitbox}%
