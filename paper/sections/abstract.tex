@@ -1,30 +1,28 @@
 \section*{Abstract}
 
-Policy microsimulation models rely on imputation to attach variables one
-survey observes to records from another, and the imputed file is then
-reweighted downstream: calibrated to administrative totals, filtered to
-subpopulations, stressed under reform scenarios. Fitting imputation models
-to survey records while ignoring their design weights biases imputed
-conditionals toward the sample rather than the population. We present the imputation operator of \populace{},
-\policyengine{}'s open-source microdata stack: a regime-gated, sequentially
-chained, weighted-bootstrap quantile-regression-forest estimator whose
-interface makes an unweighted fit impossible to request by accident. To
-evaluate it we formalize a \emph{population-view harness}: one latent
-population observed through survey views, with any candidate weighted file
-scored by projecting it through each view against that survey's holdout.
-Benchmarks against standard methods on four task families knock out each
-design choice.
-Fit without weights, the identical estimator is six times worse on
+Microsimulation models impute variables from one survey onto another's
+records, and users reweight the result. A model fitted without the
+survey's design weights learns the sample's conditional distributions, not
+the population's. We present the imputation estimator of \populace{},
+\policyengine{}'s open-source microdata stack: a quantile regression forest
+with a weighted bootstrap, sign-regime gates, and sequential chaining, whose
+interface requires the weights. To evaluate it we formalize a
+\emph{population-view harness}, which scores a candidate file against each
+survey's holdout through that survey's view of one latent population.
+Ablations remove one design choice at a time. On the 2022 Survey of Consumer
+Finances, the estimator fitted without weights is six times worse on
 net-worth marginal fit and imputes a 99th percentile 1.9 to 2.3 times the
-holdout's --- an inflation that capped joint-geometry metrics miss and an
-uncapped tail axis detects. With its gates off, it misses the
-dividend zero share by 7.2 percentage points, not 0.6. Fitting four
-balance-sheet components independently costs 5.8 points of classifier
-two-sample AUC; the accounting identity recovers them, and chaining adds
-1.2. A hot deck that draws donors in proportion to weight matches the
-estimator on marginal fit within a survey and trails it by 1.6 to 2.9 AUC
-points across surveys. The estimator is available standalone as
-\populacefit{}, and every number regenerates from the repository.
+holdout's, which capped joint-geometry metrics miss and an uncapped tail
+axis detects. With its gates off, it misses the dividend zero share by 7.2
+percentage points instead of 0.6. Fitting four balance-sheet components
+independently costs 5.8 points of classifier two-sample AUC; the accounting
+identity recovers them, and chaining adds 1.2. A hot deck that draws donors
+by weight matches the estimator on within-survey marginal fit and scores 1.6
+to 2.9 AUC points behind it across surveys, about one standard deviation of
+sampling noise. The estimator's imputed 99th percentile is 23 to 30
+percent below the holdout's. A pre-registered rerun on the 2025 wave
+replicates six of eight headline findings and ten of nineteen others; five
+do not replicate. The estimator is available standalone as \populacefit{}.
 
 \vspace{1em}
 \noindent\textbf{Keywords:} imputation, survey weights, quantile regression

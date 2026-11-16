@@ -11,8 +11,8 @@
 Every \scf{} experiment in the body of the paper uses the 2022 wave, and
 every design decision in the estimator and the harness was made with 2022
 results in view. The Federal Reserve released the 2025 wave in October 2026
-\citep{fed2026scf}. We reran all three \scf{} experiments on it --- the
-within-\scf{} task and both profiles of the population view --- with the same
+\citep{fed2026scf}. We reran all three \scf{} experiments on it (the
+within-\scf{} task and both profiles of the population view) with the same
 code, locked environment, seeds, protocol, and receiver files (ASEC 2025 for
 the minimal profile, pooled ASEC 2023--2025 at production scale); only the donor
 wave changed. Before any method was fit on the new wave we committed a file
@@ -93,7 +93,7 @@ candidate's; on the four-component balance sheet unchaining costs
 (\rep{scale-auc-unchained-gap:2022} in 2022), on
 \rep{seeds-scale-auc-unchained:2025} of ten seeds, and the ungated forest
 loses \rep{scale-auc-forest-gap:2025} points. The classifier separates the
-unconditional marginal draw as sharply as before (AUC
+unconditional marginal draw as widely as before (AUC
 \rep{scale-auc-marginal:2025} against the candidate's
 \rep{scale-auc-candidate:2025} at scale), and within the \scf{} the same draw
 again posts the best pinball loss on both targets. That last result is a
