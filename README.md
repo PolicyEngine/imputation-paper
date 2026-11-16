@@ -61,7 +61,10 @@ survey year's dollars by default. From the re-issued copy that recovers the
 paper's 2022 inputs only to rounding error, and the forest-based methods
 are sensitive to it, so reproducing the committed 2022 runs exactly needs
 the original file (SHA-256 `3bb4d890…c9d80`), which the Fed no longer
-serves. With the default OpenMP thread count (one per
+serves. `runs/scf-wealth-2022-from-reissue` is the within-SCF sweep run from
+the re-issued copy (`IMPUTATION_PAPER_CACHE` pointed at a directory holding
+only that file), and `imp replication` reports how far it sits from the
+committed runs. With the default OpenMP thread count (one per
 core), several runs side by side oversubscribe the CPU; on a loaded machine
 cells ran many times slower. With one thread per run the 2022
 rerun reproduces the committed runs (see the comparison document's

@@ -49,10 +49,14 @@ to 2025 dollars (every dollar column multiplied by the CPI-U-RS ratio
 earlier, 2022-dollar file, and they regenerate exactly only from that file.
 The repository's loader accepts only files it can identify by hash. Given
 the re-issued copy it divides the dollar columns back, which recovers the
-original values to rounding error and not bit for bit. The forest-based
-methods are not invariant to changes of unit (see Diagnostics), so a run
-from the re-issued copy is not expected to reproduce the committed 2022 rows
-exactly, and we do not claim that it does. The comparisons below are
+original values to rounding error and not bit for bit. That is enough to
+move the results. Rerunning the within-\scf{} task from the re-issued copy,
+\rep{reissue:rows-identical} of \rep{reissue:rows} metric rows equal the
+committed ones and \rep{reissue:rows-rounding} agree with them to rounding.
+Ten-seed mean $W_1$ moves by up to \rep{reissue:w1-shift-max} percent, and
+the largest change in any ten-seed mean is \rep{reissue:mean-shift-max}
+percent. OLS and the marginal draw change only by rounding, and the other
+methods by more. The comparisons below are
 scale-free or within-wave ratios. Dollar levels in the verdict tables are in each wave's own dollars.
 
 \paragraph{Rules.} Within the \scf{}, a claim that method B is worse than
