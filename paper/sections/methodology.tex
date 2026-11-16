@@ -92,9 +92,9 @@ QRF (\microimpute{}) & design & no & yes & \microimpute{} QRF, as shipped \\
 OLS & design & no & no & \microimpute{} \\
 Linear quantile regression & design & no & no & \microimpute{} \\
 NND hot deck & standardization only & \multicolumn{2}{l}{via donation} & \pystatmatch{}, nearest donor \\
-Random hot deck & standardization only & \multicolumn{2}{l}{via donation} & \pystatmatch{}, equal-chance draw \\
+Random hot deck & standardization only & \multicolumn{2}{l}{via donation} & \pystatmatch{}, RANDwNND, equal chances \\
 Weighted random hot deck & standardization, donor choice & \multicolumn{2}{l}{via donation} & \pystatmatch{}, weighted draw (RANDwNND) \\
-Constrained hot deck & standardization only & \multicolumn{2}{l}{via donation} & \pystatmatch{}, capped donor use \\
+Constrained hot deck & standardization, exact ties & \multicolumn{2}{l}{via donation} & \pystatmatch{}, capped donor use \\
 Weighted marginal draw & design & --- & --- & unconditional weighted draw \\
 \hline
 \end{tabular}}}{%
@@ -110,9 +110,10 @@ and it draws through its own sampler, so it is not a knockout of the full
 estimator. The hot decks donate all target
 values from one matched donor record, which preserves zero masses and
 cross-target structure by construction rather than by modeling them; they
-differ in which donor is taken, and only the weighted random hot deck uses
-the donor weights for that choice. The random hot deck is its control: the
-same draw with the weights left out.}
+differ in which donor is taken, and only the weighted random hot deck draws
+its donor by weight. The random hot deck is its control: the same draw among
+the nearest donors with the weights left out. The constrained hot deck uses
+the weights only to break exact ties in distance.}
 
 Table~\ref{tab:methods} lays out the method surface. Each design choice is
 evaluated by knocking it out with everything else held fixed: the full
@@ -128,9 +129,12 @@ estimator is fitted as usual, and the constant is subtracted from the draws.
 The weighted bootstrap, the forests, the draw, and the chaining are the
 estimator's own; the one difference is that a single forest covers all rows,
 zeros included, where the full estimator has a classifier and a forest per
-sign. A target that already has one sign class is not shifted, and there the
-ablation is the full estimator. Knocking out gates and chaining together
-completes a two-by-two design.
+sign. The shift is exact in the data and not in floating point, where a
+large constant can change which of two near-tied splits a tree takes, so
+the ablation matches the estimator only up to that noise. A target that
+already has one sign class is not shifted, and there the ablation is the
+full estimator. Knocking out gates and chaining together completes a
+two-by-two design, which shows where the two interact.
 
 Where the targets satisfy an accounting identity, a practitioner would impute
 all but one of them and compute the last. The net-worth-derived variants do
@@ -171,16 +175,17 @@ donors with equal probability. It is a control and not a recommendation:
 the pair separates what the weights contribute from what the draw itself
 does, and under equal weights the two coincide. The constrained hot deck finds the assignment
 of least total distance in which no donor serves more than
-$\lceil n_{\text{receivers}} / n \rceil$ receivers; the cap counts receivers
-and does not use the weights. Its assignment problem is dense, and at the
+$\lceil n_{\text{receivers}} / n \rceil$ receivers. The cap counts receivers,
+and the weights enter that assignment only to break exact ties in distance,
+in favour of the higher-weight donor. Its assignment problem is dense, and at the
 population view's 20,000 receivers one split took thirteen minutes against
 seconds for every other method, so it is run on the within-survey tasks only.
 
 \subsection{The population-view harness}
 \label{sec:harness}
 
-Per-variable metrics cannot settle the question this paper asks, because
-the methods differ most in how they treat the \emph{joint}. We
+Per-variable metrics cannot settle the question this paper asks, because a
+marginal metric cannot tell a conditional method from an unconditional one. We
 therefore evaluate within a framework we call the population-view harness,
 sketched in Figure~\ref{fig:harness}.
 
@@ -230,10 +235,12 @@ $k$-nearest-neighbour radius. It asks whether the candidate reaches every
 neighbourhood the holdout occupies, which makes it the axis that detects
 collapse. Because it depends on the candidate only through its
 \emph{support}, it is by definition invariant to any reweighting of the
-candidate, and it is the one block a later calibration cannot change. As
+candidate, and it is in principle the one block a later calibration cannot
+change. As
 implemented, each sample
 larger than 2,048 points is first reduced to that size by a
-weight-proportional resample (the cap the energy distance shares). The
+weight-proportional resample (the cap the energy distance of
+Equation~\ref{eq:energy} shares). The
 candidate always is, so the reported coverage is invariant to reweighting
 only up to that resample.
 
@@ -251,10 +258,13 @@ can.
 fourth block after the first three missed a failure. Pairwise
 sample-geometry metrics run on capped subsamples, and a candidate whose
 imputed wealth 99th percentile is double the holdout's can still tie on
-energy distance, because the discrepant mass occupies a small part of
-standardized pairwise space. Wealth and income have heavy right tails, so
+energy distance. We attribute that to the small part of standardized
+pairwise space the discrepant mass occupies. The classifier, which uses
+every row, tied as well, and we did not vary the cap. Wealth and income
+have heavy right tails, so
 each \emph{imputed} column also carries a tail block computed on the full weighted samples with
-no cap: its weighted Wasserstein-1 distance to the holdout, scaled by the
+no cap: its weighted Wasserstein-1 distance (Equation~\ref{eq:w1}) to the
+holdout, scaled by the
 holdout's weighted standard deviation, and its weighted 90th- and
 99th-percentile ratios (candidate over holdout).
 

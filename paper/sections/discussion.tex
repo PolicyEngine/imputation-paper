@@ -2,69 +2,94 @@
 \label{sec:discussion}
 
 The ablations attribute the estimator's behavior to its three design
-choices. \emph{Weighting has the largest effect where the design is
-informative}, which in this paper means the \scf{}. Its list sample
-oversamples wealthy households, and removing the weighted bootstrap costs a
-factor of six on net-worth marginal fit within the donor survey and inflates
-the imputed 99th percentile on the population view by a factor of 1.9 to
-2.3. That effect is larger than the gap between the full estimator and every
-competing method except OLS and the random hot deck, whose draw is
-weight-blind too. On the \cps{} components task, whose person weights carry little outcome
-information, weighting matters less: removing it raises dividend $W_1$
-by about a third and leaves the other metrics within seed noise. An estimator cannot know in
-advance which regime it is in, which is the argument for weighting by
-construction rather than by option. \emph{Gating carries the zero mass}:
-with its gates off, the same estimator misses the dividend zero share by 7.2
-percentage points instead of 0.6, and the \scf{} debt zero share by 7.2
-instead of 2.0, because a forest that pools leaf samples over-draws an atom
-at zero. On the population view's joint scores every gates-off row sits
+choices. \emph{Of the three, weighting has the largest effect, where the
+design is informative}, which in this paper means the \scf{}. Its list
+sample oversamples wealthy households. Without the weighted bootstrap the
+estimator is six times worse on net-worth marginal fit within the donor
+survey (4.3 times on the 2025 wave), and on the population view its imputed
+99th percentile is 1.9 to 2.3 times the holdout's (1.8 on the 2025 wave),
+against 0.70 to 0.77 with the weights. That effect is larger than the gap
+between the full estimator and every competing method except OLS and the
+random hot deck, whose draw is weight-blind too. On the \cps{} components
+task, whose person weights carry little outcome information, no effect of
+weighting exceeds its dispersion across seeds (dividend $W_1$ rises by 36,
+sd 47, without it). An estimator cannot know in advance which regime it is
+in, which is the argument for weighting by construction rather than by
+option. The weighted fit has a cost of its own on the population view, where
+it understates the 99th percentile and the unweighted fit overstates it.
+\emph{Within the estimator, gating carries the zero mass}: with its gates
+off, it misses the dividend zero share by 7.2 percentage points instead of
+0.6 (4.3 with chaining off as well), and the \scf{} debt zero share by 7.2
+instead of 2.0. The mechanism we propose, a forest that pools leaf samples
+over-drawing an atom at zero, is reproduced by a synthetic test and is not
+measured in these runs, which record the size of a miss and not its sign.
+Methods that donate or resample observed values hold the zero share without
+a gate. On the population view's joint scores every gates-off row sits
 within one floor standard deviation of its gated counterpart.
-\emph{Chaining matters only where the targets are jointly constrained, and
-there most of its effect is the constraint}. With two loosely coupled
-targets the unchained ablation stays within half a floor standard deviation
-of the full estimator, while fitting four balance-sheet components
-independently costs 5.8 AUC points. Computing net worth from three
+\emph{Chaining matters where the targets are jointly constrained, and
+there most of its effect is the constraint}. In the two-target task the
+unchained ablation stays within half a floor standard deviation of the full
+estimator, while fitting four balance-sheet components independently costs
+5.8 AUC points (4.9 on the 2025 wave). Computing net worth from three
 independently imputed components recovers that, and chaining those three
-adds 1.2 points more. Only the omnibus classifier registers any of it,
-because a balance sheet that does not add up can leave every marginal
-intact. On this balance sheet, imposing the identity did better than
-learning it. Where
-a choice does not bind, its cost is small: the unweighted ablation is slightly
-ahead on \scf{} debt zero share and on the uniform-weight OpenML suite.
+scores 1.2 points lower still, which is about half a floor standard
+deviation and holds on all ten paired seeds. On the 2022 wave only the
+omnibus classifier registers any of it, because a balance sheet that does
+not add up can leave every marginal intact; on the 2025 wave the unchained
+net-worth $W_1$/sd also rises, from 0.048 to 0.062. On this balance sheet,
+imposing the identity did better than learning it, by 1.7 points (0.8 floor
+standard deviations; 2.5 points on the 2025 wave). Where
+a choice does not bind, its cost is small: on the 2022 wave the unweighted
+ablation is slightly ahead on \scf{} debt zero share, and it is ahead on the
+uniform-weight OpenML suite.
 
-Against matching, what the estimator adds is on the joint, and it is modest.
+Against matching, what the estimator adds is on the joint, and it is within
+about one floor standard deviation.
 A hot deck that draws its donor among the nearest in proportion to weight
 equals the full estimator on within-survey marginal fit, where the
 nearest-neighbour hot deck is 3.7 times worse on \scf{} net worth. That gap
-is weight-blind donor choice, not matching. On the \scf{}, whose weights
-are informative, the same draw without the weights closes none of it; on
+is weight-blind donor choice, not matching. On the 2022 \scf{}, whose
+weights are informative, the same draw without the weights closes none of
+it (about a quarter on the 2025 wave); on
 the \cps{}, whose weights carry little outcome information, the draw closes
 it with or without them. All four hot decks preserve the zero mass by
 donation. On the population view the order reverses: the weighted random
 hot deck is weaker than the nearest-neighbour one on the classifier score
-and on the extreme tail, and the full estimator's AUC is lower than both in
-the minimal profile (by 2.1 and 2.9 points) and, with net worth derived, at
-production scale (by 2.4 and 3.3). Those margins are one to one and a half
-times the floor's seed-to-seed standard deviation.
+and, on the 2022 wave, on the extreme tail (on the 2025 wave at production
+scale its tail is the better of the two). The full estimator's AUC is lower
+than both hot decks' in the minimal profile (by 2.1 and 2.9 points). At
+production scale it is lower by 0.7 and 1.6 points as specified, and by 2.4
+and 3.3 with net worth derived. Those margins run from a third of the
+floor's seed-to-seed standard deviation to one and a half times it, and on
+the 2025 wave at scale the nearest-neighbour hot deck's AUC is the lower of
+the two by 0.3 points. The constrained hot deck, which has the best marginal
+fit on several within-survey columns, was not run on the population view,
+so its joint scores are unknown.
 
 Two findings concern evaluation, and one of them changed this paper's own
-harness. First, marginal metrics saturate. With weak predictors, an
-unconditional weighted draw from the donor marginal posts the best pinball
-loss on the \scf{} and ties for second of the ten methods on the OpenML
-suite while carrying no conditional structure, and at production scale the
-classifier separates it from the holdout at an AUC of 0.968, against the
-full estimator's 0.761. Second, the joint metrics have a blind spot of
-their own. Capped pairwise geometry tied the unweighted ablation with the
+harness. First, two marginal scores do not separate an unconditional draw
+from conditional methods. An unconditional weighted draw from the donor
+marginal posts the best pinball loss on the \scf{} as coded (read under
+receiver weights it ties the full estimator) and ties for second of the ten
+methods on the OpenML suite while carrying no conditional structure. On the
+four within-survey $W_1$ columns it ranks sixth or seventh of thirteen. At
+production scale the classifier separates it from the holdout at an AUC of
+0.968, against the full estimator's 0.761. Second, the joint blocks have a
+blind spot of their own. All three tied the unweighted ablation with the
 full estimator while its imputed net-worth 99th percentile was double the
-holdout's, because the discrepant mass occupies a small part of
-standardized pairwise space. We found this by comparing weighted quantiles
+holdout's. For the two capped blocks we attribute that to the small part of
+standardized pairwise space the discrepant mass occupies, but the
+classifier uses every row and tied too, and we did not vary the cap. We
+found the inflation by comparing weighted quantiles
 directly and added the uncapped tail block to the harness. We take from it
 that sample-geometry evaluations of heavy-tailed microdata should carry an
 explicit tail axis, with a sampling floor to calibrate its noise (the
 floor's own q99 ratio averages 1.10). The fragility diagnostic adds a
 related caution: the target is the truth's own tail exposure, not minimal
 exposure, and the one method that minimizes it (OLS, at factors of 7 to 11
-below truth) does so by failing to generate realistic tails.
+below truth) does so because, as implemented here, its draws do not reach
+realistic tails. On the within-survey task where we ran it, the diagnostic
+did not separate the weighted fit from the unweighted one.
 
 Several limitations bound the claims. First, the population-view experiment
 runs one view pair: the common \cps{}--\scf{} offset (differing income
@@ -74,16 +99,21 @@ candidate can come to the floor. A multi-view instantiation (one candidate
 scored simultaneously against \cps{}, \sipp{} \citep{census2023sipp}, and
 \psid{} \citep{psid2023} views) would tighten the identification and is
 the production release-gate use of the harness; we leave it to future work
-(\psid{} access requires registration), since the two-view experiment
-already identifies the joint-structure differences this paper is about. Second, the joint-geometry blocks still run
+(\psid{} access requires registration). The two-view experiment identifies
+the chaining and unconditional-draw differences; the differences between the
+estimator and the hot decks are within about one and a half floor standard
+deviations. Second, the joint-geometry blocks still run
 on weight-proportional subsamples (2,048 points per side); the tail block and
 the C2ST, which use all rows, are the axes least affected. Third, the full
 estimator understates the extreme tail on the population view: its imputed
-net-worth q99 is 0.70 to 0.77 of the holdout's. The nearest-neighbour hot
+net-worth q99 is 0.70 to 0.77 of the holdout's. On the 2022 wave the
+nearest-neighbour hot
 deck shows the same shortfall (0.75 to 0.76), the weighted random hot deck a
 larger one (0.52 to 0.60), and the unconditional marginal draw none
 (1.09 to 1.12), so the cause is not specific to forest draws; this
-experiment does not isolate it. The tail block keeps the shortfall visible,
+experiment does not isolate it. On the 2025 wave the estimator's ratio is
+0.63 to 0.64, and donor reuse lifts the nearest-neighbour hot deck's to
+2.85 at production scale. The tail block keeps the shortfall visible,
 and it is a caution against reading the full estimator's wins as uniform.
 The OLS and quantile-regression baselines are additionally converted to
 samplers through a 99-level grid, truncating draws beyond the 1st and 99th
@@ -98,17 +128,34 @@ target of a row is read at the same quantile index, which bears on its
 joint score with four chained targets (AUC 0.817). Fifth,
 comparisons hold shared forest backends and default hyperparameters fixed
 rather than tuning each method per task; the four ablations are exact
-controls, the cross-family comparisons are defaults-versus-defaults. Sixth,
+controls, the cross-family comparisons are defaults-versus-defaults. That
+comparison is not symmetric. The estimator's defaults were set with the
+2022 \scf{} results in view, and the targets were chosen to exercise its
+gates and chaining, while the baselines were not tuned to these tasks. The
+2025 wave is the only \scf{} data no design decision saw. Sixth,
 two arms are evaluated on part of the surface only. The constrained hot
-deck's assignment problem is too large at the population view's 20,000
-receivers, so it is absent there, and the gates are tested on targets whose
+deck took thirteen minutes per split at the population view's 20,000
+receivers, against seconds for every other method, and was not run there,
+and the gates are tested on targets whose
 sign classes are all common, not on a rare class. Seventh, the population
 view does not put the two surveys' incomes on a common dollar basis: the
 \scf{}'s are in survey-year dollars and the ASEC's in each income year's.
 Re-basing the 2022 donor to 2025 dollars, with nothing else changed, lowers
 the full estimator's net-worth q90 ratio at production scale from 1.00 to
 0.89 (Appendix~\ref{app:scf2025}), so tail ratios on this view carry that
-offset. Finally, we evaluate single
+offset. On the 2025 wave the ratio is \rep{scale-q90-candidate:2025}, and
+the re-basing accounts for part of that fall. Eighth, three sources of
+variation sit outside the seed-to-seed spread used throughout. Every \scf{}
+run uses the first of the survey's five implicates and none uses its
+replicate weights, so the spread carries neither imputation nor sampling
+variance. A pure change of dollar units moves the forest-based methods'
+ten-seed $W_1$ means by up to \rep{units:forest-max} percent
+(Appendix~\ref{app:scf2025}), which is the size of some differences read
+above. And at production scale the full estimator's AUC varies more across
+seeds than any other non-OLS row's (a standard deviation of 0.026, and
+0.048 on the 2025 wave, against 0.015 or less). One seed in each wave
+accounts for most of that (0.829 and 0.889), and we have not examined why.
+Finally, we evaluate single
 imputations distributionally and do not propagate imputation uncertainty in
 the multiple-imputation sense \citep{rubin1987multiple}; for the population
 statistics microsimulation consumes, the distributional view is the relevant

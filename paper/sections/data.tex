@@ -1,7 +1,7 @@
 \section{Data and tasks}
 \label{sec:data}
 
-Four task families span the settings the estimator is used in. Where a task
+Four task families cover the settings studied here. Where a task
 imputes within one survey, the protocol of Section~\ref{sec:protocol} applies:
 80/20 donor/receiver holdouts repeated over ten paired seeds. The
 population-view experiment additionally projects candidates onto a second
@@ -18,7 +18,7 @@ impute \texttt{debt} (zero-inflated and nonnegative) and \texttt{networth}
 (sign-mixed, with a heavy right tail) from age, sex,
 education class, marital status, children, total income, and wage income.
 The two targets are chosen deliberately: their sign structures exercise the
-regime gates, and their strong mutual dependence exercises chaining.
+regime gates, and their mutual dependence exercises chaining.
 Appendix~\ref{app:scf2025} reruns this task and both profiles of the next
 on the 2025 wave, which no method here was tuned on.
 
@@ -51,11 +51,13 @@ scale), the same for every method and seed. The candidate population
 is then scored through the harness of Section~\ref{sec:harness} against the
 \emph{held-out} SCF: the joint of shared predictors and wealth, under SCF
 weights. The \texttt{scf\_sample\_reference} rows score the donor split
-itself against the holdout, anchoring the sampling-noise floor. This is the
-paper's direct test of whether conditional-distribution methods preserve
-joint structure that statistical matching under conditional independence
-can lose \citep{rassler2002statistical, dorazio2006statistical}, on a
-receiver file the donor survey never saw. Because the demographic block of every candidate is
+itself against the holdout, anchoring the sampling-noise floor. This
+experiment compares how the methods reproduce the joint of shared
+predictors and wealth on a receiver file the donor survey never saw. The
+conditional independence that statistical matching assumes is one way to
+lose that structure \citep{rassler2002statistical, dorazio2006statistical}.
+Dependence between wealth and variables that only the \cps{} observes is not
+scored, and every method relies on conditional independence there. Because the demographic block of every candidate is
 the same real \cps{} sample, differences between methods isolate the wealth
 block and its coupling to demographics; the shared demographic offset between
 the two surveys is common to all methods and bounded below by the reference
@@ -80,8 +82,7 @@ both with heavy positive tails, which is the structure the gates are built
 for. The task runs on a fixed uniform subsample of 20,000
 of the file's 108,044 adults. Public-use ASEC amounts are topcoded, which truncates the
 extreme tail relative to an administrative or SCF-style source. The fragility
-comparisons of Section~\ref{sec:results-cps} are therefore conservative: an
-untopcoded source would show more concentration.
+values of Section~\ref{sec:results-cps} are those of a topcoded file.
 This task also carries the reweighting stress test of
 Section~\ref{sec:metrics}. The test is motivated by prior \policyengine{}
 production experience, in which an unweighted fit broadcast rare high-value

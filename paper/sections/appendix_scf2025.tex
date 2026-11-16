@@ -94,8 +94,8 @@ within the \scf{} (\rep{nw-w1-unweighted-ratio:2022} in 2022), on
 imputed net-worth q99 is \rep{min-q99-unweighted:2025} and
 \rep{scale-q99-unweighted:2025} times the holdout's
 (\rep{min-q99-unweighted:2022} and \rep{scale-q99-unweighted:2022} in 2022).
-Weighting is again the largest of the three ablation effects. Chaining again
-binds only at scale. With two targets the unchained ablation's AUC sits
+Weighting is again the largest of the three ablation effects. On the
+population view chaining again binds only at scale. With two targets the unchained ablation's AUC sits
 \rep{min-auc-unchained-sd:2025} floor standard deviations from the
 candidate's; on the four-component balance sheet unchaining costs
 \rep{scale-auc-unchained-gap:2025} AUC points
@@ -215,13 +215,14 @@ with nothing else changed, lowers the candidate's ratio at scale to
 \rep{min-q90-candidate:2022} to \rep{min-q90-candidate:rebased}), while the
 marginal draw, which ignores the predictors, does not move. The re-basing
 raises the donor's income predictors against the receiver's incomes, which
-stay in their own years' dollars, so each receiver is matched to donors of
-lower income. Neither wave's experiment puts the two surveys' incomes on a
+stay in their own years' dollars. That is consistent with each receiver
+being matched to donors of lower income, which we did not test. Neither wave's experiment puts the two surveys' incomes on a
 common basis: the 2022 donor's are in 2022 dollars and the 2025 donor's in
 2025 dollars, against receiver incomes for 2022 to 2024 at scale. The rest
 of the fall comes with the 2025 wave, and these runs do not say why.
 
-\paragraph{Method rankings.} Ranking the eight displayed methods in each
+\paragraph{Method rankings.} Ranking the eight methods displayed when the
+rules were frozen in each
 column of the three \scf{} tables, \rep{rank:replicated} of
 \rep{rank:columns} rankings replicated under the pre-registered
 rank-correlation rule, \rep{rank:partly} partly, and \rep{rank:failed} not
@@ -253,7 +254,8 @@ from runs on the same splits and inputs. They are outside the pre-registered
 rules, and no verdict above uses them; where the text above speaks of the
 estimator's ablations or of hot deck, it means the weights-off and
 chaining-off ablations and the nearest-neighbour hot deck. The added rows
-repeat the patterns of the body's tables. The gates-off ablation is the
+repeat, in direction, the patterns the body names. No rule was fixed for
+them in advance. The gates-off ablation is the
 control that G1 lacked: G1 compared the full estimator with the
 \microimpute{} forest, which differs from it in more than the gate. With the
 estimator's own gates off, its debt zero-share error is several times its
