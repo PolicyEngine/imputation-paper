@@ -7,6 +7,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 MANUSCRIPT = ROOT / "paper" / "index.qmd"
+DISCLOSURES = ROOT / "paper" / "sections" / "disclosures.tex"
 
 
 def markdown_lines(text: str) -> Iterator[tuple[int, str]]:
@@ -67,3 +68,19 @@ def test_manuscript_source_has_no_latex_comment_lines():
     # text: it is escaped and printed in the PDF. Comments in the Quarto
     # source are HTML comments; LaTeX comments belong in the .tex sections.
     assert latex_comment_lines(MANUSCRIPT.read_text()) == []
+
+
+def test_availability_statement_quotes_the_registered_input_hashes():
+    # The statement gives each input file's SHA-256 by its first eight
+    # characters. Each prefix must belong to a hash the loaders register, so
+    # the paper cannot name a file the repository does not record.
+    import re
+
+    from imputation_paper.data.cps import ASEC_BUNDLE_SHA256
+    from imputation_paper.data.scf import KNOWN_EXTRACTS
+
+    registered = [*ASEC_BUNDLE_SHA256.values(), *KNOWN_EXTRACTS]
+    quoted = re.findall(r"\\texttt\{([0-9a-f]{8})\}", DISCLOSURES.read_text())
+    assert len(quoted) == 4, quoted
+    for prefix in quoted:
+        assert any(digest.startswith(prefix) for digest in registered), prefix

@@ -39,13 +39,23 @@ import pandas as pd
 
 from imputation_paper.data.base import TaskFrame, download
 
-__all__ = ["load_cps", "load_cps_households"]
+__all__ = ["ASEC_BUNDLE_SHA256", "load_cps", "load_cps_households"]
 
 #: The Census ASEC public-use CSV bundle for a given ASEC (survey) year.
 _URL_TEMPLATE = (
     "https://www2.census.gov/programs-surveys/cps/datasets/{year}/march/"
     "asecpub{yy}csv.zip"
 )
+
+#: SHA-256 of the ASEC bundles the paper's runs read, by ASEC (survey) year.
+#: The loader does not refuse other files. These record what was used: the
+#: availability statement quotes their first eight characters, and a test
+#: holds it to them.
+ASEC_BUNDLE_SHA256: dict[int, str] = {
+    2023: "d2e000250782adfbdd7f29c82b66d866591a30f0d330496698ec19f9c784ce11",
+    2024: "cdb39cdac34bef99dd0940ab28e306f692404c2eea44d85dfd634214872a0a09",
+    2025: "318845a2b5e0034eb2973898de1738f4df0025727de38499e7669cb9c0deef0b",
+}
 
 #: ASEC public-use weights carry two implied decimal places.
 _WEIGHT_DIVISOR = 100.0
