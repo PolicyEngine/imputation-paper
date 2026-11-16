@@ -37,7 +37,10 @@ Census Bureau's ASEC public-use bundles for 2023, 2024, and 2025
 Section~\ref{sec:task-openml}, fetched by name at versions the loader
 asserts. The Federal Reserve replaced the 2022 extract at its published
 address on 9 October 2026 with a version re-based to 2025 dollars, so the
-file this paper used can no longer be downloaded from the agency.
+file this paper used can no longer be downloaded from the agency. The
+repository's loader accepts the re-issued file and converts it back, which
+recovers the inputs to rounding error; reproducing the committed 2022 runs
+exactly needs the original file.
 % TODO before submission (PolicyEngine/imputation-paper#8): say where the
 % original SCF file is deposited.
 Each run directory's manifest records rows, caps, seeds, and methods.

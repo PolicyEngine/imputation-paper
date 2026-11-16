@@ -46,10 +46,14 @@ file's gaps are \rep{check:net_worth_median:gap:2022} and
 Fed replaced the 2022 extract at its published address with a copy re-based
 to 2025 dollars (every dollar column multiplied by the CPI-U-RS ratio
 4789/4376; weights and codes unchanged). The paper's 2022 runs used the
-earlier, 2022-dollar file, and the repository's loader now accepts only files
-it can identify by hash, so the 2022 results regenerate regardless of which
-copy is downloaded. The comparisons below are scale-free or within-wave
-ratios. Dollar levels in the verdict tables are in each wave's own dollars.
+earlier, 2022-dollar file, and they regenerate exactly only from that file.
+The repository's loader accepts only files it can identify by hash. Given
+the re-issued copy it divides the dollar columns back, which recovers the
+original values to rounding error and not bit for bit. The forest-based
+methods are not invariant to changes of unit (see Diagnostics), so a run
+from the re-issued copy is not expected to reproduce the committed 2022 rows
+exactly, and we do not claim that it does. The comparisons below are
+scale-free or within-wave ratios. Dollar levels in the verdict tables are in each wave's own dollars.
 
 \paragraph{Rules.} Within the \scf{}, a claim that method B is worse than
 method A is met when B is worse on average and on at least eight of ten
@@ -60,6 +64,11 @@ Where the paper states an effect size, it holds if the 2025 effect is within
 a factor of two of the 2022 effect. Each rule is also applied to the 2022
 runs; \rep{count:status2022:notmet} of the paper's 2022 claims do not meet
 these rules on the 2022 data themselves, and for those the best possible 2025 verdict is inconclusive.
+Every run, in both waves, uses the first of the extract's five implicates.
+The noise unit in each rule is the spread across the ten donor and receiver
+splits of that one implicate, so it carries neither the variance between
+implicates nor the sampling variance that the survey's replicate weights
+measure.
 The rules name the methods as the paper did when they were frozen. The
 candidate is the full estimator. The ungated forest is the \microimpute{}
 forest of Table~\ref{tab:methods}, an external baseline that has no gate
@@ -154,8 +163,11 @@ standard deviations apart; \rep{F2c:parts-met:2025} of the
 advantage on the debt zero share. In 2025 the ungated forest's error is
 \rep{debt-zero-forest:2025} against the candidate's
 \rep{debt-zero-candidate:2025}, and it is the worse of the two on
-\rep{seeds-debt-zero-forest:2025} of ten seeds. The 2022 tie did not recur;
-the difference that replaced it favours the gated estimator.
+\rep{seeds-debt-zero-forest:2025} of ten seeds. On the implicate used here
+the 2022 tie did not recur, and the difference that replaced it favours the
+gated estimator. That seed count is the rule's minimum, and these runs use
+one implicate, so they do not show that the difference belongs to the 2025
+wave and not to the draw.
 
 \emph{Smaller effects.} Unweighted is \rep{debt-w1-unweighted-ratio:2025}
 times worse on debt $W_1$ within the \scf{}, against
