@@ -93,7 +93,9 @@ which reaches no further than the 9th and 91st conditional percentiles and
 over-draws those two levels, and its constructor takes no seed, so its
 forest and its sampler run on one fixed internal seed in every cell. Its
 paired-seed dispersion therefore carries no forest noise, and its
-contrasts with the full estimator mix the gate with the sampler. Fifth,
+contrasts with the full estimator mix the gate with the sampler. Every
+target of a row is read at the same quantile index, which bears on its
+joint score with four chained targets (AUC 0.817). Fifth,
 comparisons hold shared forest backends and default hyperparameters fixed
 rather than tuning each method per task; the four ablations are exact
 controls, the cross-family comparisons are defaults-versus-defaults. Sixth,

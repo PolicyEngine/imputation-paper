@@ -63,7 +63,14 @@ for independent, identically distributed data can be applied to them
 of these methods: donor rows are redrawn with probability proportional to
 weight before each forest is grown. It is one resample per forest and carries
 none of the finite-population machinery those methods use for inference,
-because the product here is a drawn file, not a variance estimate.
+because the product here is a drawn file, not a variance estimate. The
+closest precedent in software is this paper's own forest baseline:
+\microimpute{} resamples its training rows with replacement in proportion to
+weight before fitting \citep{policyengine2025microimpute}. It draws one
+resample at a fixed seed and shares it across all chained targets, where the
+estimator here draws a fresh one for each forest, and it has no gate. The
+contrast between the two forests in Section~\ref{sec:results} is therefore
+not a weighting contrast.
 
 Tree ensembles add a mechanical reason to resample. A fully grown forest's
 \emph{predictive distribution} is a leaf-membership distribution, which
