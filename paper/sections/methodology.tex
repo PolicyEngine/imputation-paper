@@ -5,7 +5,7 @@
 
 \populacefit{} models $P(\text{targets} \mid \text{predictors})$ with a
 quantile-regression-forest estimator \citep{meinshausen2006quantile,
-zillow2024quantile} wrapped in three mechanisms.
+johnson2024quantile} wrapped in three mechanisms.
 
 \paragraph{Weighted bootstrap.} Random forests cannot honor a per-record
 \texttt{sample\_weight} in their predictive distribution: a fully grown leaf
@@ -46,12 +46,20 @@ class's forest.
 \end{enumerate}
 For dividend income the regime is $\{0, +\}$ and the gate is a zero hurdle;
 for net worth it is $\{-, 0, +\}$ and the gate is three-way.
-Section~\ref{sec:results-cps} measures what the gates buy on zero-inflated
-targets.
+The gate's probabilities are those of the classifier as fitted on the
+training rows: the only behavior at the version evaluated here, and still
+the package's default. For a rare sign class such a gate can be
+overconfident on rows it has not seen, and later versions of \populacefit{}
+add an opt-in out-of-fold calibration of the gate for that case
+\citep{microcosm2026}. The tasks in this paper contain no rare sign class on
+which the methods differ, so the gate's behavior on rare classes is not
+evaluated here.
+Section~\ref{sec:results-cps} compares the gated estimator with ungated
+baselines on zero-inflated targets.
 
 \paragraph{Sequential chaining.} Targets are imputed in order, each
 conditioning on the predictors plus the targets already drawn
-\citep{raghunathan2003multiple, vanbuuren2011mice}, so dependence among
+\citep{raghunathan2001multivariate, vanbuuren2011mice}, so dependence among
 imputed variables survives.
 
 \paragraph{Interface contract.} Fitting over a \populace{} frame reads the
@@ -74,41 +82,48 @@ Method & Weights & Gates & Chaining & Implementation \\
 \populacefit{} & design & yes & yes & \populacefit{} \\
 \quad -- unweighted & none & yes & yes & \populacefit{}, \texttt{weights="none"} \\
 \quad -- unchained & design & yes & no & \populacefit{}, targets fit independently \\
-\quad -- ungated/unchained forest & design & no & no & \microimpute{} QRF \\
+QRF (\microimpute{}) & design & no & yes & \microimpute{} QRF, as shipped \\
 OLS & design & no & no & \microimpute{} \\
 Linear quantile regression & design & no & no & \microimpute{} \\
-NND hot deck & inform matching & via donation & via donation & \pystatmatch{} \\
+NND hot deck & standardization only & via donation & via donation & \pystatmatch{} \\
 Weighted marginal draw & design & --- & --- & unconditional weighted draw \\
 \hline
 \end{tabular}
 \caption{The method surface. Every fit that has a weights column uses the
 survey's design weights; the one exception is the unweighted ablation, whose
 sole difference from the full estimator is \texttt{weights="none"}. The
-ungated/unchained forest is the \microimpute{} QRF baseline itself --- one
-implementation serving two roles, as both an ablation endpoint and standard
-practice --- and it \emph{retains} design weights, so it differs from the
-full estimator only in gating and chaining. Hot deck donates all target
-values from one matched donor record, which preserves zero masses and
-cross-target structure by construction rather than by modeling them.}
+\microimpute{} forest is an external baseline run as shipped. It keeps the
+design weights and chains its targets, but it has no gate and it draws
+through its own sampler, so it is not a knockout of the full estimator.
+Hot deck donates all target values from one matched donor record, which
+preserves zero masses and cross-target structure by construction rather
+than by modeling them; its donor weights standardize the matching
+variables and do not enter the choice of donor.}
 \label{tab:methods}
 \end{table}
 
-Table~\ref{tab:methods} lays out the method surface. Each design choice is
-evaluated by knocking it out with everything else held fixed: the full
+Table~\ref{tab:methods} lays out the method surface. Two design choices are
+evaluated by knocking them out with everything else held fixed: the full
 estimator versus itself with \texttt{weights="none"} (the weighted
-bootstrap's contribution), versus fitting each target independently
-(chaining's contribution), and versus a single ungated, unchained forest at
-matched hyperparameters. The last knockout removes gating and chaining
-together --- \populacefit{} does not expose a gates-off switch on its own ---
-so gating's contribution is read jointly from two rows: what the plain
-forest loses beyond what removing chaining alone costs. Baselines are
+bootstrap's contribution), and versus fitting each target independently
+(chaining's contribution). Gating has no such knockout in this surface:
+\populacefit{} does not expose a gates-off switch, and the nearest ungated
+comparator, the \microimpute{} forest, differs from the full estimator in
+more than the gate. It chains its targets as the full estimator does, but
+it turns each requested quantile level into a draw from a ten-level
+conditional quantile grid (levels $1/11$ to $10/11$) at a randomly chosen
+index. Under the level sampling used for all baselines here, that draws
+the lowest and highest levels 25 and 21 percent of the time, against 10
+percent each for a uniform draw. Its random state is also fixed. Contrasts
+with it are therefore comparisons against standard practice, not
+attributions to gating. Baselines are
 standard practice: quantile-regression-forest, ordinary-least-squares, and
 linear quantile-regression imputers from \microimpute{}
 \citep{policyengine2025microimpute}, and nearest-neighbour-distance hot-deck
-statistical matching from \pystatmatch{} \citep{dorazio2021statistical}. The
-candidate and the plain-forest baselines share the same underlying forest
-implementation \citep{zillow2024quantile}, so their differences isolate the
-design choices rather than implementation quality.
+statistical matching from \pystatmatch{}, a Python port of the R package StatMatch
+\citep{dorazio2025statmatch}. The
+full estimator and the \microimpute{} forest are built on the same forest
+library \citep{johnson2024quantile}.
 
 \subsection{The population-view harness}
 \label{sec:harness}
@@ -166,8 +181,12 @@ points with at least one candidate point inside their
 $k$-nearest-neighbour radius --- does the candidate reach every
 neighbourhood the holdout occupies? It is the explicit anti-collapse axis,
 and because it depends on the candidate only through its \emph{support}, it
-is invariant to any reweighting of the candidate: the one block a later
-calibration cannot change.
+is by definition invariant to any reweighting of the candidate: the one
+block a later calibration cannot change. As implemented, each sample
+larger than 2,048 points is first reduced to that size by a
+weight-proportional resample (the cap the energy distance shares). The
+candidate always is, so the reported coverage is invariant to reweighting
+only up to that resample.
 
 \paragraph{Classifier two-sample test (omnibus; 0.5 is indistinguishable).}
 A gradient-boosted classifier is trained to tell candidate rows from
@@ -198,17 +217,24 @@ wobbles under sampling noise alone.
 \subsection{Marginal and stress metrics}
 \label{sec:metrics}
 
-All metrics are computed under survey weights, on held-out receiver rows.
+All metrics are computed on held-out receiver rows under survey weights,
+with one exception noted under pinball loss.
 
 \paragraph{Pinball loss.} Pinball loss --- also called quantile loss; the
 terms are interchangeable and we use \emph{pinball} throughout --- scores
-conditional distributional calibration \citep{koenker2005quantile}. For a
-predicted conditional quantile $\hat{q}_\tau$ and realized value $y$, the
+predicted quantiles against realized values \citep{koenker2005quantile}.
+For a predicted quantile $\hat{q}_\tau$ and realized value $y$, the
 loss is $\rho_\tau(y - \hat{q}_\tau)$ with
 $\rho_\tau(u) = u\,(\tau - \mathbf{1}[u < 0])$; we average it, weighted,
-over the decile grid $\tau \in \{0.1, \ldots, 0.9\}$. It is minimized in
-expectation exactly when each predicted quantile is the true conditional
-quantile.
+over the decile grid $\tau \in \{0.1, \ldots, 0.9\}$. A single stochastic
+draw carries no conditional quantiles, so $\hat{q}_\tau$ here is the
+$\tau$-quantile of the method's pooled receiver draw, read with every
+receiver row counted once, and it is scored against every held-out value
+under the receiver weights. As computed, pinball loss is therefore a
+\emph{marginal} score. It does not test conditional calibration and cannot
+separate a conditional method from an unconditional one. Because the
+predicted quantiles are read without weights, it also favors a draw whose
+unweighted quantiles already match the weighted population.
 
 \paragraph{Wasserstein-1 distance.} Marginal fit is scored by the weighted
 Wasserstein-1 distance to the weighted donor distribution,
