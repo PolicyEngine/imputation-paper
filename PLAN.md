@@ -39,24 +39,38 @@ joint — future work beyond this paper.
 ## Method surface
 
 The registry in `src/imputation_paper/methods.py` is the single source of
-truth. Committed surface (9 methods):
+truth. Committed surface (16 methods):
 
 | Key | Category | What it isolates |
 | --- | --- | --- |
 | `populace_fit` | candidate | The full estimator (weighted bootstrap + regime gates + chaining) |
 | `populace_fit_unweighted` | ablation | `weights="none"`: the weighted-bootstrap contribution |
 | `populace_fit_unchained` | ablation | Targets fit independently: the chaining contribution |
-| `plain_qrf` | ablation | Single ungated, unchained forest (microimpute QRF): the gating contribution |
-| `microimpute_qrf` | baseline | Standard QRF imputation |
+| `populace_fit_ungated` | ablation | Gates off: every target fitted through the estimator's own single-sign path. The gating contribution |
+| `populace_fit_ungated_unchained` | ablation | Gates and chaining off: the fourth cell of the gated-by-chained design |
+| `populace_fit_derived` | variant | Three balance-sheet components imputed, net worth set by the identity. Production-scale profile only |
+| `populace_fit_unchained_derived` | variant | As above with the components fit independently: what chaining adds beyond the identity |
+| `plain_qrf` | baseline | Same estimator as `microimpute_qrf`, under the key the committed runs also carry. First planned as the gates-off, chaining-off ablation; it is not one, because microimpute's QRF chains its targets and draws through its own sampler |
+| `microimpute_qrf` | baseline | Standard QRF imputation (microimpute, as shipped) |
 | `microimpute_ols` | baseline | OLS with normal residual draws |
 | `microimpute_quantreg` | baseline | Linear quantile regression (per-quantile fits) |
 | `statmatch_hotdeck` | baseline | Classical nearest-neighbour-distance hot deck (py-statmatch) |
+| `statmatch_rand_hotdeck_unweighted` | baseline | Random hot deck among the nearest donors, each equally likely. The control for the weighted draw below |
+| `statmatch_rand_hotdeck` | baseline | Random hot deck among the nearest donors, drawn in proportion to donor weight (StatMatch's RANDwNND) |
+| `statmatch_constrained_hotdeck` | baseline | Nearest-neighbour hot deck with a cap on donor use. Within-survey tasks only: too large an assignment problem on the population view |
 | `weighted_marginal` | harness | Dependency-free lower bound; CI only |
 
-Released microimpute (1.1.2) carries no Matching model (it exists only behind
-an R dependency in the dev tree), so py-statmatch's NND hot deck is *the*
-matching baseline. Adding or removing a method is a deliberate change to this
+Released microimpute (1.15.1; its `__version__` string reads 1.1.2) carries no Matching model (it exists only behind
+an R dependency in the dev tree), so the matching baselines are py-statmatch's
+hot decks. Adding or removing a method is a deliberate change to this
 table, not drift.
+
+Seven of these were added after the first sweeps: the two gates-off
+ablations, the two net-worth-derived variants, and the random, weighted
+random and constrained hot decks. Their results live in `runs/<name>-added-arms/`, beside the
+committed runs and never inside them. Each added-arms run re-runs
+`populace_fit`, `weighted_marginal` and `statmatch_hotdeck`, and `imp tables`
+refuses to write a table unless those rows equal the committed run's.
 
 ## Tasks
 

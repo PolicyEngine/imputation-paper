@@ -48,7 +48,11 @@ __all__ = [
     "get_method",
     "CANDIDATE_KEYS",
     "ABLATION_KEYS",
+    "VARIANT_KEYS",
     "BASELINE_KEYS",
+    "ZERO_ATOL",
+    "SCF_NET_WORTH_COMPONENTS",
+    "single_sign_shift",
 ]
 
 #: Quantile grid used to convert quantile-imputer outputs into per-row draws:
@@ -93,8 +97,13 @@ class MethodCategory:
     #: weighted QRF, run in its default weight-aware configuration.
     CANDIDATE = "candidate"
     #: A deliberate knock-out of one populace-fit design choice, to attribute the
-    #: gain (weighting off, chaining off, gates off).
+    #: gain: weighting off, chaining off, gates off. populace-fit exposes no
+    #: gates-off switch; the gates-off arms reach its own gate-free path by
+    #: giving every target a single sign class (see :func:`single_sign_shift`).
     ABLATION = "ablation"
+    #: The candidate re-specified for one task rather than knocked out: for
+    #: example, a target set by an accounting identity instead of imputed.
+    VARIANT = "variant"
     #: A standard survey-imputation method the candidate is benchmarked against.
     BASELINE = "baseline"
 
@@ -136,8 +145,139 @@ def _resolve_weight_vector(
 # ---------------------------------------------------------------------------
 
 
+#: Magnitudes at or below this count as zero when a target's sign classes are
+#: counted. Equal to populace-fit's ``DEFAULT_ZERO_ATOL``, which is what its
+#: own regime detection uses (a test pins the two together).
+ZERO_ATOL = 1e-6
+
+
+def single_sign_shift(y: np.ndarray, *, zero_atol: float = ZERO_ATOL) -> float:
+    """The shift that leaves ``y`` with one sign class; ``0.0`` if it has one.
+
+    populace-fit builds a sign gate only for a target whose training values
+    fall in more than one of {negative, zero, positive}. A target with a
+    single class is fitted with one forest and no gate. Adding the returned
+    shift makes every value at least 1, so a shifted target takes that
+    gate-free path; subtracting it from the draws returns them to the
+    original scale. Trees split on the target only through differences, so
+    the shift changes what is gated and nothing else.
+
+    Args:
+        y: Training target values.
+        zero_atol: Magnitudes at or below this are zeros.
+
+    Returns:
+        ``1 - min(0, min(y))`` when ``y`` has more than one sign class, else
+        ``0.0``.
+    """
+    y = np.asarray(y, dtype=np.float64)
+    if y.size == 0:
+        return 0.0
+    classes = (
+        int((np.abs(y) <= zero_atol).any())
+        + int((y > zero_atol).any())
+        + int((y < -zero_atol).any())
+    )
+    if classes <= 1:
+        return 0.0
+    return 1.0 - min(0.0, float(y.min()))
+
+
+def _fit_populace(
+    train_df: pd.DataFrame,
+    predictors: list[str],
+    targets: list[str],
+    weights: str | np.ndarray | None,
+    *,
+    seed: int,
+    weights_mode: str,
+    chained: bool,
+    gated: bool,
+) -> tuple[list, dict[str, float]]:
+    """Fit populace-fit's estimator; return the fitted models and target shifts.
+
+    The shifts are all zero when ``gated``. Otherwise each target with more
+    than one sign class is moved by :func:`single_sign_shift` before the fit,
+    and the fit is checked to have built no gate.
+    """
+    from populace.fit import Regime, RegimeGatedQRF
+
+    if weights_mode == "none":
+        spec: np.ndarray | str = "none"
+    else:
+        vector = _resolve_weight_vector(train_df, weights)
+        spec = "none" if vector is None else vector
+    table = train_df.loc[:, [*predictors, *targets]]
+
+    shifts = dict.fromkeys(targets, 0.0)
+    if not gated:
+        shifts = {
+            target: single_sign_shift(table[target].to_numpy(dtype=np.float64))
+            for target in targets
+        }
+        table = table.assign(
+            **{target: table[target] + shift for target, shift in shifts.items()}
+        )
+
+    if chained:
+        fitted = [
+            RegimeGatedQRF(seed=seed).fit(table, predictors, targets, weights=spec)
+        ]
+    else:
+        # Chaining-off: each target sees only the predictors. Offsetting
+        # the seed per target keeps the independent draws independent.
+        fitted = [
+            RegimeGatedQRF(seed=seed + position).fit(
+                table.loc[:, [*predictors, target]],
+                predictors,
+                [target],
+                weights=spec,
+            )
+            for position, target in enumerate(targets)
+        ]
+
+    if not gated:
+        ungated = {Regime.POSITIVE_ONLY, Regime.NEGATIVE_ONLY, Regime.DEGENERATE_ZERO}
+        built = {
+            target: regime
+            for model in fitted
+            for target, regime in model.regimes().items()
+            if regime not in ungated
+        }
+        if built:
+            raise RuntimeError(
+                f"The gates-off arm fitted a gated regime for {built}; the "
+                "single-sign shift did not take."
+            )
+    return fitted, shifts
+
+
+def _ungated_regimes(
+    train_df: pd.DataFrame,
+    predictors: Sequence[str],
+    targets: Sequence[str],
+    weights: str | np.ndarray | None,
+    *,
+    seed: int = 0,
+) -> dict[str, str]:
+    """The regime populace-fit detects for each target in the gates-off arm."""
+    fitted, _ = _fit_populace(
+        train_df,
+        list(predictors),
+        list(targets),
+        weights,
+        seed=seed,
+        weights_mode="design",
+        chained=True,
+        gated=False,
+    )
+    return {
+        target: regime for model in fitted for target, regime in model.regimes().items()
+    }
+
+
 def _populace_fit_constructor(
-    *, weights_mode: str = "design", chained: bool = True
+    *, weights_mode: str = "design", chained: bool = True, gated: bool = True
 ) -> FitFn:
     """Adapter for populace-fit's :class:`RegimeGatedQRF` over plain DataFrames.
 
@@ -152,6 +292,13 @@ def _populace_fit_constructor(
         chained: ``True`` fits all targets in one call so each conditions on
             the targets drawn before it; ``False`` fits each target
             independently (the chaining-off ablation).
+        gated: ``True`` leaves the estimator's sign gates on. ``False`` is the
+            gates-off ablation: each target with more than one sign class is
+            shifted to be strictly positive before the fit, which sends it
+            down the estimator's own gate-free path (one forest over all
+            rows, same weighted bootstrap, same draw), and the draws are
+            shifted back. A target that already has one sign class is left
+            alone, so there the ablation is the full estimator.
 
     Returns:
         A :class:`FitFn`.
@@ -165,37 +312,99 @@ def _populace_fit_constructor(
         *,
         seed: int = 0,
     ) -> PredictFn:
-        from populace.fit import RegimeGatedQRF
-
         predictors = list(predictors)
         targets = list(targets)
-        if weights_mode == "none":
-            spec: np.ndarray | str = "none"
-        else:
-            vector = _resolve_weight_vector(train_df, weights)
-            spec = "none" if vector is None else vector
-        table = train_df.loc[:, [*predictors, *targets]]
-
-        if chained:
-            fitted = [
-                RegimeGatedQRF(seed=seed).fit(table, predictors, targets, weights=spec)
-            ]
-        else:
-            # Chaining-off: each target sees only the predictors. Offsetting
-            # the seed per target keeps the independent draws independent.
-            fitted = [
-                RegimeGatedQRF(seed=seed + position).fit(
-                    table.loc[:, [*predictors, target]],
-                    predictors,
-                    [target],
-                    weights=spec,
-                )
-                for position, target in enumerate(targets)
-            ]
+        fitted, shifts = _fit_populace(
+            train_df,
+            predictors,
+            targets,
+            weights,
+            seed=seed,
+            weights_mode=weights_mode,
+            chained=chained,
+            gated=gated,
+        )
 
         def predict(test_df: pd.DataFrame) -> pd.DataFrame:
             features = test_df.loc[:, predictors]
             drawn = pd.concat([model.predict(features) for model in fitted], axis=1)
+            drawn = drawn.loc[:, targets]
+            for target, shift in shifts.items():
+                if shift:
+                    drawn[target] = drawn[target] - shift
+            return drawn
+
+        return predict
+
+    return fit
+
+
+#: The SCF balance-sheet identity, as the signed components of net worth:
+#: ``networth = fin + nfin - debt``. It holds exactly in the summary extract.
+SCF_NET_WORTH_COMPONENTS: tuple[tuple[str, float], ...] = (
+    ("fin", 1.0),
+    ("nfin", 1.0),
+    ("debt", -1.0),
+)
+
+
+def _derived_target_constructor(
+    base: Callable[[], FitFn],
+    *,
+    derived: str,
+    components: tuple[tuple[str, float], ...],
+) -> FitFn:
+    """Model the components with ``base`` and set ``derived`` by an identity.
+
+    Where a target is an exact signed sum of other targets, a practitioner
+    would impute the components and compute the sum. This wrapper does that:
+    ``base`` is fitted on every target except ``derived``, and each drawn row
+    gets ``derived = sum(sign * component)``, so the identity holds on every
+    row by construction.
+
+    Args:
+        base: Constructor of the method that models the components.
+        derived: The target set by the identity.
+        components: ``(component, sign)`` pairs whose signed sum is
+            ``derived``.
+
+    Returns:
+        A :class:`FitFn`. Its fit raises :class:`NotImplementedError` on a
+        task whose targets lack ``derived`` or a component (the sweep records
+        that as a skip), and :class:`ValueError` if the donor rows do not
+        satisfy the identity.
+    """
+    names = [name for name, _ in components]
+
+    def fit(
+        train_df: pd.DataFrame,
+        predictors: Sequence[str],
+        targets: Sequence[str],
+        weights: str | np.ndarray | None,
+        *,
+        seed: int = 0,
+    ) -> PredictFn:
+        targets = list(targets)
+        missing = [name for name in (derived, *names) if name not in targets]
+        if missing:
+            raise NotImplementedError(
+                f"The derived-target arm sets {derived!r} from {names}; this "
+                f"task's targets {targets} lack {missing}."
+            )
+        implied = sum(sign * train_df[name] for name, sign in components)
+        gap = float((train_df[derived] - implied).abs().max())
+        scale = max(1.0, float(train_df[derived].abs().max()))
+        if gap > 1e-9 * scale:
+            raise ValueError(
+                f"The donor rows do not satisfy the identity {derived} = "
+                f"sum of signed {names}: the largest gap is {gap:g}."
+            )
+        modeled = [target for target in targets if target != derived]
+        predict_modeled = base()(train_df, predictors, modeled, weights, seed=seed)
+
+        def predict(test_df: pd.DataFrame) -> pd.DataFrame:
+            drawn = predict_modeled(test_df).copy()
+            drawn[derived] = sum(sign * drawn[name] for name, sign in components)
             return drawn.loc[:, targets]
 
         return predict
@@ -297,23 +506,65 @@ def _microimpute_constructor(model_name: str) -> FitFn:
 
 
 # ---------------------------------------------------------------------------
-# Baseline: py-statmatch nearest-neighbour-distance hot deck
+# Baselines: py-statmatch hot decks (nearest, weighted random, constrained)
 # ---------------------------------------------------------------------------
 
 
-def _statmatch_hotdeck_constructor() -> FitFn:
-    """Adapter for :func:`statmatch.nnd_hotdeck` (classical hot-deck matching).
+def _donor_use_cap(n_receivers: int, n_donors: int) -> int:
+    """The tightest cap on donor use that still gives every receiver a donor."""
+    return max(1, -(-n_receivers // n_donors))
 
-    py-statmatch is a Python port of R's StatMatch. ``nnd_hotdeck`` matches
-    each receiver record to its nearest donor on the (standardized) matching
-    variables -- donor weights inform the standardization and tie-breaking --
-    and ``create_fused`` donates the matched donor's target values. This is
-    the traditional survey-fusion baseline; it is deterministic given the
-    donor pool, so ``seed`` only varies with the split.
+
+#: Largest cost matrix, in cells, the constrained hot deck is asked to solve.
+#: py-statmatch builds a dense ``n_receivers x (n_donors x cap)`` matrix and
+#: solves the assignment exactly. Every within-survey task is under this (the
+#: largest is 4,000 x 16,000). The population view is not: 20,000 receivers
+#: against 3,676 donors used up to six times is 441 million cells. On the
+#: minimal profile's real matching variables, with their many ties, one split
+#: took 13 minutes and 6 GB (against seconds for every other method), so ten
+#: splits of both profiles would take about four hours. Above the limit the
+#: arm is skipped and the sweep records why.
+CONSTRAINED_MAX_CELLS = 100_000_000
+
+
+def _statmatch_hotdeck_constructor(selection: str = "nearest") -> FitFn:
+    """Adapter for py-statmatch's distance hot decks (statistical matching).
+
+    py-statmatch is a Python port of R's StatMatch. Each receiver is matched
+    to a donor on the matching variables and ``create_fused`` donates that
+    donor's target values, so zero masses and cross-target structure come
+    over whole. The selections share one distance: Euclidean on the
+    matching variables, standardized by pooled weighted moments when the donor
+    weights are not all equal (what ``nnd_hotdeck`` does itself). The four
+    selections differ only in which donor is taken.
+
+    Args:
+        selection: How the donor is chosen.
+
+            * ``"nearest"`` -- ``nnd_hotdeck``: the nearest donor. Donor
+              weights enter the standardization only. Deterministic given the
+              donor pool, so ``seed`` only varies with the split.
+            * ``"random"`` -- ``rand_hotdeck`` without ``weight_don``: one
+              donor among the ``ceil(sqrt(n))`` nearest, each equally likely.
+              It is the control for ``"weighted_random"``: the same draw with
+              the donor weights left out of it.
+            * ``"weighted_random"`` -- ``rand_hotdeck`` with ``weight_don``
+              (StatMatch's RANDwNND): one donor among the ``ceil(sqrt(n))``
+              nearest, drawn with probability proportional to its weight.
+              Under equal donor weights it is the ``"random"`` draw.
+            * ``"constrained"`` -- ``nnd_hotdeck`` with ``constr_alg``: the
+              assignment of least total distance in which no donor serves
+              more than ``ceil(n_receivers / n_donors)`` receivers. The cap
+              counts receivers; it does not use the weights. Its predict
+              raises :class:`NotImplementedError` above
+              :data:`CONSTRAINED_MAX_CELLS`, which the sweep records as a
+              skip.
 
     Returns:
         A :class:`FitFn`.
     """
+    if selection not in {"nearest", "random", "weighted_random", "constrained"}:
+        raise ValueError(f"Unknown hot-deck selection {selection!r}.")
 
     def fit(
         train_df: pd.DataFrame,
@@ -321,27 +572,74 @@ def _statmatch_hotdeck_constructor() -> FitFn:
         targets: Sequence[str],
         weights: str | np.ndarray | None,
         *,
-        seed: int = 0,  # noqa: ARG001 - deterministic method; contract uniformity
+        seed: int = 0,
     ) -> PredictFn:
-        from statmatch import create_fused, nnd_hotdeck
+        from statmatch import create_fused, nnd_hotdeck, rand_hotdeck
+        from statmatch.nnd_hotdeck import _weighted_standardize
 
         predictors = list(predictors)
         targets = list(targets)
         donor = train_df.loc[:, [*predictors, *targets]].reset_index(drop=True)
         vector = _resolve_weight_vector(train_df, weights)
 
+        def match(receiver: pd.DataFrame) -> pd.DataFrame:
+            weighted = {} if vector is None else {"don_weights": vector}
+            if selection == "nearest":
+                return nnd_hotdeck(
+                    data_rec=receiver, data_don=donor, match_vars=predictors, **weighted
+                )["mtc.ids"]
+            if selection == "constrained":
+                cap = _donor_use_cap(len(receiver), len(donor))
+                cells = len(receiver) * len(donor) * cap
+                if cells > CONSTRAINED_MAX_CELLS:
+                    raise NotImplementedError(
+                        f"The constrained hot deck is not run here: {len(receiver):,} "
+                        f"receivers against {len(donor):,} donors used up to {cap} "
+                        f"times is a dense assignment problem of {cells:,} cells, "
+                        f"over the {CONSTRAINED_MAX_CELLS:,}-cell limit."
+                    )
+                return nnd_hotdeck(
+                    data_rec=receiver,
+                    data_don=donor,
+                    match_vars=predictors,
+                    k=cap,
+                    constr_alg="hungarian",
+                    **weighted,
+                )["mtc.ids"]
+
+            # rand_hotdeck measures distance on the columns as given, so the
+            # standardization nnd_hotdeck applies internally is applied here.
+            rec = receiver.to_numpy(dtype=np.float64)
+            don = donor.loc[:, predictors].to_numpy(dtype=np.float64)
+            if vector is not None and not np.allclose(vector, vector[0]):
+                rec, don = _weighted_standardize(rec, don, np.ones(len(rec)), vector)
+            standardized = pd.DataFrame(don, columns=predictors)
+            weight_column = None
+            if selection == "weighted_random" and vector is not None:
+                weight_column = "__donor_weight__"
+                standardized[weight_column] = vector
+            # rand_hotdeck draws from numpy's global generator. Seed it for
+            # this call and put the caller's state back afterwards.
+            state = np.random.get_state()
+            np.random.seed(seed)
+            try:
+                return rand_hotdeck(
+                    data_rec=pd.DataFrame(rec, columns=predictors),
+                    data_don=standardized,
+                    match_vars=predictors,
+                    dist_fun="euclidean",
+                    cut_don="rot",
+                    weight_don=weight_column,
+                )["mtc.ids"]
+            finally:
+                np.random.set_state(state)
+
         def predict(test_df: pd.DataFrame) -> pd.DataFrame:
             receiver = test_df.loc[:, predictors].reset_index(drop=True)
-            matched = nnd_hotdeck(
-                data_rec=receiver,
-                data_don=donor,
-                match_vars=predictors,
-                **({} if vector is None else {"don_weights": vector}),
-            )
             fused = create_fused(
                 data_rec=receiver,
                 data_don=donor,
-                mtc_ids=matched["mtc.ids"],
+                mtc_ids=match(receiver),
                 z_vars=targets,
             )
             frame = fused.loc[:, targets].copy()
@@ -389,7 +687,7 @@ def _weighted_marginal_constructor() -> FitFn:
     return fit
 
 
-#: The method surface. Ordered candidate -> ablations -> baselines.
+#: The method surface. Ordered candidate -> ablations -> variants -> baselines.
 REGISTRY: dict[str, Method] = {
     # --- Candidate ---
     "populace_fit": Method(
@@ -429,17 +727,80 @@ REGISTRY: dict[str, Method] = {
             weights_mode="design", chained=False
         ),
     ),
-    "plain_qrf": Method(
-        key="plain_qrf",
+    "populace_fit_ungated": Method(
+        key="populace_fit_ungated",
         category=MethodCategory.ABLATION,
         description=(
-            "Single ungated, unchained quantile-regression-forest (microimpute QRF) "
-            "at matched hyperparameters: the gates-off, chaining-off comparison."
+            "populace-fit with its sign gates off: every target is fitted "
+            "through the estimator's own single-sign path (one forest over all "
+            "rows). Isolates the gating contribution."
+        ),
+        citation_key="microcosm2026",
+        constructor=lambda: _populace_fit_constructor(
+            weights_mode="design", chained=True, gated=False
+        ),
+    ),
+    "populace_fit_ungated_unchained": Method(
+        key="populace_fit_ungated_unchained",
+        category=MethodCategory.ABLATION,
+        description=(
+            "populace-fit with gates and chaining both off: one weighted "
+            "forest per target on the predictors alone. The fourth cell of "
+            "the gated-by-chained design."
+        ),
+        citation_key="microcosm2026",
+        constructor=lambda: _populace_fit_constructor(
+            weights_mode="design", chained=False, gated=False
+        ),
+    ),
+    # --- Variants (the candidate re-specified for one task) ---
+    "populace_fit_derived": Method(
+        key="populace_fit_derived",
+        category=MethodCategory.VARIANT,
+        description=(
+            "populace-fit imputing the three balance-sheet components, chained, "
+            "with net worth set by the identity networth = fin + nfin - debt. "
+            "Runs only where the task has all four columns."
+        ),
+        citation_key="microcosm2026",
+        constructor=lambda: _derived_target_constructor(
+            lambda: _populace_fit_constructor(weights_mode="design", chained=True),
+            derived="networth",
+            components=SCF_NET_WORTH_COMPONENTS,
+        ),
+    ),
+    "populace_fit_unchained_derived": Method(
+        key="populace_fit_unchained_derived",
+        category=MethodCategory.VARIANT,
+        description=(
+            "As populace_fit_derived with the three components fitted "
+            "independently: what chaining adds once the identity is imposed."
+        ),
+        citation_key="microcosm2026",
+        constructor=lambda: _derived_target_constructor(
+            lambda: _populace_fit_constructor(weights_mode="design", chained=False),
+            derived="networth",
+            components=SCF_NET_WORTH_COMPONENTS,
+        ),
+    ),
+    # --- Baselines (standard survey-imputation methods) ---
+    # `plain_qrf` is `microimpute_qrf` under a second key. It was first
+    # registered as a gates-off, chaining-off ablation endpoint, which it is
+    # not: microimpute's QRF conditions each target on the targets already
+    # imputed, and it draws through its own sampler. The key stays because the
+    # committed run artifacts carry rows under it.
+    "plain_qrf": Method(
+        key="plain_qrf",
+        category=MethodCategory.BASELINE,
+        description=(
+            "microimpute quantile-regression-forest imputer as shipped: the same "
+            "estimator and configuration as `microimpute_qrf`, under the key the "
+            "committed runs also carry. Ungated, but sequentially chained and "
+            "drawn through its own sampler, so not a knock-out of the candidate."
         ),
         citation_key="meinshausen2006quantile",
         constructor=lambda: _microimpute_constructor("qrf"),
     ),
-    # --- Baselines (standard survey-imputation methods) ---
     "microimpute_qrf": Method(
         key="microimpute_qrf",
         category=MethodCategory.BASELINE,
@@ -451,7 +812,7 @@ REGISTRY: dict[str, Method] = {
         key="microimpute_ols",
         category=MethodCategory.BASELINE,
         description="microimpute OLS-with-normal-residuals imputer.",
-        citation_key="vonhippel2007should",
+        citation_key="vonhippel2013should",
         constructor=lambda: _microimpute_constructor("ols"),
     ),
     "microimpute_quantreg": Method(
@@ -468,8 +829,41 @@ REGISTRY: dict[str, Method] = {
             "py-statmatch nearest-neighbour-distance hot-deck statistical matching "
             "(a Python port of R's StatMatch)."
         ),
-        citation_key="dorazio2021statistical",
+        citation_key="dorazio2025statmatch",
         constructor=_statmatch_hotdeck_constructor,
+    ),
+    "statmatch_rand_hotdeck_unweighted": Method(
+        key="statmatch_rand_hotdeck_unweighted",
+        category=MethodCategory.BASELINE,
+        description=(
+            "py-statmatch random hot deck without donor weights: one donor among "
+            "the nearest, each equally likely. The control that separates the "
+            "random draw from the weights in statmatch_rand_hotdeck."
+        ),
+        citation_key="dorazio2025statmatch",
+        constructor=lambda: _statmatch_hotdeck_constructor("random"),
+    ),
+    "statmatch_rand_hotdeck": Method(
+        key="statmatch_rand_hotdeck",
+        category=MethodCategory.BASELINE,
+        description=(
+            "py-statmatch random hot deck with donor weights (StatMatch's "
+            "RANDwNND): one donor among the nearest, drawn with probability "
+            "proportional to its weight."
+        ),
+        citation_key="dorazio2025statmatch",
+        constructor=lambda: _statmatch_hotdeck_constructor("weighted_random"),
+    ),
+    "statmatch_constrained_hotdeck": Method(
+        key="statmatch_constrained_hotdeck",
+        category=MethodCategory.BASELINE,
+        description=(
+            "py-statmatch constrained nearest-neighbour hot deck: the least-"
+            "distance assignment in which no donor serves more than "
+            "ceil(receivers / donors) receivers."
+        ),
+        citation_key="dorazio2025statmatch",
+        constructor=lambda: _statmatch_hotdeck_constructor("constrained"),
     ),
     # --- Harness baseline (real, dependency-free; used by demo + CI) ---
     "weighted_marginal": Method(
@@ -490,6 +884,9 @@ CANDIDATE_KEYS: tuple[str, ...] = tuple(
 )
 ABLATION_KEYS: tuple[str, ...] = tuple(
     k for k, m in REGISTRY.items() if m.category == MethodCategory.ABLATION
+)
+VARIANT_KEYS: tuple[str, ...] = tuple(
+    k for k, m in REGISTRY.items() if m.category == MethodCategory.VARIANT
 )
 BASELINE_KEYS: tuple[str, ...] = tuple(
     k for k, m in REGISTRY.items() if m.category == MethodCategory.BASELINE

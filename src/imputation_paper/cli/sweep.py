@@ -68,10 +68,10 @@ def _load_toy() -> TaskFrame:
     )
 
 
-def _load_scf() -> TaskFrame:
+def _load_scf(year: int = 2022, dollar_year: int | None = None) -> TaskFrame:
     from imputation_paper.data.scf import load_scf
 
-    return load_scf()
+    return load_scf(year, dollar_year=dollar_year)
 
 
 def _load_cps() -> TaskFrame:
@@ -115,6 +115,8 @@ def run_sweep(
     methods: list[str] | None = None,
     n_seeds: int = 10,
     max_rows: int = 20_000,
+    scf_year: int = 2022,
+    scf_dollar_year: int | None = None,
 ) -> int:
     """Run ``methods`` over ``n_seeds`` paired splits of ``task``; write artifacts.
 
@@ -128,13 +130,25 @@ def run_sweep(
         methods: Registry keys to run; ``None`` runs every registered method.
         n_seeds: Number of repeated paired splits.
         max_rows: Deterministic row cap applied before splitting.
+        scf_year: SCF wave for the ``scf_wealth`` task (2022 is the paper's;
+            2025 is the replication wave). Other tasks accept only the default.
+        scf_dollar_year: Dollar basis for the ``scf_wealth`` task; ``None``
+            means the survey year's own dollars.
 
     Returns:
         Process exit code (``0`` if at least one method produced metrics).
     """
     if task not in TASK_LOADERS:
         raise SystemExit(f"Unknown task {task!r}; available: {sorted(TASK_LOADERS)}.")
-    task_frame = TASK_LOADERS[task]()
+    if task == "scf_wealth":
+        task_frame = _load_scf(scf_year, scf_dollar_year)
+    elif (scf_year, scf_dollar_year) != (2022, None):
+        raise SystemExit(
+            f"--scf-year/--scf-dollar-year apply only to the scf_wealth task, "
+            f"not {task!r}."
+        )
+    else:
+        task_frame = TASK_LOADERS[task]()
     frame, was_capped = _capped(task_frame.frame, max_rows)
 
     requested = methods if methods is not None else list(method_registry.REGISTRY)
@@ -194,6 +208,8 @@ def run_sweep(
         "targets": list(task_frame.targets),
         "weight_column": task_frame.weight_column,
     }
+    if task_frame.provenance:
+        manifest["input_provenance"] = dict(task_frame.provenance)
     (out / "manifest.json").write_text(json.dumps(manifest, indent=2))
 
     ran = sorted({str(row["method"]) for row in rows})
