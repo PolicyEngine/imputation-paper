@@ -22,7 +22,7 @@ def main(argv: list[str] | None = None) -> int:
     """Entry point for the ``imp`` console script."""
     parser = argparse.ArgumentParser(
         prog="imp",
-        description="Reproduction commands for the populace imputation paper.",
+        description="Reproduction commands for the Microcosm imputation paper.",
     )
     subcommands = parser.add_subparsers(dest="command", required=True)
 

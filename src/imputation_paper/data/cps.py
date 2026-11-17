@@ -228,7 +228,7 @@ def load_cps_households(
 
     Args:
         years: One ASEC survey year, or a tuple of years to pool. Pooling
-            mirrors the populace support spine's multi-year design: each
+            mirrors the Microcosm support spine's multi-year design: each
             year's household weights are divided by the number of pooled
             years, so the pooled file still represents one US household
             population.

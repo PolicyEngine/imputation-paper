@@ -76,7 +76,7 @@ table, not drift.
    spine, 4 chain-ordered targets with the exact balance-sheet identity
    networth = fin + nfin − debt). The scale profile tests whether the joint
    margins over matching widen with conditioning richness — the same
-   empirical question as populace#297 (education as auxiliary).
+   empirical question as microcosm#297 (education as auxiliary).
 3. **`cps_components`** — within-CPS imputation of interest and dividend
    income for adults, from the Census ASEC 2025 public-use files pulled
    directly from census.gov (never any processed or enhanced artifact: the
@@ -129,8 +129,8 @@ weighted classifier two-sample AUC, and closed-form reweight fragility
 
 ## Status
 
-- populace-fit DataFrame front door: landed via
-  [populace#290](https://github.com/PolicyEngine/populace/pull/290) (pinned by
+- microcosm-fit DataFrame front door: landed via
+  [microcosm#290](https://github.com/PolicyEngine/microcosm/pull/290) (pinned by
   SHA until merged to main).
 - py-statmatch packaging fix: pinned by SHA
   ([py-statmatch#12](https://github.com/CosilicoAI/py-statmatch/pull/12);

@@ -1,4 +1,4 @@
-"""Benchmarks for populace's weight-aware imputation approach.
+"""Benchmarks for Microcosm's weight-aware imputation approach.
 
 This package holds the reproducibility code for the imputation paper: the
 method-surface registry (:mod:`imputation_paper.methods`), the weighted

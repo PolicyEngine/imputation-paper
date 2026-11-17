@@ -49,7 +49,7 @@ def test_adapter_runs_end_to_end(method_key: str) -> None:
     assert all(math.isfinite(v) for v in result.metrics.values())
 
 
-def test_populace_fit_weighting_actually_differs() -> None:
+def test_microcosm_fit_weighting_actually_differs() -> None:
     """The candidate and its unweighted ablation produce different draws.
 
     If the weighted bootstrap were silently ignored, the ablation would be a
