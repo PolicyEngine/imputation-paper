@@ -45,6 +45,22 @@ PROFILE_RECEIVER_YEARS: dict[str, tuple[int, ...]] = {
 }
 
 
+def default_run_dir(
+    profile: str, scf_year: int = 2022, scf_dollar_year: int | None = None
+) -> Path:
+    """The run directory a profile, donor wave, and dollar basis default to.
+
+    The paper's 2022 runs keep their names; any other donor wave or dollar
+    basis gets a suffix, so a replication run cannot overwrite them.
+    """
+    name = "scf-to-cps-harness" if profile == "minimal" else "scf-to-cps-harness-scale"
+    if scf_dollar_year is not None and scf_dollar_year != scf_year:
+        name += f"-{scf_year}-in-{scf_dollar_year}-dollars"
+    elif scf_year != 2022:
+        name += f"-{scf_year}"
+    return Path("runs") / name
+
+
 def run_harness(
     *,
     out: Path | None = None,
@@ -52,17 +68,24 @@ def run_harness(
     n_seeds: int = 10,
     max_receiver_rows: int = 20_000,
     profile: str = "minimal",
+    scf_year: int = 2022,
+    scf_dollar_year: int | None = None,
 ) -> int:
     """Run the SCF->CPS population-view experiment; write ``harness_long.csv``.
 
     Args:
-        out: Run directory to create/write (default depends on ``profile``).
+        out: Run directory to create/write (default depends on ``profile``,
+            ``scf_year``, and ``scf_dollar_year``; see :func:`default_run_dir`).
         methods: Registry keys to run; ``None`` runs every registered method.
         n_seeds: Number of repeated SCF donor/holdout splits.
         max_receiver_rows: Deterministic cap on the CPS receiver sample.
         profile: ``"minimal"`` (seven-predictor donor task, single-year
             receiver) or ``"populace-scale"`` (ten predictors, four
             chain-ordered wealth targets, three pooled receiver vintages).
+        scf_year: Donor SCF wave (2022 is the paper's; 2025 is the
+            replication wave). The receiver vintages do not depend on it.
+        scf_dollar_year: Dollar basis of the donor's dollar columns; ``None``
+            means the survey year's own dollars.
 
     Returns:
         Process exit code (``0`` if at least one method produced rows).
@@ -76,13 +99,9 @@ def run_harness(
             f"{sorted(PROFILE_RECEIVER_YEARS)}."
         )
     if out is None:
-        out = Path(
-            "runs/scf-to-cps-harness"
-            if profile == "minimal"
-            else "runs/scf-to-cps-harness-scale"
-        )
+        out = default_run_dir(profile, scf_year, scf_dollar_year)
     receiver_years = PROFILE_RECEIVER_YEARS[profile]
-    scf = load_scf(profile=profile)
+    scf = load_scf(scf_year, profile=profile, dollar_year=scf_dollar_year)
     receiver_full = load_cps_households(receiver_years, profile=profile)
     shared = [p for p in scf.predictors if p in receiver_full.columns]
     dropped = [p for p in scf.predictors if p not in receiver_full.columns]
@@ -176,6 +195,7 @@ def run_harness(
         "seeds": list(range(n_seeds)),
         "methods_requested": requested,
         "reference_key": REFERENCE_KEY,
+        "donor_input_provenance": dict(scf.provenance),
     }
     (out / "manifest.json").write_text(json.dumps(manifest, indent=2))
 

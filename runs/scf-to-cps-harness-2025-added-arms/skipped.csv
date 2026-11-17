@@ -1,0 +1,4 @@
+method,reason
+populace_fit_derived,"The derived-target arm sets 'networth' from ['fin', 'nfin', 'debt']; this task's targets ['debt', 'networth'] lack ['fin', 'nfin']."
+populace_fit_unchained_derived,"The derived-target arm sets 'networth' from ['fin', 'nfin', 'debt']; this task's targets ['debt', 'networth'] lack ['fin', 'nfin']."
+statmatch_constrained_hotdeck,"The constrained hot deck is not run here: 20,000 receivers against 3,488 donors used up to 6 times is a dense assignment problem of 418,560,000 cells, over the 100,000,000-cell limit."

@@ -1,11 +1,11 @@
-\section{Methodology}
+\section{Methods}
 
 \subsection{The estimator}
 \label{sec:estimator}
 
 \populacefit{} models $P(\text{targets} \mid \text{predictors})$ with a
 quantile-regression-forest estimator \citep{meinshausen2006quantile,
-zillow2024quantile} wrapped in three mechanisms.
+johnson2024quantile} wrapped in three mechanisms.
 
 \paragraph{Weighted bootstrap.} Random forests cannot honor a per-record
 \texttt{sample\_weight} in their predictive distribution: a fully grown leaf
@@ -14,7 +14,10 @@ change which values a quantile query reads out. \populacefit{} therefore
 materializes weights into the data: before each forest is grown, training rows
 are resampled with replacement with probability proportional to weight, so
 leaf distributions reflect the weighted population. Draws from the fitted
-forest then sample the \emph{weighted} conditional.
+forest then sample the \emph{weighted} conditional. Resampling to undo an
+unequal-probability design is an established device
+\citep{hinkins1997inverse, dong2014nonparametric}; Section~\ref{sec:background-weights}
+places this one in that literature.
 
 \paragraph{Regime gates.} Economic variables are rarely smooth. Most adults
 hold zero dividend income; net worth is negative for some households, exactly
@@ -22,9 +25,9 @@ zero for others, and spans several orders of magnitude when positive. A
 single regressor fit across such a target either drops a tail or interpolates
 across the empty gap at zero; hurdle-style two-part models are the classical
 remedy \citep{mullahy1986specification, lambert1992zero}. \populacefit{}
-generalizes the two-part idea to the target's \emph{sign support} ---
-whichever of $\{\text{negative}, \text{zero}, \text{positive}\}$ actually
-occur --- and imputes in four steps:
+generalizes the two-part idea to the target's \emph{sign support}, meaning
+whichever of $\{\text{negative}, \text{zero}, \text{positive}\}$ occur in
+the data, and imputes in four steps:
 \begin{enumerate}
 \item \emph{Detect the regime.} Read which sign classes occur in the
 training data. Detection is deliberately unweighted: which signs
@@ -33,128 +36,193 @@ and a rare but real class (negative net worth, say) must not vanish because
 its weight share is small.
 \item \emph{Fit the gate.} A classifier learns the probability of each sign
 class given the predictors. The gate is weighted directly through its
-\texttt{sample\_weight} argument rather than by resampling the training rows
---- resampling could delete a rare sign class outright, exactly the failure
+\texttt{sample\_weight} argument and not by resampling the training rows,
+because resampling could delete a rare sign class outright, the failure
 step 1 exists to prevent.
 \item \emph{Fit magnitudes within each sign.} A separate quantile-regression
 forest models the magnitude of each nonzero sign class, so no forest ever
 straddles the gap at zero.
 \item \emph{Draw.} For each receiver row, sample a sign class from the
-gate's predicted probabilities --- not the modal class, which would collapse
-the zero mass --- and, if the class is nonzero, draw a magnitude from that
+gate's predicted probabilities. Taking the modal class would collapse the
+zero mass. If the sampled class is nonzero, draw a magnitude from that
 class's forest.
 \end{enumerate}
 For dividend income the regime is $\{0, +\}$ and the gate is a zero hurdle;
 for net worth it is $\{-, 0, +\}$ and the gate is three-way.
-Section~\ref{sec:results-cps} measures what the gates buy on zero-inflated
-targets.
+The gate's probabilities are those of the classifier as fitted on the
+training rows: the only behavior at the version evaluated here, and still
+the package's default. For a rare sign class such a gate can be
+overconfident on rows it has not seen, and later versions of \populacefit{}
+add an opt-in out-of-fold calibration of the gate for that case
+\citep{microcosm2026}. The tasks in this paper contain no rare sign class on
+which the methods differ, so the gate's behavior on rare classes is not
+evaluated here.
+Section~\ref{sec:results-cps} compares the gated estimator with ungated
+baselines on zero-inflated targets.
 
 \paragraph{Sequential chaining.} Targets are imputed in order, each
 conditioning on the predictors plus the targets already drawn
-\citep{raghunathan2003multiple, vanbuuren2011mice}, so dependence among
+\citep{raghunathan2001multivariate, vanbuuren2011mice}, so dependence among
 imputed variables survives.
 
 \paragraph{Interface contract.} Fitting over a \populace{} frame reads the
-frame's typed survey weights by default; fitting over a plain data frame ---
-the standalone path --- requires the weights explicitly (a weight column name,
+frame's typed survey weights by default. Fitting over a plain data frame,
+the standalone path, requires the weights explicitly (a weight column name,
 a weight vector, or the literal \texttt{"none"}), and omitting them is an
-error rather than a silent unweighted fit. The contract makes the
-weight-blindness failure mode of Section~2.3 unrepresentable by accident.
+error, not a silent unweighted fit. Under this contract the weight-blind fit
+of Section~2.3 cannot happen by omission.
 
 \subsection{Ablations and baselines}
 \label{sec:ablations}
 
-\begin{table}[t]
-\centering
-\footnotesize
+\landscapefloat{table}{The method surface}{tab:methods}{%
+\fitwidth{\tablefont\setlength{\tabcolsep}{3pt}%
 \begin{tabular}{lllll}
 \hline
 Method & Weights & Gates & Chaining & Implementation \\
 \hline
 \populacefit{} & design & yes & yes & \populacefit{} \\
-\quad -- unweighted & none & yes & yes & \populacefit{}, \texttt{weights="none"} \\
-\quad -- unchained & design & yes & no & \populacefit{}, targets fit independently \\
-\quad -- ungated/unchained forest & design & no & no & \microimpute{} QRF \\
+\quad -- unweighted & none & yes & yes & \texttt{weights="none"} \\
+\quad -- unchained & design & yes & no & targets fit independently \\
+\quad -- ungated & design & no & yes & single-sign path (Section~\ref{sec:ablations}) \\
+\quad -- ungated, unchained & design & no & no & both of the above \\
+\quad -- net worth derived & design & yes & yes & net worth from three imputed components \\
+\quad -- unchained, net worth derived & design & yes & no & the same, components fit independently \\
+QRF (\microimpute{}) & design & no & yes & \microimpute{} QRF, as shipped \\
 OLS & design & no & no & \microimpute{} \\
 Linear quantile regression & design & no & no & \microimpute{} \\
-NND hot deck & inform matching & via donation & via donation & \pystatmatch{} \\
+NND hot deck & standardization only & \multicolumn{2}{l}{via donation} & \pystatmatch{}, nearest donor \\
+Random hot deck & standardization only & \multicolumn{2}{l}{via donation} & \pystatmatch{}, RANDwNND, equal chances \\
+Weighted random hot deck & standardization, donor choice & \multicolumn{2}{l}{via donation} & \pystatmatch{}, weighted draw (RANDwNND) \\
+Constrained hot deck & standardization, exact ties & \multicolumn{2}{l}{via donation} & \pystatmatch{}, capped donor use \\
 Weighted marginal draw & design & --- & --- & unconditional weighted draw \\
 \hline
-\end{tabular}
-\caption{The method surface. Every fit that has a weights column uses the
-survey's design weights; the one exception is the unweighted ablation, whose
-sole difference from the full estimator is \texttt{weights="none"}. The
-ungated/unchained forest is the \microimpute{} QRF baseline itself --- one
-implementation serving two roles, as both an ablation endpoint and standard
-practice --- and it \emph{retains} design weights, so it differs from the
-full estimator only in gating and chaining. Hot deck donates all target
+\end{tabular}}}{%
+Notes: Every fit that has a weights column uses the survey's design weights;
+the one exception is the unweighted ablation, whose sole difference from the
+full estimator is \texttt{weights="none"}. The four ablations are the full
+estimator with one or two design choices knocked out and nothing else
+changed. The two net-worth-derived variants run only in the production-scale
+profile, where the targets form a balance sheet. The \microimpute{} forest is
+an external baseline run as shipped: it applies the design weights by one
+resample of its training rows and chains its targets, but it has no gate
+and it draws through its own sampler, so it is not a knockout of the full
+estimator. The hot decks donate all target
 values from one matched donor record, which preserves zero masses and
-cross-target structure by construction rather than by modeling them.}
-\label{tab:methods}
-\end{table}
+cross-target structure by construction rather than by modeling them; they
+differ in which donor is taken, and only the weighted random hot deck draws
+its donor by weight. The random hot deck is its control: the same draw among
+the nearest donors with the weights left out. The constrained hot deck uses
+the weights only to break exact ties in distance.}
 
 Table~\ref{tab:methods} lays out the method surface. Each design choice is
 evaluated by knocking it out with everything else held fixed: the full
 estimator versus itself with \texttt{weights="none"} (the weighted
 bootstrap's contribution), versus fitting each target independently
-(chaining's contribution), and versus a single ungated, unchained forest at
-matched hyperparameters. The last knockout removes gating and chaining
-together --- \populacefit{} does not expose a gates-off switch on its own ---
-so gating's contribution is read jointly from two rows: what the plain
-forest loses beyond what removing chaining alone costs. Baselines are
-standard practice: quantile-regression-forest, ordinary-least-squares, and
+(chaining's contribution), and versus itself with the gates off (gating's
+contribution). \populacefit{} exposes no gates-off switch, but it builds a
+gate only for a target whose training values fall in more than one sign
+class; a strictly positive target is fitted with one forest and no gate. The
+gates-off ablation uses that path. Each target with more than one sign class
+is shifted by a constant that makes all its training values positive, the
+estimator is fitted as usual, and the constant is subtracted from the draws.
+The weighted bootstrap, the forests, the draw, and the chaining are the
+estimator's own; the one difference is that a single forest covers all rows,
+zeros included, where the full estimator has a classifier and a forest per
+sign. The shift is exact in the data and not in floating point, where a
+large constant can change which of two near-tied splits a tree takes, so
+the ablation matches the estimator only up to that noise. A target that
+already has one sign class is not shifted, and there the ablation is the
+full estimator. Knocking out gates and chaining together completes a
+two-by-two design, which shows where the two interact.
+
+Where the targets satisfy an accounting identity, a practitioner would impute
+all but one of them and compute the last. The net-worth-derived variants do
+so in the production-scale profile: they impute the three balance-sheet
+components, chained or independently, and set net worth to their signed sum.
+They separate what chaining contributes through the identity from what it
+contributes through the dependence among the components.
+
+Baselines are implementations of standard methods:
+quantile-regression-forest, ordinary-least-squares, and
 linear quantile-regression imputers from \microimpute{}
-\citep{policyengine2025microimpute}, and nearest-neighbour-distance hot-deck
-statistical matching from \pystatmatch{} \citep{dorazio2021statistical}. The
-candidate and the plain-forest baselines share the same underlying forest
-implementation \citep{zillow2024quantile}, so their differences isolate the
-design choices rather than implementation quality.
+\citep{policyengine2025microimpute}, and distance hot-deck
+statistical matching from \pystatmatch{}, a Python port of the R package StatMatch
+\citep{dorazio2025statmatch}. The three \microimpute{} imputers return
+conditional quantiles, and the benchmark turns each into a sampler in the
+same way. The model predicts a grid of 99 quantile levels (0.01 to 0.99),
+and each receiver row takes the prediction at one level drawn uniformly
+from that grid. The level is drawn once per row and applied to every target
+of the row. The \microimpute{} forest is built on the same
+forest library as the full estimator \citep{johnson2024quantile}, but it is
+not a knockout of it. It applies the design weights by resampling its
+training rows once, at a fixed seed, in proportion to weight. It chains its
+targets. And it turns each requested quantile level into a draw from a
+ten-level conditional quantile grid (levels $1/11$ to $10/11$) at a randomly
+chosen index. Under the level sampling just described, that draws
+the lowest and highest levels 25 and 21 percent of the time, against 10
+percent each for a uniform draw. Its generator is re-seeded identically for
+every target, so all of a row's chained targets are read at the same index.
+
+The four hot decks share one distance: Euclidean on the matching variables,
+which \pystatmatch{} standardizes by weighted moments when the donor weights
+are unequal. They differ in the donor taken. The nearest-neighbour hot deck
+takes the closest donor, so the weights do not enter its choice. The weighted
+random hot deck draws one of the $\lceil\sqrt{n}\rceil$ nearest of the $n$
+donors with probability proportional to its weight
+\citep{dorazio2006statistical}. The random hot deck draws among the same
+donors with equal probability. It is a control and not a recommendation:
+the pair separates what the weights contribute from what the draw itself
+does, and under equal weights the two coincide. The constrained hot deck finds the assignment
+of least total distance in which no donor serves more than
+$\lceil n_{\text{receivers}} / n \rceil$ receivers. The cap counts receivers,
+and the weights enter that assignment only to break exact ties in distance,
+in favour of the higher-weight donor. Its assignment problem is dense, and at the
+population view's 20,000 receivers one split took thirteen minutes against
+seconds for every other method, so it is run on the within-survey tasks only.
 
 \subsection{The population-view harness}
 \label{sec:harness}
 
-Per-variable metrics cannot adjudicate the question this paper cares about,
-because the methods differ most in how they treat the \emph{joint}. We
+Per-variable metrics cannot settle the question this paper asks, because a
+marginal metric cannot tell a conditional method from an unconditional one. We
 therefore evaluate within a framework we call the population-view harness,
 sketched in Figure~\ref{fig:harness}.
 
-\begin{figure}[t]
-\centering
-\resizebox{\textwidth}{!}{\input{figures/harness_schematic}}
-\caption{The population-view harness. One latent population is observed
-through survey views --- here the \scf{} (demographics and wealth, list
-design) and the \cps{} (demographics and income, area design). A candidate
-file assembles real \cps{} demographics with imputed wealth; the harness
-projects it through the \scf{} view and scores it against a held-out \scf{}
-sample on four blocks. The holdout appears nowhere upstream of any
-candidate, and the donor split itself is scored as a reference candidate to
-calibrate sampling noise.}
-\label{fig:harness}
-\end{figure}
+\landscapefloat{figure}{The population-view harness}{fig:harness}{%
+\fitwidth{\tablefont\input{figures/harness_schematic}}}{%
+Notes: One latent population is observed through survey views, here the
+\scf{} (demographics and wealth, list design) and the \cps{} (demographics
+and income, area design). A candidate file assembles real \cps{} demographics
+with imputed wealth; the harness projects it through the \scf{} view and
+scores it against a held-out \scf{} sample on four blocks. The holdout
+appears nowhere upstream of any candidate, and the donor split itself is
+scored as a reference candidate to calibrate sampling noise.}
 
 The framework has three ingredients. One latent population distribution $P$
 produces individuals. Each survey $s$ observes it through a \emph{view}
-$V_s$ --- a variable subset, a sampling design, a measurement idiom --- and
+$V_s$ (a variable subset, a sampling design, a measurement idiom), and
 the survey's holdout $H_s$ is a weighted sample from $V_s(P)$
 \citep{lohr2017combining}. A candidate weighted file $Q$ (any generator's)
 is scored by projecting it through each view and comparing $V_s(Q)$ to
-$H_s$ \emph{in the view's own variable space}. Cross-survey consistency is
-never required --- the candidate is only asked to explain each view in its
-own idiom --- which keeps the harness usable even though surveys disagree
-with one another about the population they share.
+$H_s$ \emph{in the view's own variable space}. The harness never requires
+consistency across surveys. It asks the candidate to explain each view in
+that view's own idiom, so it stays usable even though surveys disagree with
+one another about the population they share.
 
-Each view carries four complementary blocks, chosen so that no single
-failure mode can hide. For weighted samples
+Each view carries four blocks, each aimed at a failure the others can miss.
+For weighted samples
 $X = \{(x_i, a_i)\}$ from the candidate and $Y = \{(y_j, b_j)\}$ from the
 holdout (weights normalized to sum to one):
 
 \paragraph{Energy distance (joint fit; lower is better, 0 is perfect).}
 The weighted energy distance \citep{szekely2013energy}
-\[
+\begin{equation}
 \mathcal{E}(X, Y) = 2 \sum_{i,j} a_i b_j \lVert x_i - y_j \rVert
 - \sum_{i,i'} a_i a_{i'} \lVert x_i - x_{i'} \rVert
 - \sum_{j,j'} b_j b_{j'} \lVert y_j - y_{j'} \rVert
-\]
+\label{eq:energy}
+\end{equation}
 is the sample form of a strictly proper scoring rule
 \citep{gneiting2007strictly}: its expectation is uniquely minimized by the
 true distribution, so a candidate hedged toward modal households scores
@@ -163,68 +231,87 @@ strictly worse than one matching the full joint.
 \paragraph{Coverage (support; higher is better, 1 is perfect).} \prdc{}
 coverage \citep{naeem2020reliable} is the weighted fraction of holdout
 points with at least one candidate point inside their
-$k$-nearest-neighbour radius --- does the candidate reach every
-neighbourhood the holdout occupies? It is the explicit anti-collapse axis,
-and because it depends on the candidate only through its \emph{support}, it
-is invariant to any reweighting of the candidate: the one block a later
-calibration cannot change.
+$k$-nearest-neighbour radius. It asks whether the candidate reaches every
+neighbourhood the holdout occupies, which makes it the axis that detects
+collapse. Because it depends on the candidate only through its
+\emph{support}, it is by definition invariant to any reweighting of the
+candidate, and it is in principle the one block a later calibration cannot
+change. As
+implemented, each sample
+larger than 2,048 points is first reduced to that size by a
+weight-proportional resample (the cap the energy distance of
+Equation~\ref{eq:energy} shares). The
+candidate always is, so the reported coverage is invariant to reweighting
+only up to that resample.
 
 \paragraph{Classifier two-sample test (omnibus; 0.5 is indistinguishable).}
 A gradient-boosted classifier is trained to tell candidate rows from
 holdout rows at equal class mass, and we report its cross-validated AUC
-\citep{lopezpaz2017revisiting}. This is the omnibus block --- a single
-overall test sensitive to \emph{any} difference in the joint distribution,
-including dependence violations that leave every marginal intact. An AUC of
+\citep{lopezpaz2017revisiting}. This is the omnibus block: a single test
+that responds to any difference in the joint distribution the classifier
+can learn, including dependence violations that leave every marginal
+intact. An AUC of
 0.5 means the classifier cannot separate the files; 1.0 means it always
 can.
 
-\paragraph{Tail block (extremes; ratio of 1 is perfect).} The fourth block
-exists because we caught the first three missing a real failure. Pairwise
+\paragraph{Tail block (extremes; ratio of 1 is perfect).} We added the
+fourth block after the first three missed a failure. Pairwise
 sample-geometry metrics run on capped subsamples, and a candidate whose
 imputed wealth 99th percentile is double the holdout's can still tie on
-energy distance: the discrepant mass is a sliver of standardized pairwise
-space. Economic variables live in heavy right tails, so each \emph{imputed}
-column also carries a tail block computed on the full weighted samples with
-no cap: its weighted Wasserstein-1 distance to the holdout, scaled by the
+energy distance. We attribute that to the small part of standardized
+pairwise space the discrepant mass occupies. The classifier, which uses
+every row, tied as well, and we did not vary the cap. Wealth and income
+have heavy right tails, so
+each \emph{imputed} column also carries a tail block computed on the full weighted samples with
+no cap: its weighted Wasserstein-1 distance (Equation~\ref{eq:w1}) to the
+holdout, scaled by the
 holdout's weighted standard deviation, and its weighted 90th- and
 99th-percentile ratios (candidate over holdout).
 
-Holdouts are used nowhere upstream, so the harness is a
-non-self-referential test surface. A sampling-noise floor --- the donor
-split itself scored as a candidate --- anchors what ``as good as another
-sample of the survey'' means on each axis, including how much a tail ratio
-wobbles under sampling noise alone.
+Holdouts are used nowhere upstream, so no candidate is scored against data
+it was built from. A sampling-noise floor, the donor split itself scored as
+a candidate, anchors what ``as good as another sample of the survey'' means
+on each axis, including how much a tail ratio moves under sampling noise
+alone.
 
 \subsection{Marginal and stress metrics}
 \label{sec:metrics}
 
-All metrics are computed under survey weights, on held-out receiver rows.
+All metrics are computed on held-out receiver rows under survey weights,
+with one exception noted under pinball loss.
 
-\paragraph{Pinball loss.} Pinball loss --- also called quantile loss; the
-terms are interchangeable and we use \emph{pinball} throughout --- scores
-conditional distributional calibration \citep{koenker2005quantile}. For a
-predicted conditional quantile $\hat{q}_\tau$ and realized value $y$, the
+\paragraph{Pinball loss.} Pinball loss (also called quantile loss; we use
+\emph{pinball} throughout) scores predicted quantiles against realized
+values \citep{koenker2005quantile}.
+For a predicted quantile $\hat{q}_\tau$ and realized value $y$, the
 loss is $\rho_\tau(y - \hat{q}_\tau)$ with
 $\rho_\tau(u) = u\,(\tau - \mathbf{1}[u < 0])$; we average it, weighted,
-over the decile grid $\tau \in \{0.1, \ldots, 0.9\}$. It is minimized in
-expectation exactly when each predicted quantile is the true conditional
-quantile.
+over the decile grid $\tau \in \{0.1, \ldots, 0.9\}$. A single stochastic
+draw carries no conditional quantiles, so $\hat{q}_\tau$ here is the
+$\tau$-quantile of the method's pooled receiver draw, read with every
+receiver row counted once, and it is scored against every held-out value
+under the receiver weights. As computed, pinball loss is therefore a
+\emph{marginal} score. It does not test conditional calibration and cannot
+separate a conditional method from an unconditional one. Because the
+predicted quantiles are read without weights, it also favors a draw whose
+unweighted quantiles already match the weighted population.
 
 \paragraph{Wasserstein-1 distance.} Marginal fit is scored by the weighted
 Wasserstein-1 distance to the weighted donor distribution,
-\[
+\begin{equation}
 W_1(F, G) = \int_0^1 \bigl| F^{-1}(u) - G^{-1}(u) \bigr|\, du ,
-\]
-the average absolute gap between the two distributions' quantile functions
---- equivalently, the area between their CDFs. The subscript is the order:
+\label{eq:w1}
+\end{equation}
+the average absolute gap between the two distributions' quantile functions,
+or equivalently the area between their CDFs. The subscript is the order:
 $W_1$ averages absolute quantile gaps in the variable's own units (dollars
 here), where $W_2$ would square them. We use order 1 because it is
 interpretable in dollars and does not let a single extreme quantile
 dominate the score quadratically.
 
 \paragraph{Zero-share error.} The absolute difference between the
-candidate's and the donor's weighted share of exact zeros --- preservation
-of the zero mass of zero-inflated targets.
+candidate's and the donor's weighted share of exact zeros. It measures how
+well a method preserves the zero mass of a zero-inflated target.
 
 \paragraph{Reweighting fragility.} Fragility formalizes the landmine
 diagnostic of Section~1: over the family of bounded multiplicative
@@ -235,7 +322,7 @@ $\kappa^2 c^* / (\kappa^2 c^* + S - c^*)$, where $c^*$ is the largest
 baseline contribution $w_i |a_i|$ and $S$ their sum. Read it as: after the
 most adversarial reweighting a calibrator could apply, what share of the
 aggregate can one record carry? We report it at $\kappa = 5$ for every
-method next to the held-out truth's own fragility --- the exposure a
+method next to the held-out truth's own fragility, which is the exposure a
 faithful method should \emph{match}, not minimize.
 
 \subsection{Protocol}

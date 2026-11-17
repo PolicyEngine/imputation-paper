@@ -2,26 +2,51 @@
 \label{sec:conclusion}
 
 Imputation sits upstream of every population statistic a microsimulation
-model produces, and the imputed files are reweighted by consumers the
-imputer never sees. We presented an estimator that treats survey weights as
-a structural obligation rather than an option --- weighted bootstrap into
-the forests, directly weighted regime gates, sequential chaining, and an
-interface that refuses a silent unweighted fit --- and a population-view
-harness that evaluates any candidate population against held-out survey
-views with a strictly proper joint score, a reweighting-invariant coverage
-axis, a classifier two-sample test, and an uncapped tail block.
+model produces, and users the imputer never sees reweight the imputed
+files. We presented an estimator whose interface requires the weights to be
+stated: a weighted bootstrap into the forests, directly weighted regime
+gates, sequential chaining, and an error in place of a silent unweighted
+fit. We also presented a population-view harness, which scores any
+candidate population against held-out survey views with a strictly proper
+joint score, a support-based coverage axis, a classifier two-sample test,
+and an uncapped tail block.
 
-Empirically, the interface rule is the paper's largest single effect. On a
-survey whose design is informative, the identical estimator fit without
-weights is six times worse on net-worth marginal fit, and on the population
-view it inflates the imputed 99th percentile by a factor of 1.9 to 2.3.
-Capped joint geometry certifies that failure; only the tail block catches
-it, which is itself the paper's central lesson about evaluating imputed
-files. Chaining matters where targets are jointly constrained (5.8 AUC
-points on a balance-sheet identity at production scale). Gating carries
-zero-inflated components that plain forests and linear quantile models miss
-by 4 to 27 percentage points of zero mass. And marginal metrics --- the
-field's default --- rank an unconditional marginal draw at or near the top
-throughout, while the harness separates it decisively. The estimator is
-available standalone as \populacefit{}; the harness, task configurations,
-and every number in this paper regenerate from the accompanying repository.
+Of the three design choices, weighting has the largest effect. On the
+\scf{}, whose design is informative, the identical estimator fitted without
+weights is 6.1 times worse on net-worth marginal fit on the 2022 wave and
+4.3 times on the 2025 wave, and on the population view its imputed 99th
+percentile is 1.8 to 2.3 times the holdout's. None of the harness's three
+joint blocks registers that inflation. The tail block does, and we added it
+for that reason. Chaining matters where targets are jointly constrained,
+and there most of its effect is the constraint: fitting a balance sheet's
+components independently costs 5.8 AUC points at production scale (4.9 on
+the 2025 wave), imposing the accounting identity recovers them, and
+chaining scores 1.2 lower still, about half a standard deviation of the
+sampling floor. The gates hold the estimator's zero-share error on
+zero-inflated components to about one percentage point; with them off it
+misses the dividend zero share by 7 points, or by 4 with chaining off as
+well. Hot decks and the unconditional draw, which reuse observed values,
+hold it within about 2 points without a gate. Matching that chooses donors
+in proportion to weight equals the estimator on marginal fit within a
+survey. On the population view the nearest-neighbour and weighted random
+hot decks' AUC is 0.7 to 2.9 points higher than the estimator's on the 2022
+wave, within about one standard
+deviation of the sampling floor, and on the 2025 wave the nearest-neighbour
+hot deck is level with it at production scale. The estimator's imputed 99th
+percentile of net worth is 23 to 37 percent below the holdout's across the
+two waves. Marginal metrics rank an unconditional marginal draw first on
+\scf{} pinball loss as coded and tied for second of ten methods on the
+OpenML suite, while the classifier separates that draw from the holdout at
+an AUC of 0.968, against the estimator's 0.761.
+
+The 2025 figures come from a rerun under rules fixed in advance. It
+replicated \rep{count:primary:replicated} of the \rep{count:primary}
+findings that the abstract or conclusion stated when the rules were frozen
+and left \rep{count:primary:inconclusive} inconclusive. Of the
+\rep{count:secondary} other findings, \rep{count:secondary:failed} did not
+replicate (Appendix~\ref{app:scf2025}). The net-worth-derived variants, the
+gates-off ablations, and the weighted random hot deck were added after
+those rules were fixed and are outside them. The estimator is available
+standalone as \populacefit{}; the harness, the task configurations, and
+every table in this paper regenerate from the committed run files in the
+accompanying repository.

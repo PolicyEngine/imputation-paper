@@ -9,6 +9,8 @@ baseline, exactly the path ``imp demo`` walks.
 from __future__ import annotations
 
 import math
+import re
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -26,6 +28,7 @@ from imputation_paper.methods import (
     BASELINE_KEYS,
     CANDIDATE_KEYS,
     REGISTRY,
+    VARIANT_KEYS,
     get_method,
     list_methods,
 )
@@ -36,11 +39,18 @@ EXPECTED_METHOD_KEYS = {
     "populace_fit",
     "populace_fit_unweighted",
     "populace_fit_unchained",
+    "populace_fit_ungated",
+    "populace_fit_ungated_unchained",
+    "populace_fit_derived",
+    "populace_fit_unchained_derived",
     "plain_qrf",
     "microimpute_qrf",
     "microimpute_ols",
     "microimpute_quantreg",
     "statmatch_hotdeck",
+    "statmatch_rand_hotdeck_unweighted",
+    "statmatch_rand_hotdeck",
+    "statmatch_constrained_hotdeck",
     "weighted_marginal",
 }
 
@@ -50,16 +60,35 @@ def test_registry_exposes_the_committed_method_surface() -> None:
     assert set(REGISTRY) == EXPECTED_METHOD_KEYS
     assert set(list_methods()) == EXPECTED_METHOD_KEYS
     assert CANDIDATE_KEYS == ("populace_fit",)
+    # `plain_qrf` is microimpute's QRF as shipped (a baseline), not a
+    # knock-out of the candidate. The knock-outs are the candidate itself with
+    # one or two design choices off.
     assert set(ABLATION_KEYS) == {
         "populace_fit_unweighted",
         "populace_fit_unchained",
-        "plain_qrf",
+        "populace_fit_ungated",
+        "populace_fit_ungated_unchained",
+    }
+    assert set(VARIANT_KEYS) == {
+        "populace_fit_derived",
+        "populace_fit_unchained_derived",
     }
     assert set(BASELINE_KEYS) == EXPECTED_METHOD_KEYS - set(CANDIDATE_KEYS) - set(
         ABLATION_KEYS
-    )
+    ) - set(VARIANT_KEYS)
     with pytest.raises(KeyError, match="Unknown method"):
         get_method("nope")
+
+
+def test_registry_citation_keys_exist_in_the_bibliography() -> None:
+    """Every method that cites a source cites one the manuscript's .bib defines.
+
+    The unconditional marginal draw carries no citation (an empty key).
+    """
+    bib_path = Path(__file__).parents[1] / "paper" / "bibliography" / "references.bib"
+    defined = set(re.findall(r"@\w+\{([^,\s]+),", bib_path.read_text()))
+    cited = {m.citation_key for m in REGISTRY.values() if m.citation_key}
+    assert cited <= defined, sorted(cited - defined)
 
 
 def test_registry_imports_without_method_packages() -> None:
