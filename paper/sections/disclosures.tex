@@ -13,18 +13,30 @@ version.
 
 The paper and experiment code are at
 \url{https://github.com/PolicyEngine/imputation-paper}; every results table
-regenerates from committed run configurations via the repository's command
+regenerates from the committed run artifacts via the repository's command
 line. The estimator is implemented in \populacefit{}, part of \populace{},
-open source at \url{https://github.com/PolicyEngine/microcosm}. Baseline
-implementations are \microimpute{}
+open source at \url{https://github.com/PolicyEngine/microcosm}. It is not
+on PyPI. It installs on its own, without the rest of the stack, as a Git
+dependency on the \texttt{packages/microcosm-fit} subdirectory of that
+repository; the paper repository's README gives the one-line command.
+Baseline implementations are \microimpute{}
 (\url{https://github.com/PolicyEngine/microimpute}) and \pystatmatch{}
 (\url{https://github.com/CosilicoAI/py-statmatch}). The reported sweeps ran
-against \populacefit{} at commit \texttt{71b5a83} of the \populace{}
-repository (then named \texttt{populace}, whose distribution the pinned
-commit ships as \texttt{populace-fit}),
-\microimpute{} 1.1.2, and \pystatmatch{} at commit \texttt{094a242}; the
-\scf{} 2022 summary extract from the Federal Reserve (SHA-256 beginning
-\texttt{3bb4d890}) and the Census ASEC 2025 public-use bundle
-(\texttt{asecpub25csv.zip}, SHA-256 beginning \texttt{318845a2}) are the
-pinned survey inputs --- both read directly from their agencies of origin ---
-and each run directory's manifest records rows, caps, seeds, and methods.
+against the version of \populacefit{} merged in commit \texttt{b538d8a} of
+the \populace{} repository (then named \texttt{populace}; that commit ships
+the distribution as \texttt{populace-fit}, under
+\texttt{packages/populace-fit}), \microimpute{} 1.15.1, and \pystatmatch{}
+at commit \texttt{094a242}.
+
+The inputs are public and need no registration: the \scf{} 2022 summary
+extract from the Federal Reserve (SHA-256 beginning \texttt{3bb4d890}); the
+Census Bureau's ASEC public-use bundles for 2023, 2024, and 2025 (the 2025
+bundle, \texttt{asecpub25csv.zip}, has SHA-256 beginning
+\texttt{318845a2}); and the six OpenML datasets of
+Section~\ref{sec:task-openml}, fetched by name at versions the loader
+asserts. The Federal Reserve replaced the 2022 extract at its published
+address on 9 October 2026 with a version re-based to 2025 dollars, so the
+file this paper used can no longer be downloaded from the agency.
+% TODO before submission (PolicyEngine/imputation-paper#8): say where the
+% original SCF file is deposited, and add the ASEC 2023 and 2024 hashes.
+Each run directory's manifest records rows, caps, seeds, and methods.

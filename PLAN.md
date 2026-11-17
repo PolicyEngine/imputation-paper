@@ -46,14 +46,14 @@ truth. Committed surface (9 methods):
 | `populace_fit` | candidate | The full estimator (weighted bootstrap + regime gates + chaining) |
 | `populace_fit_unweighted` | ablation | `weights="none"`: the weighted-bootstrap contribution |
 | `populace_fit_unchained` | ablation | Targets fit independently: the chaining contribution |
-| `plain_qrf` | ablation | Single ungated, unchained forest (microimpute QRF): the gating contribution |
-| `microimpute_qrf` | baseline | Standard QRF imputation |
+| `plain_qrf` | baseline | Same estimator as `microimpute_qrf`, under the key the committed runs also carry. First planned as the gates-off, chaining-off ablation; it is not one, because microimpute's QRF chains its targets and draws through its own sampler |
+| `microimpute_qrf` | baseline | Standard QRF imputation (microimpute, as shipped) |
 | `microimpute_ols` | baseline | OLS with normal residual draws |
 | `microimpute_quantreg` | baseline | Linear quantile regression (per-quantile fits) |
 | `statmatch_hotdeck` | baseline | Classical nearest-neighbour-distance hot deck (py-statmatch) |
 | `weighted_marginal` | harness | Dependency-free lower bound; CI only |
 
-Released microimpute (1.1.2) carries no Matching model (it exists only behind
+Released microimpute (1.15.1; its `__version__` string reads 1.1.2) carries no Matching model (it exists only behind
 an R dependency in the dev tree), so py-statmatch's NND hot deck is *the*
 matching baseline. Adding or removing a method is a deliberate change to this
 table, not drift.
