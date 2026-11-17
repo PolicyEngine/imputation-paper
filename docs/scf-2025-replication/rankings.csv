@@ -1,0 +1,16 @@
+run,column,metric,spearman,best_baseline,best_replication,same_best,verdict
+wealth,Debt pinball,debt.pinball_loss,0.9036144578,weighted_marginal,weighted_marginal,True,Replicated
+wealth,Debt W1,debt.wasserstein1,0.9759036145,populace_fit,populace_fit,True,Replicated
+wealth,Debt zero-share error,debt.zero_share_error,0.2530120482,populace_fit_unweighted,populace_fit,False,Not replicated
+wealth,Net worth pinball,networth.pinball_loss,0.9285714286,weighted_marginal,weighted_marginal,True,Replicated
+wealth,Net worth W1,networth.wasserstein1,0.9285714286,populace_fit,populace_fit,True,Replicated
+min,Energy distance,energy_distance,0.8095238095,populace_fit,populace_fit,True,Replicated
+min,Coverage,prdc_coverage,0.880952381,statmatch_hotdeck,populace_fit_unweighted,False,Replicated
+min,C2ST AUC,c2st_auc,1.0,populace_fit_unweighted,populace_fit_unweighted,True,Replicated
+min,NW W1/sd,w1_over_sd.networth,0.9761904762,weighted_marginal,weighted_marginal,True,Replicated
+min,NW q99 ratio,q99_ratio.networth,0.6666666667,microimpute_ols,weighted_marginal,False,Partly replicated
+scale,Energy distance,energy_distance,0.7619047619,populace_fit,populace_fit_unchained,False,Partly replicated
+scale,Coverage,prdc_coverage,0.9761904762,populace_fit_unweighted,populace_fit_unweighted,True,Replicated
+scale,C2ST AUC,c2st_auc,0.9285714286,populace_fit_unweighted,populace_fit_unweighted,True,Replicated
+scale,NW W1/sd,w1_over_sd.networth,0.5714285714,weighted_marginal,weighted_marginal,True,Partly replicated
+scale,NW q99 ratio,q99_ratio.networth,0.619047619,microimpute_ols,weighted_marginal,False,Partly replicated

@@ -7,11 +7,13 @@
 
 Throughout, \emph{the full estimator} names \populacefit{} with all three
 design choices on (weighted, gated, chained); each table indents its
-ablations beneath it. The ungated/unchained forest row is the same estimator
-and configuration as the \microimpute{} QRF baseline
-(Table~\ref{tab:methods}), so it appears once, as an ablation row; OLS,
-quantile regression, and hot deck are the remaining standard-practice
-baselines, and the weighted marginal draw is the unconditional lower bound.
+ablations and variants beneath it. The \microimpute{} forest, OLS, quantile
+regression, and the hot decks are the standard-practice baselines
+(Table~\ref{tab:methods}), and the weighted marginal draw is the
+unconditional lower bound. A row appears only where its method applies: the
+net-worth-derived variants at production scale, the constrained hot deck on
+the within-survey tasks, the random hot deck wherever the donor weights are
+not uniform.
 Unless a caption says otherwise, every cell is the mean over the ten paired
 seeds with the standard deviation across seeds in parentheses, and bold
 marks the best non-reference value in a column: lowest for distances and
@@ -40,27 +42,49 @@ debt by a factor of 2.5 (13,001 to 32,247). The \scf{}'s list-sample design
 oversamples wealthy households at low weight, so an unweighted fit learns the
 sample's wealth distribution rather than the population's --- this is the
 weight-blindness failure mode of Section~1 measured directly, and no other
-design choice comes close to its effect size. Gating and chaining contribute
-more modestly: the ungated/unchained forest sits at 234,367 on net-worth
-$W_1$ (1.7 times the full estimator), and removing chaining raises net-worth
-$W_1$ by 17 percent (135,871 to 158,606).
+design choice comes close to its effect size. Removing the gates raises
+net-worth $W_1$ by a third (to 180,233) and removing chaining by 17 percent
+(to 158,606); both paired deltas are smaller than their own standard
+deviation across seeds (Table~\ref{tab:ablations}). What the gates change
+here is the zero mass: with them off, debt zero-share error rises from 2.0
+to 7.2 percentage points.
 
-Against the baselines, the full estimator's margins are largest where tails
-and joints matter. Hot-deck matching nearly ties it on debt marginal fit
-(13,770 vs.\ 13,001) but is 3.7 times worse on net worth (509,013). OLS is
-catastrophic on both (156,295 and 3.6 million): normal residuals cannot
+Against matching, the comparison turns on how the donor is chosen. The
+nearest-neighbour hot deck nearly ties the full estimator on debt marginal
+fit (13,770 vs.\ 13,001) but is 3.7 times worse on net
+worth (509,013). The weighted random hot deck, which draws among the nearest
+donors in proportion to their weights, is not: it posts the lowest debt
+$W_1$ of any method (11,395) and 172,984 on net worth, 1.3 times the full
+estimator and inside its seed-to-seed spread. The weights do that, and not
+the draw: the random hot deck, which makes the same draw with every near
+donor equally likely, closes none of the gap (1,033,450 on net worth).
+The constrained hot deck, whose cap counts receivers and ignores the
+weights, does no better than the nearest-neighbour one (642,051). Within
+the survey, then, the full estimator's large margin over nearest-neighbour
+matching is a margin over weight-blind donor choice, not over matching: the
+one hot deck whose choice of donor uses the weights closes most of it, and
+the three whose choice ignores them do not.
+Among the other baselines,
+the \microimpute{} forest sits at 234,367 on net worth, and OLS is
+catastrophic on both targets (156,295 and 3.6 million): normal residuals cannot
 represent a wealth distribution. Linear quantile regression leaves 15
-percent of the debt zero mass unaccounted for, against at most 2 percent for
-the forest-based methods.
+percent of the debt zero mass unaccounted for, against 7 percent for the
+gates-off ablations and at most 2 percent for the other forest-based
+methods.
 
 One result reads wrong until the metric is examined: the \emph{unconditional}
-weighted marginal draw posts the best pinball loss on both targets. With
-predictors as weak as demographics and income are for wealth, receiver-side
-marginal metrics cannot distinguish a method that draws from the correct
-weighted marginal while ignoring predictors entirely from one that also gets
-the conditionals right. This is not an artifact to explain away; it is the
-motivating observation for the population-view harness of
-Section~\ref{sec:results-harness}, which scores the joint.
+weighted marginal draw posts the best pinball loss on both targets. Pinball
+loss as computed here is a marginal score whose predicted quantiles are read
+without receiver weights (Section~\ref{sec:metrics}). In a survey that
+oversamples the wealthy, a conditional method's pooled draw follows the
+receiver sample's composition, while the marginal draw is centered on the
+weighted population by construction, so this column favors the marginal
+draw for a reason unrelated to conditional fit, and we do not read its lead
+as evidence about the methods. More generally, no receiver-side marginal
+metric can distinguish a method that draws from the correct weighted
+marginal while ignoring predictors from one that also gets the conditionals
+right. That is what the population-view harness of
+Section~\ref{sec:results-harness}, which scores the joint, is for.
 
 \subsection{Zero-inflated components and reweighting fragility}
 \label{sec:results-cps}
@@ -70,7 +94,9 @@ Section~\ref{sec:results-harness}, which scores the joint.
 \footnotesize
 \resizebox{\textwidth}{!}{\input{tables/cps_components}}
 \caption{Zero-inflated income components in the raw \cps{} (interest and
-dividend income for adults): weighted pinball loss and zero-share error, mean
+dividend income for adults, on a fixed subsample of 20,000 of the file's
+108,044 adults): weighted pinball loss, Wasserstein-1 to the weighted donor
+distribution, and zero-share error, mean
 (sd) over ten paired seeds. Bold marks the best non-reference value per
 column; lower is better.}
 \label{tab:cps-components}
@@ -89,16 +115,32 @@ generate realistic tails, substantially higher means it plants landmines.}
 \end{table}
 
 Table~\ref{tab:cps-components} reports the \cps{} components task. Pinball
-loss barely separates the non-OLS methods --- age, sex, and earnings carry
-little conditional signal for capital income --- but the zero mass separates
+loss barely separates the non-OLS methods --- as a marginal score it is not
+built to --- but the zero mass separates
 them sharply. The full estimator holds zero-share error to 0.6 and 1.3
-percentage points (dividends, interest); the ungated/unchained forest
-drifts to 4.4 points on
-dividends; linear quantile regression misses by 25--27 points because a
+percentage points (dividends, interest). With its gates off, the same
+estimator misses by 7.2 and 2.4 points, and its dividend $W_1$ doubles (223
+against 102). It errs by drawing too many zeros: in a forest grown to
+purity an atom at zero forms larger leaves than the positive values do, and
+a forest that pools leaf samples across trees over-represents the atom in
+each row's conditional. The gate replaces that with a classifier's
+probability. The \microimpute{} forest, which has no gate either and also
+differs in its sampler (Section~\ref{sec:ablations}), misses the dividend
+zero share by 4.4 points; linear quantile regression misses by 25--27 points because a
 99-level linear quantile grid cannot hold a five-sixths zero mass; and OLS
 misses the dividend zero share by 84 points --- with normal residual draws,
-nearly every adult becomes a dividend recipient. Hot deck, which donates
-observed values, holds the zero mass within 0.9--2.1 points, as expected.
+nearly every adult becomes a dividend recipient. The hot decks, which donate
+observed values, hold the zero mass within 0.7--2.1 points, as expected. On
+marginal fit the nearest-neighbour hot deck's $W_1$ is more than twice the
+full estimator's on both components (227 and 760 against 102 and 290),
+while the other three hot decks match or beat it within seed noise (random
+125 and 299; weighted random 107 and 232; constrained 98 and 231). The
+pattern differs from the \scf{}'s in one respect. There the hot decks whose
+choice ignores the weights did no better than the nearest-neighbour one;
+here they do as well as the weighted one.
+With person weights that carry little outcome information, what the
+nearest-donor rule loses on this task it loses to donor reuse, which the
+cap and the random draw both limit, and not to weight-blindness.
 
 Table~\ref{tab:fragility} reports the landmine diagnostic. Two readings
 matter. First, the held-out truth is itself concentrated: under $\kappa=5$
@@ -111,8 +153,11 @@ far below it, at 0.06 against 0.37 and 0.61 --- understating the true
 exposure by factors of roughly 7 and 11. Its aggregate is spread across many
 moderate records because the method never generates realistic tails; the
 zero-share and Wasserstein numbers show the same failure from other angles.
-No method exceeds the truth's exposure materially on this within-survey task;
-the landmine pathology of Section~1 arises when unweighted cross-file fits
+The highest dividend exposures belong to the gates-off ablation (0.78), the
+weighted random hot deck (0.76), and the marginal draw (0.75), against a
+truth of 0.61 whose own standard deviation across seeds is 0.10; none
+approaches a landmine on this within-survey task.
+The landmine pathology of Section~1 arises when unweighted cross-file fits
 meet downstream reweighting, and the direct evidence for it here is the tail
 block of the population-view experiment
 (Section~\ref{sec:results-harness}).
@@ -124,10 +169,13 @@ block of the population-view experiment
 \centering
 \footnotesize
 \resizebox{\textwidth}{!}{\input{tables/ablations}}
-\caption{Paired-seed deltas, ablation minus the full estimator, mean (sd)
-over ten seeds. Positive means the ablation is worse on these
+\caption{Paired-seed deltas from the full estimator, mean (sd) over ten
+seeds, for its four ablations: weights off, chaining off, gates off, and
+gates and chaining off. Positive means the ablation is worse on these
 lower-is-better metrics; a delta near zero means the knocked-out design
-choice is inert on that task.}
+choice is inert on that task. On each task's first target (interest, debt)
+there is nothing to chain on, so the chaining column is zero and the two
+gates-off columns agree.}
 \label{tab:ablations}
 \end{table}
 
@@ -143,16 +191,20 @@ across the ten splits.
 
 The ordering is task-dependent in an informative way. On the \scf{} ---
 informative weights, heavy tails --- weighting dominates ($+693{,}287$
-net-worth $W_1$ when removed), the structural forest machinery matters next
-($+98{,}496$), and chaining contributes a smaller $+22{,}735$ mean shift,
-though with wide seed-to-seed dispersion (sd $70{,}684$). On the \cps{} components
---- weakly informative weights, extreme zero inflation --- weighting is
-approximately free ($\Delta \approx 0$), while gating carries the load
-($+534$ dividend $W_1$ for the plain forest, and the zero-share drift of
-Table~\ref{tab:cps-components}). The design choices are complements across
-regimes, not redundant safeguards: which one binds depends on the survey's
-design and the target's structure, and none of them hurts where it does not
-help.
+net-worth $W_1$ when removed). Gating ($+44{,}362$, sd $67{,}012$) and
+chaining ($+22{,}735$, sd $70{,}684$) shift net-worth $W_1$ by less than
+their dispersion across seeds, and gating's clear effect is on the debt
+zero share ($+0.052$, sd $0.034$). On the \cps{} components --- weakly
+informative weights, extreme zero inflation --- weighting has a small effect
+(removing it raises dividend $W_1$ by 36, sd 47, from 102, and leaves the
+other metrics within seed noise), chaining is inert, and gating carries the
+load: with the gates off, dividend zero-share error rises by 6.7 percentage
+points (sd 0.8) and dividend $W_1$ by 121 (sd 56). Interest, whose zero share
+is nearer one half, moves less (1.1 points, sd 2.3). Which choice binds depends on the survey's
+design and the target's structure. Where a choice does not bind, its cost is
+small: the unweighted ablation is slightly ahead on \scf{} debt zero share
+(0.012 against 0.020, Table~\ref{tab:scf-wealth}) and on the uniform-weight
+OpenML suite (Section~\ref{sec:results-openml}).
 
 \subsection{Cross-dataset transfer}
 \label{sec:results-openml}
@@ -163,18 +215,29 @@ help.
 \resizebox{\textwidth}{!}{\input{tables/openml}}
 \caption{Wasserstein-1 to the donor distribution across the six OpenML
 regression datasets (uniform weights), mean over ten paired seeds, with mean
-rank across datasets.}
+rank across datasets among the ten methods shown. The two unchained arms are
+omitted: with a single target they coincide with their chained
+counterparts. So is the random hot deck, which under uniform weights is the
+weighted random one. The two datasets with
+more than 20,000 rows (\texttt{house\_sales}, 21,613, and
+\texttt{onlinenewspopularity}, 39,644) are capped at 20,000 by a fixed
+uniform subsample.}
 \label{tab:openml}
 \end{table}
 
 Table~\ref{tab:openml} runs the surface over the six OpenML regression
 datasets under uniform weights. Two observations. First, with weights
-uninformative by construction, the full estimator and its unweighted ablation are
-statistically the same method, and they rank near the top (mean ranks 3.8 and
-3.3) alongside the unconditional marginal draw (3.3); the linear methods rank
-last (7.8 and 8.8). Second --- and more important for this paper's argument --- the best
-mean rank on a \emph{marginal} distance is achieved by a method with no
-conditional structure at all. Marginal metrics saturate: they reward drawing
+uninformative by construction, the full estimator and its unweighted ablation
+differ only by a uniform resample of the training rows, and they rank in the
+upper half (mean ranks 4.4 and 4.0) alongside the unconditional marginal draw
+(4.0); the linear methods rank last (9.0 and 9.8). The gates-off ablation
+equals the full estimator on five of the six datasets, whose targets have a
+single sign class and so no gate to remove. Second --- and more important for
+this paper's argument --- a method with no conditional structure at all ties
+for second of the ten on a \emph{marginal} distance, ahead of the full
+estimator, and the best mean rank (3.5) goes to the constrained hot deck,
+which here uses each donor at most once and so reproduces the donor marginal
+almost by construction. Marginal metrics saturate: they reward drawing
 from the right marginal and cannot rank what imputation is actually for.
 The population-view harness exists because of exactly this ceiling.
 
@@ -186,7 +249,8 @@ The population-view harness exists because of exactly this ceiling.
 \footnotesize
 \resizebox{\textwidth}{!}{\input{tables/harness}}
 \caption{The population-view experiment, \emph{minimal} profile (six shared
-predictors, two targets, ASEC 2025 receiver): candidates assembled from real
+predictors, two targets, a fixed subsample of 20,000 of the 55,762 ASEC 2025
+receiver households): candidates assembled from real
 \cps{} demographics plus each method's imputed wealth, under \cps{}
 household weights, scored against the held-out \scf{} through the \scf{}
 view. The first row is the sampling-noise floor; cells are mean (sd) over
@@ -202,8 +266,9 @@ non-reference value per column under those conventions.}
 \footnotesize
 \resizebox{\textwidth}{!}{\input{tables/harness_scale}}
 \caption{The population-view experiment, \emph{production-scale} profile (ten
-shared predictors, four chain-ordered balance-sheet targets, pooled ASEC
-2023--2025 receiver). Columns, cell format, and bolding as in
+shared predictors, four chain-ordered balance-sheet targets, a fixed
+subsample of 20,000 of the 168,852 pooled ASEC 2023--2025 receiver
+households). Columns, cell format, and bolding as in
 Table~\ref{tab:harness}.}
 \label{tab:harness-scale}
 \end{table}
@@ -229,41 +294,87 @@ uncapped tail block for heavy-tailed economic variables, or it will certify
 files whose top percentile is wrong by a factor of two.
 
 Second, \emph{chaining's contribution appears only where the targets are
-jointly constrained --- and then only a joint metric sees it}. In the
+jointly constrained, only a joint metric sees it, and most of it is the
+constraint itself}. In the
 minimal profile (two targets) the unchained ablation is indistinguishable
-from the full estimator. At production scale, where the four targets satisfy
+from the full estimator (AUC 0.742 against 0.732, under half the floor's
+seed-to-seed standard deviation). At production scale, where the four targets satisfy
 the accounting identity networth = fin + nfin $-$ debt exactly in the donor,
 fitting them independently costs 5.8 points of C2ST AUC (0.819 vs.\ 0.761)
 while leaving every marginal and tail statistic essentially unchanged ---
 the classifier detects balance sheets that do not add up, which no marginal
-metric can. The same pattern holds for gating: the ungated/unchained forest
-loses 5.6 AUC points at scale (0.817).
+metric can. The net-worth-derived variants show how much of that is the
+identity. Imputing the three components independently and computing net
+worth from them scores 0.756, level with the fully chained estimator.
+Chaining the three components as well scores 0.744, the lowest AUC of any
+method. Chaining therefore adds 1.2 AUC points beyond what the identity
+supplies, and deriving net worth is 1.7 points better than imputing it as a
+fourth chained target. Gating does not register on the joint scores of
+either profile: every gates-off row sits within one floor standard
+deviation of its gated counterpart (at scale, AUC 0.758 chained and 0.831
+unchained, against 0.761 and 0.819).
 
 Third, \emph{richer conditioning makes the classifier two-sample test ---
 the scorecard's omnibus block --- decisive}. The
-unconditional weighted marginal draw --- which ties or beats every method on
-marginal metrics throughout this paper --- moves from AUC 0.848 in the
+unconditional weighted marginal draw --- at or near the top on marginal
+metrics throughout this paper --- moves from AUC 0.848 in the
 minimal profile to 0.968 at production scale, while the full estimator stays
-closest to the floor (0.732 and 0.761). With ten shared predictors and a
+within two points of the lowest AUC in each profile (0.732 against its
+unweighted ablation's 0.731; 0.761 against its net-worth-derived variant's
+0.744). With ten shared predictors and a
 four-component wealth block, a classifier finds the missing
 demographics--wealth coupling almost perfectly. This is the empirical case
 for carrying strong auxiliary predictors in a production imputation stack:
 richer conditioning is what turns joint-structure failures from undetectable
 into obvious.
 
-Fourth, \emph{hot-deck matching is a genuine near-peer on this task}. It
-sits within noise of the full estimator on energy and coverage in both
+Fourth, \emph{hot-deck matching is a near-peer on this task, and drawing
+among near donors does not improve on the nearest one here}. The
+nearest-neighbour hot deck sits within noise of the full estimator on energy and coverage in both
 profiles, within 2.1 and 0.7 AUC points, and its donated values slightly
-beat the full estimator's on tail $W_1$ at scale (0.024 vs.\ 0.027) ---
-donation preserves marginals and tails by construction. The full
-estimator's advantages over matching
-live where this task does not press hard: informative-weight regimes
-(Table~\ref{tab:scf-wealth}), extreme zero inflation
-(Table~\ref{tab:cps-components}), and multi-target coherence (the chaining
-result above, which matching handles only through whole-record donation at
-the cost of reusing donors). One more tail observation cuts against every
-conditional method, the full estimator included: forest draws do not extrapolate
-beyond training support, so their imputed q99 ratios sit at 0.70--0.81 ---
-they understate the extreme tail by 20--30 percent where donation-based
-draws sit near 1. No method in this surface gets the extreme tail right for
-free; the tail block is what keeps that visible.
+beat the full estimator's on tail $W_1$ at scale (0.024 vs.\ 0.027). The
+weighted random hot deck, which closed the gap within the \scf{}, does not
+carry that over: its AUC is higher than the nearest-neighbour hot deck's in
+both profiles (0.761 and 0.777, against 0.753 and 0.768), and its tail fit
+is worse at scale (0.037). The random hot deck separates the draw from the
+weights again. Its AUC is about the weighted one's (0.764 and 0.782), so
+the higher AUC comes with the draw. Its q99 ratio is about twice the
+weighted one's (1.08 and 1.57, against 0.52 and 0.60), so the weights lower
+the imputed tail, as they do for the estimator in the first finding. What
+the full estimator adds over matching is
+therefore not within-survey marginal fit, once the donor is chosen with the
+weights (Table~\ref{tab:scf-wealth}), and not the zero mass, which donation
+preserves (Table~\ref{tab:cps-components}). It is a modest margin on the
+joint. In the minimal profile its AUC is 2.1 points below the
+nearest-neighbour hot deck's and 2.9 below the weighted random one's (0.732
+against 0.753 and 0.761). At scale it ties the
+nearest-neighbour hot deck as specified, and sits 2.4 points below it once
+net worth is derived (0.744 against 0.768), so that both files' balance
+sheets add up. Each of these margins is of the order of one floor standard
+deviation (0.023 and 0.021).
+
+One more tail observation cuts against the full
+estimator: its imputed net-worth q99 falls short of the holdout's, at a
+ratio of 0.70 in the minimal profile and 0.77 at production scale. The
+nearest-neighbour hot deck, which donates observed values, shows the same
+shortfall (0.76 and 0.75), and the weighted random hot deck falls shorter
+still (0.52 and 0.60), while the unconditional marginal draw, which draws
+from the donor's weighted marginal without conditioning, sits near 1 (1.09
+and 1.12, against a floor of 1.10). The shortfall is therefore shared by a
+forest and two donation methods that all condition on the receiver's
+demographics, and this experiment does not isolate its cause. The random
+hot deck's higher ratios (1.08 and 1.57) come from leaving the weights out
+of its draw, and sit on top of the same shortfall. No method in
+this surface gets the extreme tail right for free; the tail block is what
+keeps that visible.
+
+The arms that distinguish these findings --- the gates-off ablations, the
+net-worth-derived variants, and the random and weighted random hot decks
+--- were also run on the 2025 wave of the \scf{}
+(Tables~\ref{tab:scf-wealth-2025}--\ref{tab:harness-scale-2025}), outside
+the pre-registered replication of Appendix~\ref{app:scf2025}. Each pattern
+repeats there: the debt zero share drifts with the gates off, the weighted
+random hot deck closes most of the nearest-neighbour hot deck's
+within-survey gap on net worth where the random one leaves most of it open,
+and at production scale the identity
+recovers the unchained loss while chaining adds about a point more.

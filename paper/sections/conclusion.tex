@@ -8,7 +8,7 @@ a structural obligation rather than an option --- weighted bootstrap into
 the forests, directly weighted regime gates, sequential chaining, and an
 interface that refuses a silent unweighted fit --- and a population-view
 harness that evaluates any candidate population against held-out survey
-views with a strictly proper joint score, a reweighting-invariant coverage
+views with a strictly proper joint score, a support-based coverage
 axis, a classifier two-sample test, and an uncapped tail block.
 
 Empirically, the interface rule is the paper's largest single effect. On a
@@ -17,10 +17,17 @@ weights is six times worse on net-worth marginal fit, and on the population
 view it inflates the imputed 99th percentile by a factor of 1.9 to 2.3.
 Capped joint geometry certifies that failure; only the tail block catches
 it, which is itself the paper's central lesson about evaluating imputed
-files. Chaining matters where targets are jointly constrained (5.8 AUC
-points on a balance-sheet identity at production scale). Gating carries
-zero-inflated components that plain forests and linear quantile models miss
-by 4 to 27 percentage points of zero mass. And marginal metrics --- the
+files. Chaining matters where targets are jointly constrained, and there
+most of its effect is the constraint: fitting a balance sheet's components
+independently costs 5.8 AUC points at production scale, imposing the
+accounting identity recovers them, and chaining adds 1.2 more. The gates
+hold the zero mass of zero-inflated components to about one percentage
+point; with them off the same estimator misses the dividend zero share by
+7, and linear quantile regression misses both components by 25 to 27.
+Matching that chooses donors in proportion to weight equals the estimator
+on marginal fit within a survey and trails it by 1.6 to 2.9 AUC points on
+the joint across surveys.
+And marginal metrics --- the
 field's default --- rank an unconditional marginal draw at or near the top
 throughout, while the harness separates it decisively. The estimator is
 available standalone as \populacefit{}; the harness, task configurations,

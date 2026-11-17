@@ -31,10 +31,13 @@ methods = [
     # redirect keeps the URL resolving). Repointing to current main requires
     # microcosm-fit/microcosm-frame dist names, the new #subdirectory paths,
     # and switching methods.py to `from microcosm.fit import ...`.
-    # Pinned to the DataFrame-front-door commit (populace#290); repoint to a
-    # main SHA once that PR merges.
-    "populace-fit @ git+https://github.com/PolicyEngine/populace.git@71b5a83b433195748e62178b34f299b065a21b37#subdirectory=packages/populace-fit",
-    "populace-frame @ git+https://github.com/PolicyEngine/populace.git@71b5a83b433195748e62178b34f299b065a21b37#subdirectory=packages/populace-frame",
+    # Pinned to the squash-merge on main of the DataFrame-front-door PR
+    # (PolicyEngine/microcosm#290). The committed runs were produced at that
+    # PR's head commit, 71b5a83, which the squash left off main's history;
+    # the populace-fit and populace-frame trees are byte-identical between
+    # the two commits, so this pin installs the same code.
+    "populace-fit @ git+https://github.com/PolicyEngine/populace.git@b538d8a4ecac9f0bad33c4f8d27acc453e280624#subdirectory=packages/populace-fit",
+    "populace-frame @ git+https://github.com/PolicyEngine/populace.git@b538d8a4ecac9f0bad33c4f8d27acc453e280624#subdirectory=packages/populace-frame",
     # Survey-imputation baselines: plain QRF, OLS, quantile regression, and the
     # matching imputer, under one interface.
     "microimpute>=1,<2",
@@ -52,6 +55,7 @@ viz = [
 
 [dependency-groups]
 dev = [
+    "hypothesis>=6",
     "pytest>=8",
     "ruff>=0.8",
 ]

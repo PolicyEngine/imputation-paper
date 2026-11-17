@@ -7,26 +7,50 @@ wherever the design is informative}: on the \scf{}, whose list sample
 oversamples wealthy households, removing the weighted bootstrap costs a
 factor of six on net-worth marginal fit within the donor survey and inflates
 the imputed 99th percentile on the population view by a factor of 1.9 to
-2.3. That effect is larger than the gap between the full estimator and any
-competing method. On the \cps{} components task, whose person weights carry little outcome
-information, weighting is approximately free. An estimator cannot know in
+2.3. That effect is larger than the gap between the full estimator and every
+competing method except OLS and the random hot deck, whose draw is
+weight-blind too. On the \cps{} components task, whose person weights carry little outcome
+information, weighting matters far less: removing it raises dividend $W_1$
+by about a third and leaves the other metrics within seed noise. An estimator cannot know in
 advance which regime it is in, which is the argument for weighting by
-construction rather than by option. \emph{Gating carries the zero-inflation
-surface} (0.6 versus 4.4 percentage points of dividend zero-share error
-against the same forest ungated, and 5.6 AUC points on the production-scale
-population view). \emph{Chaining matters only where the targets are jointly
-constrained}: invisible with two loosely coupled targets, it is worth 5.8
-AUC points when the four imputed components must satisfy a balance-sheet
-identity --- and only the omnibus classifier sees the violation, because a
-balance sheet that does not add up has perfectly reasonable marginals. None
-of the three choices hurts where it does not help.
+construction rather than by option. \emph{Gating carries the zero mass}:
+with its gates off, the same estimator misses the dividend zero share by 7.2
+percentage points instead of 0.6, and the \scf{} debt zero share by 7.2
+instead of 2.0, because a forest that pools leaf samples over-draws an atom
+at zero. On the population view's joint scores every gates-off row sits
+within one floor standard deviation of its gated counterpart.
+\emph{Chaining matters only where the targets are jointly constrained, and
+there most of its effect is the constraint}: invisible with two loosely
+coupled targets, fitting four balance-sheet components independently costs
+5.8 AUC points, but computing net worth from three independently imputed
+components recovers that, and chaining those three adds 1.2 points more.
+Only the omnibus classifier sees any of it, because a balance sheet that
+does not add up has perfectly reasonable marginals. The practical reading is
+that an identity among targets should be imposed rather than learned. Where
+a choice does not bind, its cost is small: the unweighted ablation is slightly
+ahead on \scf{} debt zero share and on the uniform-weight OpenML suite.
+
+Against matching, what the estimator adds is on the joint, and it is modest.
+A hot deck that draws its donor among the nearest in proportion to weight
+equals the full estimator on within-survey marginal fit, where the
+nearest-neighbour hot deck is 3.7 times worse on \scf{} net worth. That gap
+is weight-blind donor choice, not matching. On the \scf{}, whose weights
+are informative, the same draw without the weights closes none of it; on
+the \cps{}, whose weights carry little outcome information, the draw closes
+it with or without them. All four hot decks preserve the zero mass by
+donation. On the population view the order reverses: the weighted random
+hot deck is weaker than the nearest-neighbour one on the classifier score
+and on the extreme tail, and the full estimator's AUC is lower than both in
+the minimal profile (by 2.1 and 2.9 points) and, with net worth derived, at
+production scale (by 2.4 and 3.3). Those margins are one to one and a half
+times the floor's seed-to-seed standard deviation.
 
 The evaluation findings are as load-bearing as the method findings, and one
 of them corrected this paper's own harness. Marginal metrics saturate: with
-weak predictors, an unconditional weighted draw from the donor marginal ties
-or beats every conditional method on pinball loss and Wasserstein distance
---- on the OpenML suite it attains the best mean rank --- while carrying no
-conditional structure at all; at production scale the classifier separates it
+weak predictors, an unconditional weighted draw from the donor marginal sits
+at or near the top on pinball loss and Wasserstein distance
+--- on the OpenML suite it ranks second of the eight methods --- while
+carrying no conditional structure at all; at production scale the classifier separates it
 almost perfectly (AUC 0.968 against 0.761). But the joint metrics have their
 own blind spot: capped pairwise geometry tied the unweighted ablation with
 the full estimator while its imputed net-worth 99th percentile was double the
@@ -51,21 +75,30 @@ the production release-gate use of the harness; we leave it to future work
 (\psid{} access requires registration), since the two-view experiment
 already identifies the joint-structure differences this paper is about. Second, the joint-geometry blocks still run
 on weight-proportional subsamples (2,048 points per side); the tail block and
-the C2ST, which use all rows, are the axes least affected. Third, no
-conditional method gets the extreme tail right: forest draws do not
-extrapolate beyond training support, so imputed q99 ratios sit at 0.70--0.81
-for the full estimator and its forest relatives, where donation-based draws
-sit near 1 --- a genuine advantage of hot-deck matching that the tail block
-keeps visible, and a caution against reading the full estimator's wins as
-uniform.
-Baseline quantile models are additionally converted to samplers through a
-99-level grid, truncating draws beyond the 1st and 99th conditional
-percentiles. Fourth, the \microimpute{} forest's internal randomness is not
-seedable through its public constructor, so its paired-seed dispersion
-includes forest noise the full estimator's does not. Fifth, comparisons hold
-shared forest backends and default hyperparameters fixed rather than tuning
-each method per task; the ablations are exact controls, the cross-family
-comparisons are defaults-versus-defaults. Finally, we evaluate single
+the C2ST, which use all rows, are the axes least affected. Third, the full
+estimator understates the extreme tail on the population view: its imputed
+net-worth q99 is 0.70 to 0.77 of the holdout's. The nearest-neighbour hot
+deck shows the same shortfall (0.75 to 0.76), the weighted random hot deck a
+larger one (0.52 to 0.60), and the unconditional marginal draw none
+(1.09 to 1.12), so the cause is not specific to forest draws; this
+experiment does not isolate it. The tail block keeps the shortfall visible,
+and it is a caution against reading the full estimator's wins as uniform.
+The OLS and quantile-regression baselines are additionally converted to
+samplers through a 99-level grid, truncating draws beyond the 1st and 99th
+conditional percentiles. Fourth, the \microimpute{} forest is run as
+shipped. It draws each value from a ten-level conditional quantile grid,
+which reaches no further than the 9th and 91st conditional percentiles and
+over-draws those two levels, and its constructor takes no seed, so its
+forest and its sampler run on one fixed internal seed in every cell. Its
+paired-seed dispersion therefore carries no forest noise, and its
+contrasts with the full estimator mix the gate with the sampler. Fifth,
+comparisons hold shared forest backends and default hyperparameters fixed
+rather than tuning each method per task; the four ablations are exact
+controls, the cross-family comparisons are defaults-versus-defaults. Sixth,
+two arms are evaluated on part of the surface only. The constrained hot
+deck's assignment problem is too large at the population view's 20,000
+receivers, so it is absent there, and the gates are tested on targets whose
+sign classes are all common, not on a rare class. Finally, we evaluate single
 imputations distributionally and do not propagate imputation uncertainty in
 the multiple-imputation sense \citep{rubin1987multiple}; for the population
 statistics microsimulation consumes, the distributional view is the relevant
