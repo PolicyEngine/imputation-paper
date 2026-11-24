@@ -1,0 +1,2 @@
+method,reason
+statmatch_constrained_hotdeck,"The constrained hot deck is not run here: 20,000 receivers against 3,676 donors used up to 6 times is a dense assignment problem of 441,120,000 cells, over the 100,000,000-cell limit."

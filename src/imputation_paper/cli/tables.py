@@ -5,6 +5,14 @@ paper ``\\input``s from ``paper/tables/``. Everything here is a pure
 aggregation of ``metrics_long.csv`` / ``harness_long.csv`` -- no number enters
 the manuscript any other way. Missing runs are reported and their tables
 skipped, never silently faked.
+
+**Arms added later.** A method added to the surface after a task's first
+sweep is run into ``runs/<name>-added-arms/`` rather than appended to the
+committed run, which stays as it was written. Every table reads the two
+directories together (:func:`_read_long`). An added-arms run also re-runs
+methods the first sweep ran; rows the two directories share must be
+identical, so a table is only written when the added arms saw the same data,
+the same splits and the same environment as the original sweep.
 """
 
 from __future__ import annotations
@@ -22,6 +30,10 @@ METHOD_ORDER: tuple[tuple[str, str], ...] = (
     ("populace_fit", "microcosm-fit"),
     ("populace_fit_unweighted", r"\quad -- unweighted"),
     ("populace_fit_unchained", r"\quad -- unchained"),
+    ("populace_fit_ungated", r"\quad -- ungated"),
+    ("populace_fit_ungated_unchained", r"\quad -- ungated, unchained"),
+    ("populace_fit_derived", r"\quad -- net worth derived"),
+    ("populace_fit_unchained_derived", r"\quad -- unchained, net worth derived"),
     # `plain_qrf` and `microimpute_qrf` are one estimator under two registry
     # keys: microimpute's QRF as shipped. It is a baseline, not a knockout of
     # the candidate (it chains its targets and draws through its own sampler),
@@ -31,6 +43,9 @@ METHOD_ORDER: tuple[tuple[str, str], ...] = (
     ("microimpute_ols", "OLS"),
     ("microimpute_quantreg", "Quantile regression"),
     ("statmatch_hotdeck", "NND hot deck (py-statmatch)"),
+    ("statmatch_rand_hotdeck_unweighted", "Random hot deck"),
+    ("statmatch_rand_hotdeck", "Weighted random hot deck"),
+    ("statmatch_constrained_hotdeck", "Constrained hot deck"),
     ("weighted_marginal", "Weighted marginal draw"),
 )
 _DISPLAY = dict(METHOD_ORDER)
@@ -52,6 +67,10 @@ HARNESS_COLUMNS: list[tuple[str, str, str]] = [
     ("scf", "w1_over_sd.networth", r"NW $W_1$/sd"),
     ("scf", "q99_ratio.networth", "NW q99 ratio"),
 ]
+
+#: Suffix of the run directory that holds a task's arms added after its first
+#: sweep: ``runs/scf-wealth-added-arms`` sits beside ``runs/scf-wealth``.
+ADDED_ARMS_SUFFIX = "-added-arms"
 
 #: Replication waves whose tables are written next to the paper's when their
 #: runs exist: ``(run-directory suffix, table-file suffix, donor label)``.
@@ -95,6 +114,26 @@ def _cell(mean: float, sd: float, *, bold: bool = False) -> str:
 #: configuration as `plain_qrf` (one implementation under two registry
 #: keys); showing both would duplicate a row.
 _DISPLAY_EXCLUDE = {"microimpute_qrf"}
+
+#: Arms that coincide with another arm on the OpenML suite, whose tasks have
+#: one target and uniform weights. An unchained arm is its chained arm when
+#: there is nothing to chain on, and the random hot deck is the weighted
+#: random one when every donor weight is equal. The OpenML table prints one
+#: arm of each pair, so a pair of identical rows does not share a rank.
+_OPENML_TWINS: dict[str, str] = {
+    "populace_fit_unchained": "populace_fit",
+    "populace_fit_ungated_unchained": "populace_fit_ungated",
+    "statmatch_rand_hotdeck_unweighted": "statmatch_rand_hotdeck",
+}
+
+#: Columns of the ablations table: the candidate with one or two of its
+#: design choices knocked out, and nothing else changed.
+_ABLATION_COLUMNS: tuple[tuple[str, str], ...] = (
+    ("populace_fit_unweighted", r"$\Delta$ unweighted"),
+    ("populace_fit_unchained", r"$\Delta$ unchained"),
+    ("populace_fit_ungated", r"$\Delta$ ungated"),
+    ("populace_fit_ungated_unchained", r"$\Delta$ ungated, unchained"),
+)
 
 
 def _ordered_methods(present: set[str]) -> list[str]:
@@ -208,13 +247,59 @@ def _load_summary(run_dir: Path, filename: str) -> pd.DataFrame | None:
     return None if frame.empty else frame
 
 
-def _long_to_summary(run_dir: Path, filename: str, unit: str) -> pd.DataFrame | None:
-    """Aggregate a long file directly (so tables never require `imp figures`)."""
+def _read_long(run_dir: Path, filename: str) -> pd.DataFrame | None:
+    """A run's long file, with the rows of its added-arms directory merged in.
+
+    Returns ``None`` when the run itself has no (or an empty) long file. The
+    added-arms directory is optional. Where it exists:
+
+    * a row it shares with the run (same method, seed, target or view, and
+      metric) must carry the identical value, and is kept once. The shared
+      rows are the methods re-run as controls, so a mismatch means the added
+      arms were not run on the same data, splits and environment;
+    * every method it adds must cover exactly the run's seeds, so no row of a
+      table averages over a different set of splits.
+
+    Raises:
+        ValueError: On a shared row with two values, or an added method whose
+            seeds differ from the run's.
+    """
     path = run_dir / filename
     if not path.exists():
         return None
     long = pd.read_csv(path)
     if long.empty:
+        return None
+    added_path = run_dir.with_name(run_dir.name + ADDED_ARMS_SUFFIX) / filename
+    if not added_path.exists():
+        return long
+    added = pd.read_csv(added_path)
+    keys = [column for column in long.columns if column != "value"]
+
+    both = long.merge(added, on=keys, suffixes=("", "_added"))
+    differs = both[both["value"] != both["value_added"]]
+    if not differs.empty:
+        raise ValueError(
+            f"{added_path} disagrees with {path} on {len(differs)} shared row(s), "
+            f"for method(s) {sorted(differs['method'].unique())}: the added arms "
+            "were not run on the same data, splits and environment."
+        )
+    seeds = set(long["seed"])
+    for method, rows in added.groupby("method"):
+        if set(rows["seed"]) != seeds:
+            raise ValueError(
+                f"{added_path}: {method!r} covers seeds {sorted(set(rows['seed']))}, "
+                f"not the run's {sorted(seeds)}."
+            )
+    return pd.concat([long, added], ignore_index=True).drop_duplicates(
+        subset=keys, ignore_index=True
+    )
+
+
+def _long_to_summary(run_dir: Path, filename: str, unit: str) -> pd.DataFrame | None:
+    """Aggregate a long file directly (so tables never require `imp figures`)."""
+    long = _read_long(run_dir, filename)
+    if long is None:
         return None
     return (
         long.groupby(["method", unit, "metric"], as_index=False)["value"]
@@ -228,6 +313,8 @@ def _openml_table(runs_dir: Path, out_dir: Path, written: list[str]) -> None:
     """Wasserstein-1 by method across the six OpenML datasets, plus mean rank."""
     frames = []
     for run in sorted(runs_dir.glob("openml-*")):
+        if run.name.endswith(ADDED_ARMS_SUFFIX):
+            continue  # read with its run, not as a dataset of its own
         summary = _long_to_summary(run, "metrics_long.csv", "target")
         if summary is None:
             continue
@@ -243,6 +330,15 @@ def _openml_table(runs_dir: Path, out_dir: Path, written: list[str]) -> None:
     # otherwise take a rank of its own and push every method below it down one
     # place, so the printed ranks would run past the number of printed rows.
     methods = _ordered_methods(set(pivot.index))
+    # Some arms are another arm on these tasks (see _OPENML_TWINS). Print the
+    # twin only, after checking that the two rows really are the same.
+    for duplicate, twin in _OPENML_TWINS.items():
+        if (
+            duplicate in methods
+            and twin in methods
+            and pivot.loc[duplicate].equals(pivot.loc[twin])
+        ):
+            methods.remove(duplicate)
     pivot = pivot.loc[methods]
     ranks = pivot.rank(axis=0)  # lower W1 = better rank
     pivot["mean_rank"] = ranks.mean(axis=1)
@@ -279,25 +375,23 @@ def _openml_table(runs_dir: Path, out_dir: Path, written: list[str]) -> None:
 def _ablation_table(runs_dir: Path, out_dir: Path, written: list[str]) -> None:
     """Paired-seed deltas from the candidate, per task and metric.
 
-    Three comparison columns: the two ablations (weights off, chaining off)
-    and the microimpute forest baseline. Positive delta on a lower-is-better
-    metric means the comparison row is worse; for the two ablations that
-    means the knocked-out design choice was contributing. The forest
-    baseline differs from the candidate in more than one respect, so its
-    column is a comparison, not an attribution.
+    One column per knockout in :data:`_ABLATION_COLUMNS` that the runs hold:
+    weights off, chaining off, gates off, gates and chaining off. Each is the
+    candidate with only that changed, on the same splits, so a positive delta
+    on a lower-is-better metric means the knocked-out design choice was
+    contributing. Baselines are not here: they differ from the candidate in
+    more than one respect, and their rows are in the tasks' own tables.
     """
-    ablations = ("populace_fit_unweighted", "populace_fit_unchained", "plain_qrf")
     metrics = ("pinball_loss", "wasserstein1", "zero_share_error")
     rows = []
     for run_name in ("scf-wealth", "cps-components"):
-        long_path = runs_dir / run_name / "metrics_long.csv"
-        if not long_path.exists():
+        long = _read_long(runs_dir / run_name, "metrics_long.csv")
+        if long is None:
             continue
-        long = pd.read_csv(long_path)
         base = long[long["method"] == "populace_fit"].set_index(
             ["seed", "target", "metric"]
         )["value"]
-        for ablation in ablations:
+        for ablation, _ in _ABLATION_COLUMNS:
             abl = long[long["method"] == ablation].set_index(
                 ["seed", "target", "metric"]
             )["value"]
@@ -323,27 +417,32 @@ def _ablation_table(runs_dir: Path, out_dir: Path, written: list[str]) -> None:
         print("  ablations: no runs found; table skipped")
         return
     table = pd.DataFrame(rows)
+    columns = [
+        (key, header)
+        for key, header in _ABLATION_COLUMNS
+        if key in set(table["ablation"])
+    ]
     pivot = table.pivot_table(
         index=["task", "target", "metric"],
         columns="ablation",
         values=["delta_mean", "delta_sd"],
     )
     lines = [
-        "% Generated by `imp tables` -- do not edit by hand. Comparison row "
-        "minus candidate, paired-seed delta as mean (sd); positive = "
-        "comparison row worse (lower-is-better metrics).",
-        r"\begin{tabular}{lllrrr}",
+        "% Generated by `imp tables` -- do not edit by hand. Ablation minus "
+        "candidate, paired-seed delta as mean (sd); positive = ablation worse "
+        "(lower-is-better metrics).",
+        rf"\begin{{tabular}}{{lll{'r' * len(columns)}}}",
         r"\hline",
-        r"Task & Target & Metric & $\Delta$ unweighted & $\Delta$ unchained "
-        r"& $\Delta$ QRF (microimpute) \\",
+        " & ".join(["Task", "Target", "Metric", *(header for _, header in columns)])
+        + r" \\",
         r"\hline",
     ]
     for (task, target, metric), row in pivot.iterrows():
         cells = [
-            _cell(row[("delta_mean", a)], row[("delta_sd", a)])
-            if pd.notna(row.get(("delta_mean", a)))
+            _cell(row[("delta_mean", key)], row[("delta_sd", key)])
+            if pd.notna(row.get(("delta_mean", key)))
             else "--"
-            for a in ablations
+            for key, _ in columns
         ]
         lines.append(
             " & ".join(
@@ -444,8 +543,10 @@ def make_tables(
                 cps,
                 [
                     ("interest_income", "pinball_loss", "Interest pinball"),
+                    ("interest_income", "wasserstein1", "Interest $W_1$"),
                     ("interest_income", "zero_share_error", "Interest zero-share"),
                     ("dividend_income", "pinball_loss", "Dividend pinball"),
+                    ("dividend_income", "wasserstein1", "Dividend $W_1$"),
                     ("dividend_income", "zero_share_error", "Dividend zero-share"),
                 ],
                 "CPS zero-inflated components, mean (sd) over 10 paired seeds.",
