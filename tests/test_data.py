@@ -138,14 +138,26 @@ def test_load_scf_2025() -> None:
     assert set(rich.frame["race"].unique()) == {1.0, 2.0, 3.0, 4.0, 5.0}
 
 
-def test_paper_2022_inputs_are_unchanged() -> None:
-    """``load_scf(2022)`` still returns the 2022-dollar frame the runs used.
+#: The 2022 extract the paper's committed runs read. The Fed no longer serves it.
+ORIGINAL_2022_EXTRACT = (
+    "3bb4d890ae2463ff6039ec7692e375f544dd98a55a37ca2cb2340354b9cc9d80"
+)
 
-    The Fed re-issued the 2022 file in 2025 dollars on 2026-10-09; whichever
-    copy is cached, the default load is on the 2022 basis.
+
+def test_paper_2022_inputs_are_unchanged() -> None:
+    """``load_scf(2022)`` returns 2022 dollars: exactly, from the original file.
+
+    The Fed re-issued the 2022 file in 2025 dollars on 2026-10-09. Whichever
+    copy is cached, the default load is on the 2022 basis. Only the original
+    file gives the frame the committed runs used bit for bit. From the
+    re-issue the dollar columns are divided back and agree to rounding error,
+    which is enough to move forest-based results, so a cold cache does not
+    reproduce the committed 2022 runs.
     """
     task = load_scf(2022)
     assert task.provenance["dollar_year"] == 2022
+    from_original = task.provenance["zip_sha256"] == ORIGINAL_2022_EXTRACT
+    assert (task.provenance["rebase_factor"] == 1.0) is from_original
     weight = task.frame["wgt"].sum()
     assert weight == pytest.approx(131.3e6 / 5, rel=1e-3)  # implicate 1 only
     rebased = load_scf(2022, dollar_year=2025)
@@ -162,10 +174,14 @@ def test_rebasing_agrees_with_the_feds_reissued_2022_file() -> None:
     dollars. Fetch whatever the Fed serves now under a separate cache name and
     read it through the loader's own path. If it is the registered 2025-dollar
     re-issue, its values must equal the 2022-dollar file's times 4789/4376,
-    and its default (2022-dollar) load must equal the paper's inputs, so a
-    cold cache reproduces the paper. If the Fed has replaced the file again
-    the hash is unregistered and the loader refuses it, which fails here and
-    says the registry needs a new entry.
+    and its default (2022-dollar) load must equal the paper's inputs to
+    rounding error. That is agreement of inputs, not of runs: forest-based
+    results from the re-issue differ from the committed ones. The comparison
+    needs the original file in the cache; on a cold cache the canonical file
+    is the re-issue itself and the test skips, where it used to compare the
+    file with itself. If the Fed has replaced the file again the hash is
+    unregistered and the loader refuses it, which fails here and says the
+    registry needs a new entry.
     """
     from imputation_paper.data import scf
     from imputation_paper.data.base import download, sha256_of_file
@@ -181,6 +197,11 @@ def test_rebasing_agrees_with_the_feds_reissued_2022_file() -> None:
     theirs_2022, _ = scf._implicates_from_zip(served, 2022, None)
     ours_2025 = scf.load_scf_implicates(2022, dollar_year=2025)
     ours_2022 = scf.load_scf_implicates(2022)
+    if ours_2022.attrs["provenance"]["zip_sha256"] != ORIGINAL_2022_EXTRACT:
+        pytest.skip(
+            "the cache holds the re-issued 2022 file, so there is no original "
+            "to compare it with; the Fed no longer serves the original"
+        )
     for theirs, ours in ((theirs_2025, ours_2025), (theirs_2022, ours_2022)):
         theirs, ours = (
             theirs.set_index(keys).sort_index(),

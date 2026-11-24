@@ -1,0 +1,55 @@
+{
+  "task": "scf_wealth",
+  "rows_used": 4595,
+  "rows_available": 4595,
+  "row_cap_applied": false,
+  "max_rows": 20000,
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+  ],
+  "methods_requested": [
+    "populace_fit",
+    "populace_fit_unweighted",
+    "populace_fit_unchained",
+    "plain_qrf",
+    "microimpute_qrf",
+    "microimpute_ols",
+    "microimpute_quantreg",
+    "statmatch_hotdeck",
+    "weighted_marginal"
+  ],
+  "predictors": [
+    "age",
+    "hhsex",
+    "edcl",
+    "married",
+    "kids",
+    "income",
+    "wageinc"
+  ],
+  "targets": [
+    "debt",
+    "networth"
+  ],
+  "weight_column": "wgt",
+  "input_provenance": {
+    "scf_year": 2022,
+    "file": "rscfp2022.dta",
+    "zip_sha256": "d4e139c69f6acf72c47512c7a204ae9a38d263781a9f0f51cdaecdf101d2d657",
+    "file_dollar_year": 2025,
+    "file_description": "SCF 2022 re-based to 2025 dollars (rscfp2022.dta dated 2026-10-05), served from 2026-10-09",
+    "dollar_year": 2022,
+    "rebase_factor": 0.9137607016078513,
+    "url": "https://www.federalreserve.gov/econres/files/scfp2022s.zip",
+    "profile": "minimal"
+  }
+}

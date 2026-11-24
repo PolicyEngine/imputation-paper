@@ -520,6 +520,52 @@ def test_number_macros_carry_the_rebased_arm_when_it_ran(tmp_path: Path) -> None
     assert macros["scale-q90-candidate:rebased"] == macros["scale-q90-candidate:2022"]
 
 
+def test_reissue_check_counts_identical_rows_and_mean_shifts(tmp_path: Path) -> None:
+    """The rerun from the Fed's re-issued file is compared row by row."""
+    assert report_cli.reissue_check(tmp_path) is None  # no rerun, no check
+    assert report_cli._reissue_section(None) == []
+
+    committed = pd.read_csv(RUNS / "scf-wealth" / "metrics_long.csv")
+    (tmp_path / "scf-wealth").mkdir()
+    committed.to_csv(tmp_path / "scf-wealth" / "metrics_long.csv", index=False)
+    rerun = tmp_path / report_cli.REISSUE_RUN
+    rerun.mkdir()
+    committed.to_csv(rerun / "metrics_long.csv", index=False)
+    same = report_cli.reissue_check(tmp_path)
+    assert same["seeds"].sum() == same["seeds_identical"].sum() == len(committed)
+    assert same["seeds_within_rounding"].sum() == len(committed)
+    assert same["mean_relative_difference"].max() == 0
+
+    moved = committed.copy()
+    cell = (
+        moved["method"].eq(CANDIDATE)
+        & moved["target"].eq("networth")
+        & moved["metric"].eq("wasserstein1")
+    )
+    moved.loc[cell, "value"] *= 1.05
+    moved.to_csv(rerun / "metrics_long.csv", index=False)
+    check = report_cli.reissue_check(tmp_path)
+    assert check["seeds"].sum() - check["seeds_identical"].sum() == int(cell.sum())
+    assert check["mean_relative_difference"].max() == pytest.approx(0.05)
+    assert check["seeds_within_rounding"].sum() == check["seeds_identical"].sum()
+    text = "\n".join(report_cli._reissue_section(check))
+    assert f"{len(committed) - int(cell.sum()):,} equal the committed" in text
+    assert "5.0%" in text
+
+    # A last-place difference is rounding: not identical, but within tolerance.
+    nudged = committed.copy()
+    nudged.loc[cell, "value"] = np.nextafter(nudged.loc[cell, "value"], np.inf)
+    nudged.to_csv(rerun / "metrics_long.csv", index=False)
+    close = report_cli.reissue_check(tmp_path)
+    assert close["seeds_within_rounding"].sum() == len(committed)
+    assert close["seeds_identical"].sum() == len(committed) - int(cell.sum())
+
+    # A rerun of only some methods is compared on the rows it has.
+    moved[moved["method"].eq(CANDIDATE)].to_csv(rerun / "metrics_long.csv", index=False)
+    partial = report_cli.reissue_check(tmp_path)
+    assert set(partial["method"]) == {CANDIDATE}
+
+
 def test_rerun_that_drifts_replaces_the_baseline(tmp_path: Path) -> None:
     """If today's environment does not reproduce the paper, say so and switch."""
     for suffix in ("", "-2025", "-2022-rerun"):

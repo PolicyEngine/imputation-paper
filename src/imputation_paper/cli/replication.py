@@ -63,6 +63,15 @@ REBASE_2022_TO_2025 = 4789 / 4376
 #: before the environment counts as not reproducing the paper's runs.
 REPRODUCTION_TOLERANCE_SD = 0.5
 
+#: Run directory of the within-SCF 2022 sweep rerun from the Fed's re-issued
+#: 2022 extract (2025 dollars, converted back by the loader).
+REISSUE_RUN = "scf-wealth-2022-from-reissue"
+
+#: Two values of a metric this close, relatively, differ by rounding only. It
+#: is the tolerance at which the re-issued file's converted inputs are held
+#: to the original's.
+REISSUE_ROUNDING_RTOL = 1e-9
+
 #: Plain-text method names for the report.
 METHOD_NAMES: dict[str, str] = {
     FLOOR: "SCF sample (floor)",
@@ -812,6 +821,63 @@ def unit_invariance(arm_a: Arm, arm_c: Arm) -> pd.DataFrame:
 # ---------------------------------------------------------------------------
 
 
+def reissue_check(runs_dir: Path = Path("runs")) -> pd.DataFrame | None:
+    """The committed within-SCF 2022 runs against a rerun from the re-issued file.
+
+    The Fed re-issued the 2022 extract in 2025 dollars. The loader divides the
+    dollar columns back, which recovers the original values to rounding error
+    and not bit for bit. This compares the committed ``scf-wealth`` rows with
+    the same sweep run from that copy (:data:`REISSUE_RUN`), seed by seed.
+
+    Returns:
+        One row per method, target and metric with the number of seeds, the
+        number whose values are identical in the two runs, the number that
+        agree to :data:`REISSUE_ROUNDING_RTOL`, both means, and the relative
+        difference between the means (``nan`` where the committed mean is
+        zero and the rerun's is not). ``None`` if the rerun has not been
+        made.
+
+    Raises:
+        ValueError: If the rerun has no row in common with the committed run.
+    """
+    rerun_path = runs_dir / REISSUE_RUN / "metrics_long.csv"
+    if not rerun_path.exists():
+        return None
+    keys = ["method", "target", "metric", "seed"]
+    committed = pd.read_csv(runs_dir / "scf-wealth" / "metrics_long.csv")
+    rerun = pd.read_csv(rerun_path)
+    both = committed.merge(
+        rerun, on=keys, suffixes=("_committed", "_reissue"), validate="one_to_one"
+    )
+    if both.empty:
+        raise ValueError(f"{rerun_path} shares no row with the committed run.")
+    rows = []
+    for (method, target, metric), cell in both.groupby(keys[:3], sort=True):
+        a = cell["value_committed"].to_numpy(dtype=np.float64)
+        b = cell["value_reissue"].to_numpy(dtype=np.float64)
+        mean_a, mean_b = float(a.mean()), float(b.mean())
+        if mean_a != 0:
+            relative = abs(mean_b - mean_a) / abs(mean_a)
+        else:
+            relative = 0.0 if mean_b == 0 else float("nan")
+        rows.append(
+            {
+                "method": method,
+                "target": target,
+                "metric": metric,
+                "seeds": len(cell),
+                "seeds_identical": int((a == b).sum()),
+                "seeds_within_rounding": int(
+                    np.isclose(a, b, rtol=REISSUE_ROUNDING_RTOL, atol=0.0).sum()
+                ),
+                "mean_committed": mean_a,
+                "mean_reissue": mean_b,
+                "mean_relative_difference": relative,
+            }
+        )
+    return pd.DataFrame(rows)
+
+
 @dataclass(frozen=True)
 class Report:
     """Everything the replication reports, as frames.
@@ -1193,6 +1259,58 @@ def _checks_section(checks: dict | None) -> list[str]:
     return lines
 
 
+def _reissue_section(reissue: pd.DataFrame | None) -> list[str]:
+    """The rerun of the within-SCF task from the Fed's re-issued 2022 file."""
+    if reissue is None:
+        return []
+    rows = int(reissue["seeds"].sum())
+    identical = int(reissue["seeds_identical"].sum())
+    rounding = int(reissue["seeds_within_rounding"].sum())
+    shift = reissue["mean_relative_difference"].max()
+    w1_shift = reissue.loc[
+        reissue["metric"].eq("wasserstein1"), "mean_relative_difference"
+    ].max()
+    lines = [
+        "## The 2022 runs from the Fed's re-issued file",
+        "",
+        "The Fed replaced the 2022 extract on 2026-10-09 with a copy in 2025 "
+        "dollars. The loader converts that copy back to 2022 dollars, which "
+        "recovers the original values to rounding error and not bit for bit. "
+        f"`runs/{REISSUE_RUN}` is the within-SCF sweep run from the re-issued "
+        f"copy, with the same code, seeds and methods. Of its {rows:,} metric "
+        f"rows, {identical:,} equal the committed `runs/scf-wealth` rows "
+        f"exactly and {rounding:,} agree with them to nine significant "
+        f"digits. The largest change in a ten-seed mean is {100 * shift:.1f}%, "
+        f"and in a ten-seed mean W1 {100 * w1_shift:.1f}%. The committed 2022 "
+        "runs therefore regenerate exactly only from the original file.",
+        "",
+    ]
+    by_method = reissue.groupby("method", sort=True)
+    lines += [
+        _md_table(
+            [
+                "Method",
+                "Rows identical",
+                "Rows within rounding",
+                "Rows",
+                "Largest change in a mean",
+            ],
+            [
+                [
+                    METHOD_NAMES.get(method, method),
+                    f"{int(cell['seeds_identical'].sum())}",
+                    f"{int(cell['seeds_within_rounding'].sum())}",
+                    f"{int(cell['seeds'].sum())}",
+                    f"{100 * cell['mean_relative_difference'].max():.1f}%",
+                ]
+                for method, cell in by_method
+            ],
+        ),
+        "",
+    ]
+    return lines
+
+
 def _thread_note(report: Report) -> list[str]:
     """How the new runs were executed, with what the rerun says about it."""
     if report.reproduction.empty:
@@ -1268,6 +1386,7 @@ def render_markdown(
     checks: dict | None = None,
     reuse: dict | None = None,
     pinball: dict | None = None,
+    reissue: pd.DataFrame | None = None,
 ) -> str:
     """The comparison document."""
     findings = report.findings
@@ -1550,6 +1669,7 @@ def render_markdown(
             "",
         ]
 
+    lines += _reissue_section(reissue)
     lines += _reuse_section(reuse)
     lines += _pinball_section(pinball)
     lines += _checks_section(checks)
@@ -1636,6 +1756,7 @@ def number_macros(
     checks: dict | None = None,
     reuse: dict | None = None,
     pinball: dict | None = None,
+    reissue: pd.DataFrame | None = None,
 ) -> dict[str, str]:
     """Macro key -> text for every number the appendix prose may cite.
 
@@ -1697,6 +1818,19 @@ def number_macros(
         macros["repro:cells"] = str(len(check))
         macros["repro:identical"] = str(int(check["identical"].sum()))
         macros["repro:maxgap"] = f"{check['gap_in_sd'].max():.2f}"
+    if reissue is not None:
+        macros["reissue:rows"] = f"{int(reissue['seeds'].sum()):,}"
+        macros["reissue:rows-identical"] = f"{int(reissue['seeds_identical'].sum()):,}"
+        macros["reissue:rows-rounding"] = (
+            f"{int(reissue['seeds_within_rounding'].sum()):,}"
+        )
+        macros["reissue:mean-shift-max"] = (
+            f"{100 * reissue['mean_relative_difference'].max():.1f}"
+        )
+        w1 = reissue["metric"].eq("wasserstein1")
+        macros["reissue:w1-shift-max"] = (
+            f"{100 * reissue.loc[w1, 'mean_relative_difference'].max():.1f}"
+        )
     if checks is not None:
         for key, gap in checks["published_gaps"].items():
             scale = 1e6 if key == "weight_total" else 1e3
@@ -1799,11 +1933,12 @@ def make_replication(
     reuse = json.loads(reuse_path.read_text()) if reuse_path.exists() else None
     pinball_path = runs_dir / "scf-pinball-weighting" / "manifest.json"
     pinball = json.loads(pinball_path.read_text()) if pinball_path.exists() else None
+    reissue = reissue_check(runs_dir)
 
     docs_out.mkdir(parents=True, exist_ok=True)
     tables_out.mkdir(parents=True, exist_ok=True)
     (docs_out / "comparison.md").write_text(
-        render_markdown(report, checks, reuse, pinball)
+        render_markdown(report, checks, reuse, pinball, reissue)
     )
     report.findings.to_csv(docs_out / "findings.csv", index=False)
     report.headlines.to_csv(docs_out / "headline_numbers.csv", index=False)
@@ -1812,10 +1947,12 @@ def make_replication(
         report.reproduction.to_csv(docs_out / "reproduction_check.csv", index=False)
     if not report.units.empty:
         report.units.to_csv(docs_out / "unit_invariance.csv", index=False)
+    if reissue is not None:
+        reissue.to_csv(docs_out / "reissue_check.csv", index=False)
     for stem, prefixes in VERDICT_TABLES.items():
         (tables_out / f"{stem}.tex").write_text(render_verdict_table(report, prefixes))
     (tables_out / "scf2025_numbers.tex").write_text(
-        render_number_macros(number_macros(report, checks, reuse, pinball))
+        render_number_macros(number_macros(report, checks, reuse, pinball, reissue))
     )
 
     print(f"imp replication -- baseline arm {report.baseline_letter}")

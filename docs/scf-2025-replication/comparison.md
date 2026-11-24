@@ -393,6 +393,22 @@ Within the SCF, arm C is arm A in different units. After converting arm C's doll
 | NND hot deck | 100 | 84 | 1.6% | 0.0% |
 | weighted marginal draw | 100 | 100 | 0.0% | 0.0% |
 
+## The 2022 runs from the Fed's re-issued file
+
+The Fed replaced the 2022 extract on 2026-10-09 with a copy in 2025 dollars. The loader converts that copy back to 2022 dollars, which recovers the original values to rounding error and not bit for bit. `runs/scf-wealth-2022-from-reissue` is the within-SCF sweep run from the re-issued copy, with the same code, seeds and methods. Of its 900 metric rows, 344 equal the committed `runs/scf-wealth` rows exactly and 453 agree with them to nine significant digits. The largest change in a ten-seed mean is 9.8%, and in a ten-seed mean W1 5.0%. The committed 2022 runs therefore regenerate exactly only from the original file.
+
+| Method | Rows identical | Rows within rounding | Rows | Largest change in a mean |
+| --- | --- | --- | --- | --- |
+| OLS | 37 | 100 | 100 | 0.0% |
+| microimpute_qrf | 17 | 20 | 100 | 9.8% |
+| quantile regression | 27 | 30 | 100 | 2.8% |
+| ungated/unchained forest | 17 | 20 | 100 | 9.8% |
+| populace-fit | 36 | 39 | 100 | 3.5% |
+| populace-fit, unchained | 36 | 39 | 100 | 3.7% |
+| populace-fit, unweighted | 35 | 38 | 100 | 3.6% |
+| NND hot deck | 53 | 67 | 100 | 1.2% |
+| weighted marginal draw | 86 | 100 | 100 | 0.0% |
+
 ### Hot deck's tail and donor reuse
 
 Hot deck donates whole observed values, so a donor matched to many receivers is copied many times. The table repeats each run's hot-deck match and asks how much receiver weight a single donor above the holdout's net-worth q99 accounts for. A donor whose receivers carry more than one percent of the weight, by more than the largest single receiver's share, puts the imputed q99 at or above its own net worth, so one such donor above the holdout's q99 is enough to inflate the ratio (the largest single receiver's share here is 0.03%). A seed counts as tail-inflated when its q99 ratio exceeds 1.5. The recomputed q99 ratios match the committed harness runs (largest difference 1e-16). Weight shares and counts only.
