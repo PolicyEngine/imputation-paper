@@ -667,6 +667,7 @@ def test_appendix_cites_only_generated_numbers() -> None:
         r"4789/4376",  # the Fed's re-basing factor
         r"0\.5",  # the indistinguishable AUC
         r"q99|q90|W_1",
+        r"C2ST",  # the classifier two-sample test, a column header in the tables
         r"\\textwidth|\\footnotesize|\\scriptsize",
     )
     for pattern in allowed:

@@ -8,7 +8,10 @@
 % `mathptmx` in this local TinyTeX install requests a missing rsfs font.
 % Use the standard Times text package instead so the paper remains buildable.
 \RequirePackage{times}
-\renewcommand{\ttdefault}{cmtt}
+% Typewriter text: Latin Modern Typewriter, the outline form of Computer
+% Modern Typewriter. `cmtt` in T1 encoding needs the cm-super fonts for
+% outlines; where they are not installed pdfTeX embeds a bitmap (Type 3) font.
+\renewcommand{\ttdefault}{lmtt}
 
 % --- Spacing: 1.5 throughout ---
 \RequirePackage{setspace}
@@ -25,24 +28,93 @@
 \RequirePackage{amsmath}
 \RequirePackage{amsfonts}
 
-% --- Tables: no borders, Arial 10pt interior ---
+% --- Floats: label above, Arial-like 10 pt inside, notes below ---
+% IJM: the label ("Table 1: Title") goes on the line above the float; text
+% and numbers inside a float are in Arial or similar at 10 pt; sources and
+% notes go immediately below, in the text face at 10 pt; a float that needs
+% more width than the page is presented landscape; no borders.
 \RequirePackage{booktabs}
 \RequirePackage{array}
-\RequirePackage{helvet}  % provides \sffamily for Arial-like interior text
-
-% Table interior font switch
-\newcommand{\tablefont}{\fontsize{10}{12}\selectfont\sffamily}
-
-% --- Figures ---
+\RequirePackage{helvet}  % provides \sffamily for the Arial-like interior
 \RequirePackage{graphicx}
+\RequirePackage{float}
+\RequirePackage{caption}
+\captionsetup{position=above, labelsep=colon, justification=raggedright,
+  singlelinecheck=false, skip=6pt}
+\RequirePackage{pdflscape}
+\RequirePackage{afterpage}
+\RequirePackage{longtable}
 
-% --- Citations: APA style via natbib ---
-% Quarto/Pandoc may preload natbib before this style is included.
-\makeatletter
-\@ifpackageloaded{natbib}{}{\RequirePackage[round]{natbib}}
-\makeatother
-\bibpunct{(}{)}{;}{a}{,}{,}
-\setcitestyle{authoryear,round}
+% Interior font of a float, with a little air between table rows.
+\newcommand{\tablefont}{\fontsize{10}{12}\selectfont\sffamily
+  \renewcommand{\arraystretch}{1.15}}
+
+% \fitwidth{<material>}: the material at its natural size, or scaled down to
+% the line width if it is wider. No float should need the scaling at present;
+% it keeps a table inside the margins if its content grows.
+\newsavebox{\ijm@fitbox}
+\newcommand{\fitwidth}[1]{%
+  \sbox{\ijm@fitbox}{#1}%
+  \ifdim\wd\ijm@fitbox>\linewidth
+    \resizebox{\linewidth}{!}{\usebox{\ijm@fitbox}}%
+  \else
+    \usebox{\ijm@fitbox}%
+  \fi}
+
+% \generatedtable[<column separation>]{<file in tables/>}: a table written
+% by `imp tables`, in the float font.
+\newcommand{\generatedtable}[2][3pt]{%
+  \fitwidth{\tablefont\setlength{\tabcolsep}{#1}\input{tables/#2}}}
+
+% Sources and notes under a float.
+\newcommand{\tablenote}[1]{%
+  \par\vspace{4pt}%
+  {\fontsize{10}{12}\selectfont\rmfamily\raggedright\noindent #1\par}}
+
+% \landscapefloat{<table|figure>}{<title>}{<label>}{<body>}{<notes>}:
+% the float on a landscape page of its own, after the current page.
+\newcommand{\landscapefloat}[5]{%
+  \afterpage{\clearpage
+    \begin{landscape}%
+    \begin{#1}[H]%
+      \singlespacing % as in every other float; [H] does not get it by itself
+      \caption{#2}\label{#3}%
+      \centering #4%
+      \tablenote{#5}%
+    \end{#1}%
+    \end{landscape}}}
+
+% \landscapelongtable{<title>}{<label>}{<file in tables/>}{<notes>}:
+% a generated table too long for one landscape page. Its tabular is typeset
+% as a longtable, which breaks across pages and repeats the header rows that
+% end at \verdictheadend. longtable steps the table counter itself, so the
+% counter is set back once after the label is taken, and the second step gets
+% its own hyperlink anchor.
+% (Kept out of the macro below: \afterpage stores its argument in a macro,
+% and a parameter character in it would not survive that.)
+\newcommand{\ijm@tabularaslongtable}{%
+  \renewenvironment{tabular}[1]{\longtable{##1}}{\endlongtable}}
+\newcommand{\landscapelongtable}[4]{%
+  \afterpage{\clearpage
+    \begin{landscape}%
+    \singlespacing
+    \captionof{table}{#1}\label{#2}%
+    \addtocounter{table}{-1}%
+    \begingroup
+      \tablefont\setlength{\tabcolsep}{3pt}%
+      \setlength{\LTpre}{0pt}\setlength{\LTpost}{0pt}%
+      \renewcommand{\theHtable}{longtable.\arabic{table}}%
+      \let\verdictheadend\endhead
+      \ijm@tabularaslongtable
+      \input{tables/#3}%
+    \endgroup
+    \tablenote{#4}%
+    \end{landscape}}}
+
+% --- Citations and references: APA style ---
+% apacite formats the citations and, through apacite.bst, the reference list;
+% natbib supplies the citation commands. Both are loaded by ijmarticle.cls,
+% because apacite has to come before natbib (see the note there).
 
 % --- Hyperlinks ---
 \RequirePackage{hyperref}
@@ -62,14 +134,5 @@
 % --- Footnotes: same font, size 10 ---
 \RequirePackage[hang,flushmargin]{footmisc}
 \renewcommand{\footnotesize}{\fontsize{10}{12}\selectfont}
-
-% --- Float placement ---
-\RequirePackage{float}
-
-% --- Source/note formatting below tables and figures ---
-\newcommand{\tablenote}[1]{%
-  \par\vspace{2pt}%
-  {\fontsize{10}{12}\selectfont\rmfamily #1}%
-}
 
 \endinput

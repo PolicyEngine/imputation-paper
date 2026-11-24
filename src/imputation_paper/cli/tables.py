@@ -42,7 +42,7 @@ METHOD_ORDER: tuple[tuple[str, str], ...] = (
     ("microimpute_qrf", "QRF (microimpute)"),
     ("microimpute_ols", "OLS"),
     ("microimpute_quantreg", "Quantile regression"),
-    ("statmatch_hotdeck", "NND hot deck (py-statmatch)"),
+    ("statmatch_hotdeck", "NND hot deck"),
     ("statmatch_rand_hotdeck_unweighted", "Random hot deck"),
     ("statmatch_rand_hotdeck", "Weighted random hot deck"),
     ("statmatch_constrained_hotdeck", "Constrained hot deck"),
@@ -538,21 +538,26 @@ def make_tables(
 
     cps = _long_to_summary(runs_dir / "cps-components", "metrics_long.csv", "target")
     if cps is not None:
-        (out_dir / "cps_components.tex").write_text(
-            _tabular(
-                cps,
-                [
-                    ("interest_income", "pinball_loss", "Interest pinball"),
-                    ("interest_income", "wasserstein1", "Interest $W_1$"),
-                    ("interest_income", "zero_share_error", "Interest zero-share"),
-                    ("dividend_income", "pinball_loss", "Dividend pinball"),
-                    ("dividend_income", "wasserstein1", "Dividend $W_1$"),
-                    ("dividend_income", "zero_share_error", "Dividend zero-share"),
-                ],
-                "CPS zero-inflated components, mean (sd) over 10 paired seeds.",
+        # One panel per component. At the journal's 10 pt float font the two
+        # side by side are wider than a landscape page; one above the other
+        # they fit a portrait page.
+        for stem, target, label in (
+            ("cps_components_interest", "interest_income", "interest"),
+            ("cps_components_dividends", "dividend_income", "dividend"),
+        ):
+            (out_dir / f"{stem}.tex").write_text(
+                _tabular(
+                    cps,
+                    [
+                        (target, "pinball_loss", "Pinball loss"),
+                        (target, "wasserstein1", "$W_1$"),
+                        (target, "zero_share_error", "Zero-share error"),
+                    ],
+                    f"CPS zero-inflated components, {label} income, mean (sd) "
+                    "over 10 paired seeds.",
+                )
             )
-        )
-        written.append("cps_components.tex")
+            written.append(f"{stem}.tex")
         (out_dir / "fragility.tex").write_text(
             _tabular(
                 cps,

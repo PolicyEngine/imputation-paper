@@ -75,9 +75,8 @@ weight-blindness failure mode of Section~2.3 unrepresentable by accident.
 \subsection{Ablations and baselines}
 \label{sec:ablations}
 
-\begin{table}[t]
-\centering
-\resizebox{\textwidth}{!}{%
+\landscapefloat{table}{The method surface}{tab:methods}{%
+\fitwidth{\tablefont\setlength{\tabcolsep}{3pt}%
 \begin{tabular}{lllll}
 \hline
 Method & Weights & Gates & Chaining & Implementation \\
@@ -85,38 +84,34 @@ Method & Weights & Gates & Chaining & Implementation \\
 \populacefit{} & design & yes & yes & \populacefit{} \\
 \quad -- unweighted & none & yes & yes & \texttt{weights="none"} \\
 \quad -- unchained & design & yes & no & targets fit independently \\
-\quad -- ungated & design & no & yes & single-sign path (see text) \\
+\quad -- ungated & design & no & yes & single-sign path (Section~\ref{sec:ablations}) \\
 \quad -- ungated, unchained & design & no & no & both of the above \\
-\quad -- net worth derived & design & yes & yes & net worth computed from three imputed components \\
+\quad -- net worth derived & design & yes & yes & net worth from three imputed components \\
 \quad -- unchained, net worth derived & design & yes & no & the same, components fit independently \\
 QRF (\microimpute{}) & design & no & yes & \microimpute{} QRF, as shipped \\
 OLS & design & no & no & \microimpute{} \\
 Linear quantile regression & design & no & no & \microimpute{} \\
 NND hot deck & standardization only & \multicolumn{2}{l}{via donation} & \pystatmatch{}, nearest donor \\
-Random hot deck & standardization only & \multicolumn{2}{l}{via donation} & \pystatmatch{}, equal-chance draw among near donors \\
-Weighted random hot deck & standardization, donor choice & \multicolumn{2}{l}{via donation} & \pystatmatch{}, the same draw by weight (RANDwNND) \\
+Random hot deck & standardization only & \multicolumn{2}{l}{via donation} & \pystatmatch{}, equal-chance draw \\
+Weighted random hot deck & standardization, donor choice & \multicolumn{2}{l}{via donation} & \pystatmatch{}, weighted draw (RANDwNND) \\
 Constrained hot deck & standardization only & \multicolumn{2}{l}{via donation} & \pystatmatch{}, capped donor use \\
 Weighted marginal draw & design & --- & --- & unconditional weighted draw \\
 \hline
-\end{tabular}%
-}
-\caption{The method surface. Every fit that has a weights column uses the
-survey's design weights; the one exception is the unweighted ablation, whose
-sole difference from the full estimator is \texttt{weights="none"}. The four
-ablations are the full estimator with one or two design choices knocked out
-and nothing else changed. The two net-worth-derived variants run only in the
-production-scale profile, where the targets form a balance sheet. The
-\microimpute{} forest is an external baseline run as shipped: it keeps the
-design weights and chains its targets, but it has no gate and it draws
-through its own sampler, so it is not a knockout of the full estimator. The
-hot decks donate all target values from one
-matched donor record, which preserves zero masses and cross-target structure
-by construction rather than by modeling them; they differ in which donor is
-taken, and only the weighted random hot deck uses the donor weights for that
-choice. The random hot deck is its control: the same draw with the weights
-left out.}
-\label{tab:methods}
-\end{table}
+\end{tabular}}}{%
+Notes: Every fit that has a weights column uses the survey's design weights;
+the one exception is the unweighted ablation, whose sole difference from the
+full estimator is \texttt{weights="none"}. The four ablations are the full
+estimator with one or two design choices knocked out and nothing else
+changed. The two net-worth-derived variants run only in the production-scale
+profile, where the targets form a balance sheet. The \microimpute{} forest is
+an external baseline run as shipped: it keeps the design weights and chains
+its targets, but it has no gate and it draws through its own sampler, so it
+is not a knockout of the full estimator. The hot decks donate all target
+values from one matched donor record, which preserves zero masses and
+cross-target structure by construction rather than by modeling them; they
+differ in which donor is taken, and only the weighted random hot deck uses
+the donor weights for that choice. The random hot deck is its control: the
+same draw with the weights left out.}
 
 Table~\ref{tab:methods} lays out the method surface. Each design choice is
 evaluated by knocking it out with everything else held fixed: the full
@@ -181,19 +176,15 @@ because the methods differ most in how they treat the \emph{joint}. We
 therefore evaluate within a framework we call the population-view harness,
 sketched in Figure~\ref{fig:harness}.
 
-\begin{figure}[t]
-\centering
-\resizebox{\textwidth}{!}{\input{figures/harness_schematic}}
-\caption{The population-view harness. One latent population is observed
-through survey views --- here the \scf{} (demographics and wealth, list
-design) and the \cps{} (demographics and income, area design). A candidate
-file assembles real \cps{} demographics with imputed wealth; the harness
-projects it through the \scf{} view and scores it against a held-out \scf{}
-sample on four blocks. The holdout appears nowhere upstream of any
-candidate, and the donor split itself is scored as a reference candidate to
-calibrate sampling noise.}
-\label{fig:harness}
-\end{figure}
+\landscapefloat{figure}{The population-view harness}{fig:harness}{%
+\fitwidth{\tablefont\input{figures/harness_schematic}}}{%
+Notes: One latent population is observed through survey views --- here the
+\scf{} (demographics and wealth, list design) and the \cps{} (demographics
+and income, area design). A candidate file assembles real \cps{} demographics
+with imputed wealth; the harness projects it through the \scf{} view and
+scores it against a held-out \scf{} sample on four blocks. The holdout
+appears nowhere upstream of any candidate, and the donor split itself is
+scored as a reference candidate to calibrate sampling noise.}
 
 The framework has three ingredients. One latent population distribution $P$
 produces individuals. Each survey $s$ observes it through a \emph{view}
@@ -213,11 +204,12 @@ holdout (weights normalized to sum to one):
 
 \paragraph{Energy distance (joint fit; lower is better, 0 is perfect).}
 The weighted energy distance \citep{szekely2013energy}
-\[
+\begin{equation}
 \mathcal{E}(X, Y) = 2 \sum_{i,j} a_i b_j \lVert x_i - y_j \rVert
 - \sum_{i,i'} a_i a_{i'} \lVert x_i - x_{i'} \rVert
 - \sum_{j,j'} b_j b_{j'} \lVert y_j - y_{j'} \rVert
-\]
+\label{eq:energy}
+\end{equation}
 is the sample form of a strictly proper scoring rule
 \citep{gneiting2007strictly}: its expectation is uniquely minimized by the
 true distribution, so a candidate hedged toward modal households scores
@@ -286,9 +278,10 @@ unweighted quantiles already match the weighted population.
 
 \paragraph{Wasserstein-1 distance.} Marginal fit is scored by the weighted
 Wasserstein-1 distance to the weighted donor distribution,
-\[
+\begin{equation}
 W_1(F, G) = \int_0^1 \bigl| F^{-1}(u) - G^{-1}(u) \bigr|\, du ,
-\]
+\label{eq:w1}
+\end{equation}
 the average absolute gap between the two distributions' quantile functions
 --- equivalently, the area between their CDFs. The subscript is the order:
 $W_1$ averages absolute quantile gaps in the variable's own units (dollars
