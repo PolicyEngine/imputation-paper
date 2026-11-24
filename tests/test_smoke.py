@@ -9,6 +9,8 @@ baseline, exactly the path ``imp demo`` walks.
 from __future__ import annotations
 
 import math
+import re
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -50,16 +52,28 @@ def test_registry_exposes_the_committed_method_surface() -> None:
     assert set(REGISTRY) == EXPECTED_METHOD_KEYS
     assert set(list_methods()) == EXPECTED_METHOD_KEYS
     assert CANDIDATE_KEYS == ("populace_fit",)
+    # `plain_qrf` is microimpute's QRF as shipped (a baseline), not a
+    # knock-out of the candidate, so only two ablations are registered.
     assert set(ABLATION_KEYS) == {
         "populace_fit_unweighted",
         "populace_fit_unchained",
-        "plain_qrf",
     }
     assert set(BASELINE_KEYS) == EXPECTED_METHOD_KEYS - set(CANDIDATE_KEYS) - set(
         ABLATION_KEYS
     )
     with pytest.raises(KeyError, match="Unknown method"):
         get_method("nope")
+
+
+def test_registry_citation_keys_exist_in_the_bibliography() -> None:
+    """Every method that cites a source cites one the manuscript's .bib defines.
+
+    The unconditional marginal draw carries no citation (an empty key).
+    """
+    bib_path = Path(__file__).parents[1] / "paper" / "bibliography" / "references.bib"
+    defined = set(re.findall(r"@\w+\{([^,\s]+),", bib_path.read_text()))
+    cited = {m.citation_key for m in REGISTRY.values() if m.citation_key}
+    assert cited <= defined, sorted(cited - defined)
 
 
 def test_registry_imports_without_method_packages() -> None:
