@@ -1,0 +1,2887 @@
+{
+  "diagnostic": "pinball_quantile_weighting",
+  "largest_relative_difference_from_committed_pinball": 1.9609597335146866e-16,
+  "matches_committed_runs": true,
+  "rows": [
+    {
+      "scf_year": 2022,
+      "seed": 0,
+      "method": "populace_fit",
+      "target": "debt",
+      "pinball_as_coded": 48083.84336125468,
+      "pinball_weighted_quantiles": 47428.77330281044
+    },
+    {
+      "scf_year": 2022,
+      "seed": 0,
+      "method": "populace_fit",
+      "target": "networth",
+      "pinball_as_coded": 493427.8242544123,
+      "pinball_weighted_quantiles": 417465.2869149812
+    },
+    {
+      "scf_year": 2022,
+      "seed": 0,
+      "method": "populace_fit_unweighted",
+      "target": "debt",
+      "pinball_as_coded": 49718.8147568806,
+      "pinball_weighted_quantiles": 47368.4015394268
+    },
+    {
+      "scf_year": 2022,
+      "seed": 0,
+      "method": "populace_fit_unweighted",
+      "target": "networth",
+      "pinball_as_coded": 668423.4213396725,
+      "pinball_weighted_quantiles": 418503.93514648813
+    },
+    {
+      "scf_year": 2022,
+      "seed": 0,
+      "method": "populace_fit_unchained",
+      "target": "debt",
+      "pinball_as_coded": 48083.84336125468,
+      "pinball_weighted_quantiles": 47428.77330281044
+    },
+    {
+      "scf_year": 2022,
+      "seed": 0,
+      "method": "populace_fit_unchained",
+      "target": "networth",
+      "pinball_as_coded": 517000.0717229287,
+      "pinball_weighted_quantiles": 417217.37434456113
+    },
+    {
+      "scf_year": 2022,
+      "seed": 0,
+      "method": "plain_qrf",
+      "target": "debt",
+      "pinball_as_coded": 49057.90048768932,
+      "pinball_weighted_quantiles": 47520.46746277445
+    },
+    {
+      "scf_year": 2022,
+      "seed": 0,
+      "method": "plain_qrf",
+      "target": "networth",
+      "pinball_as_coded": 543740.4747527487,
+      "pinball_weighted_quantiles": 417769.93968427
+    },
+    {
+      "scf_year": 2022,
+      "seed": 0,
+      "method": "microimpute_qrf",
+      "target": "debt",
+      "pinball_as_coded": 49057.90048768932,
+      "pinball_weighted_quantiles": 47520.46746277445
+    },
+    {
+      "scf_year": 2022,
+      "seed": 0,
+      "method": "microimpute_qrf",
+      "target": "networth",
+      "pinball_as_coded": 543740.4747527487,
+      "pinball_weighted_quantiles": 417769.93968427
+    },
+    {
+      "scf_year": 2022,
+      "seed": 0,
+      "method": "microimpute_ols",
+      "target": "debt",
+      "pinball_as_coded": 72108.49470078445,
+      "pinball_weighted_quantiles": 69932.30494293752
+    },
+    {
+      "scf_year": 2022,
+      "seed": 0,
+      "method": "microimpute_ols",
+      "target": "networth",
+      "pinball_as_coded": 811889.3677149138,
+      "pinball_weighted_quantiles": 696145.4191259902
+    },
+    {
+      "scf_year": 2022,
+      "seed": 0,
+      "method": "microimpute_quantreg",
+      "target": "debt",
+      "pinball_as_coded": 51529.236929117025,
+      "pinball_weighted_quantiles": 48386.924422317104
+    },
+    {
+      "scf_year": 2022,
+      "seed": 0,
+      "method": "microimpute_quantreg",
+      "target": "networth",
+      "pinball_as_coded": 483786.6293045443,
+      "pinball_weighted_quantiles": 429642.4553516196
+    },
+    {
+      "scf_year": 2022,
+      "seed": 0,
+      "method": "statmatch_hotdeck",
+      "target": "debt",
+      "pinball_as_coded": 47744.30644409456,
+      "pinball_weighted_quantiles": 47361.12542401101
+    },
+    {
+      "scf_year": 2022,
+      "seed": 0,
+      "method": "statmatch_hotdeck",
+      "target": "networth",
+      "pinball_as_coded": 616763.3548614848,
+      "pinball_weighted_quantiles": 418195.4297117978
+    },
+    {
+      "scf_year": 2022,
+      "seed": 0,
+      "method": "weighted_marginal",
+      "target": "debt",
+      "pinball_as_coded": 47591.046477515454,
+      "pinball_weighted_quantiles": 47525.64247402026
+    },
+    {
+      "scf_year": 2022,
+      "seed": 0,
+      "method": "weighted_marginal",
+      "target": "networth",
+      "pinball_as_coded": 417236.98121897073,
+      "pinball_weighted_quantiles": 417808.33163393405
+    },
+    {
+      "scf_year": 2022,
+      "seed": 1,
+      "method": "populace_fit",
+      "target": "debt",
+      "pinball_as_coded": 53979.46045107317,
+      "pinball_weighted_quantiles": 52474.86777817072
+    },
+    {
+      "scf_year": 2022,
+      "seed": 1,
+      "method": "populace_fit",
+      "target": "networth",
+      "pinball_as_coded": 622273.6664075098,
+      "pinball_weighted_quantiles": 456603.51496954076
+    },
+    {
+      "scf_year": 2022,
+      "seed": 1,
+      "method": "populace_fit_unweighted",
+      "target": "debt",
+      "pinball_as_coded": 55393.67644804579,
+      "pinball_weighted_quantiles": 52647.02232715845
+    },
+    {
+      "scf_year": 2022,
+      "seed": 1,
+      "method": "populace_fit_unweighted",
+      "target": "networth",
+      "pinball_as_coded": 861375.4450184524,
+      "pinball_weighted_quantiles": 459856.93326477974
+    },
+    {
+      "scf_year": 2022,
+      "seed": 1,
+      "method": "populace_fit_unchained",
+      "target": "debt",
+      "pinball_as_coded": 53979.46045107317,
+      "pinball_weighted_quantiles": 52474.86777817072
+    },
+    {
+      "scf_year": 2022,
+      "seed": 1,
+      "method": "populace_fit_unchained",
+      "target": "networth",
+      "pinball_as_coded": 569686.1945779138,
+      "pinball_weighted_quantiles": 456172.9950541369
+    },
+    {
+      "scf_year": 2022,
+      "seed": 1,
+      "method": "plain_qrf",
+      "target": "debt",
+      "pinball_as_coded": 56688.40792947816,
+      "pinball_weighted_quantiles": 52303.93873895612
+    },
+    {
+      "scf_year": 2022,
+      "seed": 1,
+      "method": "plain_qrf",
+      "target": "networth",
+      "pinball_as_coded": 583784.8361940678,
+      "pinball_weighted_quantiles": 456591.1767724255
+    },
+    {
+      "scf_year": 2022,
+      "seed": 1,
+      "method": "microimpute_qrf",
+      "target": "debt",
+      "pinball_as_coded": 56688.40792947816,
+      "pinball_weighted_quantiles": 52303.93873895612
+    },
+    {
+      "scf_year": 2022,
+      "seed": 1,
+      "method": "microimpute_qrf",
+      "target": "networth",
+      "pinball_as_coded": 583784.8361940678,
+      "pinball_weighted_quantiles": 456591.1767724255
+    },
+    {
+      "scf_year": 2022,
+      "seed": 1,
+      "method": "microimpute_ols",
+      "target": "debt",
+      "pinball_as_coded": 116830.79981395618,
+      "pinball_weighted_quantiles": 84360.8312746401
+    },
+    {
+      "scf_year": 2022,
+      "seed": 1,
+      "method": "microimpute_ols",
+      "target": "networth",
+      "pinball_as_coded": 1397694.292210088,
+      "pinball_weighted_quantiles": 1003621.6341772472
+    },
+    {
+      "scf_year": 2022,
+      "seed": 1,
+      "method": "microimpute_quantreg",
+      "target": "debt",
+      "pinball_as_coded": 56560.22358014384,
+      "pinball_weighted_quantiles": 55123.364514084744
+    },
+    {
+      "scf_year": 2022,
+      "seed": 1,
+      "method": "microimpute_quantreg",
+      "target": "networth",
+      "pinball_as_coded": 588596.1050432276,
+      "pinball_weighted_quantiles": 481159.3110438295
+    },
+    {
+      "scf_year": 2022,
+      "seed": 1,
+      "method": "statmatch_hotdeck",
+      "target": "debt",
+      "pinball_as_coded": 54526.14859565469,
+      "pinball_weighted_quantiles": 52315.72074536046
+    },
+    {
+      "scf_year": 2022,
+      "seed": 1,
+      "method": "statmatch_hotdeck",
+      "target": "networth",
+      "pinball_as_coded": 747521.6653142567,
+      "pinball_weighted_quantiles": 456909.6039171365
+    },
+    {
+      "scf_year": 2022,
+      "seed": 1,
+      "method": "weighted_marginal",
+      "target": "debt",
+      "pinball_as_coded": 52269.15091722061,
+      "pinball_weighted_quantiles": 52268.38603028654
+    },
+    {
+      "scf_year": 2022,
+      "seed": 1,
+      "method": "weighted_marginal",
+      "target": "networth",
+      "pinball_as_coded": 457037.67146135983,
+      "pinball_weighted_quantiles": 457053.0245073315
+    },
+    {
+      "scf_year": 2022,
+      "seed": 2,
+      "method": "populace_fit",
+      "target": "debt",
+      "pinball_as_coded": 48116.89386964949,
+      "pinball_weighted_quantiles": 46907.51773002005
+    },
+    {
+      "scf_year": 2022,
+      "seed": 2,
+      "method": "populace_fit",
+      "target": "networth",
+      "pinball_as_coded": 542139.5217669661,
+      "pinball_weighted_quantiles": 412427.0420933513
+    },
+    {
+      "scf_year": 2022,
+      "seed": 2,
+      "method": "populace_fit_unweighted",
+      "target": "debt",
+      "pinball_as_coded": 49263.556462648376,
+      "pinball_weighted_quantiles": 46979.972373432305
+    },
+    {
+      "scf_year": 2022,
+      "seed": 2,
+      "method": "populace_fit_unweighted",
+      "target": "networth",
+      "pinball_as_coded": 720295.985813342,
+      "pinball_weighted_quantiles": 417792.4731797937
+    },
+    {
+      "scf_year": 2022,
+      "seed": 2,
+      "method": "populace_fit_unchained",
+      "target": "debt",
+      "pinball_as_coded": 48116.89386964949,
+      "pinball_weighted_quantiles": 46907.51773002005
+    },
+    {
+      "scf_year": 2022,
+      "seed": 2,
+      "method": "populace_fit_unchained",
+      "target": "networth",
+      "pinball_as_coded": 549182.5823170069,
+      "pinball_weighted_quantiles": 413887.13083917956
+    },
+    {
+      "scf_year": 2022,
+      "seed": 2,
+      "method": "plain_qrf",
+      "target": "debt",
+      "pinball_as_coded": 48501.431058105685,
+      "pinball_weighted_quantiles": 46955.924640285935
+    },
+    {
+      "scf_year": 2022,
+      "seed": 2,
+      "method": "plain_qrf",
+      "target": "networth",
+      "pinball_as_coded": 521316.7320233867,
+      "pinball_weighted_quantiles": 411502.3724959182
+    },
+    {
+      "scf_year": 2022,
+      "seed": 2,
+      "method": "microimpute_qrf",
+      "target": "debt",
+      "pinball_as_coded": 48501.431058105685,
+      "pinball_weighted_quantiles": 46955.924640285935
+    },
+    {
+      "scf_year": 2022,
+      "seed": 2,
+      "method": "microimpute_qrf",
+      "target": "networth",
+      "pinball_as_coded": 521316.7320233867,
+      "pinball_weighted_quantiles": 411502.3724959182
+    },
+    {
+      "scf_year": 2022,
+      "seed": 2,
+      "method": "microimpute_ols",
+      "target": "debt",
+      "pinball_as_coded": 56844.87127064698,
+      "pinball_weighted_quantiles": 54526.29848680536
+    },
+    {
+      "scf_year": 2022,
+      "seed": 2,
+      "method": "microimpute_ols",
+      "target": "networth",
+      "pinball_as_coded": 733228.0620952849,
+      "pinball_weighted_quantiles": 620096.1765365759
+    },
+    {
+      "scf_year": 2022,
+      "seed": 2,
+      "method": "microimpute_quantreg",
+      "target": "debt",
+      "pinball_as_coded": 47098.742390424406,
+      "pinball_weighted_quantiles": 47048.792347630006
+    },
+    {
+      "scf_year": 2022,
+      "seed": 2,
+      "method": "microimpute_quantreg",
+      "target": "networth",
+      "pinball_as_coded": 484298.8122931697,
+      "pinball_weighted_quantiles": 412098.38194307376
+    },
+    {
+      "scf_year": 2022,
+      "seed": 2,
+      "method": "statmatch_hotdeck",
+      "target": "debt",
+      "pinball_as_coded": 48017.21227493875,
+      "pinball_weighted_quantiles": 46903.31685264358
+    },
+    {
+      "scf_year": 2022,
+      "seed": 2,
+      "method": "statmatch_hotdeck",
+      "target": "networth",
+      "pinball_as_coded": 634005.7923924119,
+      "pinball_weighted_quantiles": 411215.4520357115
+    },
+    {
+      "scf_year": 2022,
+      "seed": 2,
+      "method": "weighted_marginal",
+      "target": "debt",
+      "pinball_as_coded": 46841.40047064849,
+      "pinball_weighted_quantiles": 46851.014767112894
+    },
+    {
+      "scf_year": 2022,
+      "seed": 2,
+      "method": "weighted_marginal",
+      "target": "networth",
+      "pinball_as_coded": 411066.26598291483,
+      "pinball_weighted_quantiles": 411139.2750335667
+    },
+    {
+      "scf_year": 2022,
+      "seed": 3,
+      "method": "populace_fit",
+      "target": "debt",
+      "pinball_as_coded": 48733.41656107331,
+      "pinball_weighted_quantiles": 48461.28290377987
+    },
+    {
+      "scf_year": 2022,
+      "seed": 3,
+      "method": "populace_fit",
+      "target": "networth",
+      "pinball_as_coded": 530321.781529326,
+      "pinball_weighted_quantiles": 447938.91797709645
+    },
+    {
+      "scf_year": 2022,
+      "seed": 3,
+      "method": "populace_fit_unweighted",
+      "target": "debt",
+      "pinball_as_coded": 49205.30485640878,
+      "pinball_weighted_quantiles": 48367.20882204116
+    },
+    {
+      "scf_year": 2022,
+      "seed": 3,
+      "method": "populace_fit_unweighted",
+      "target": "networth",
+      "pinball_as_coded": 607810.534378849,
+      "pinball_weighted_quantiles": 450184.8624281927
+    },
+    {
+      "scf_year": 2022,
+      "seed": 3,
+      "method": "populace_fit_unchained",
+      "target": "debt",
+      "pinball_as_coded": 48733.41656107331,
+      "pinball_weighted_quantiles": 48461.28290377987
+    },
+    {
+      "scf_year": 2022,
+      "seed": 3,
+      "method": "populace_fit_unchained",
+      "target": "networth",
+      "pinball_as_coded": 537784.1135500618,
+      "pinball_weighted_quantiles": 447811.47698743804
+    },
+    {
+      "scf_year": 2022,
+      "seed": 3,
+      "method": "plain_qrf",
+      "target": "debt",
+      "pinball_as_coded": 50219.28399879698,
+      "pinball_weighted_quantiles": 48511.1992306429
+    },
+    {
+      "scf_year": 2022,
+      "seed": 3,
+      "method": "plain_qrf",
+      "target": "networth",
+      "pinball_as_coded": 532744.7891332617,
+      "pinball_weighted_quantiles": 448201.09089340403
+    },
+    {
+      "scf_year": 2022,
+      "seed": 3,
+      "method": "microimpute_qrf",
+      "target": "debt",
+      "pinball_as_coded": 50219.28399879698,
+      "pinball_weighted_quantiles": 48511.1992306429
+    },
+    {
+      "scf_year": 2022,
+      "seed": 3,
+      "method": "microimpute_qrf",
+      "target": "networth",
+      "pinball_as_coded": 532744.7891332617,
+      "pinball_weighted_quantiles": 448201.09089340403
+    },
+    {
+      "scf_year": 2022,
+      "seed": 3,
+      "method": "microimpute_ols",
+      "target": "debt",
+      "pinball_as_coded": 61421.147415628526,
+      "pinball_weighted_quantiles": 56094.49114398861
+    },
+    {
+      "scf_year": 2022,
+      "seed": 3,
+      "method": "microimpute_ols",
+      "target": "networth",
+      "pinball_as_coded": 1626094.1676848403,
+      "pinball_weighted_quantiles": 1278026.6030118817
+    },
+    {
+      "scf_year": 2022,
+      "seed": 3,
+      "method": "microimpute_quantreg",
+      "target": "debt",
+      "pinball_as_coded": 49085.393542159814,
+      "pinball_weighted_quantiles": 48619.718387904446
+    },
+    {
+      "scf_year": 2022,
+      "seed": 3,
+      "method": "microimpute_quantreg",
+      "target": "networth",
+      "pinball_as_coded": 539251.6158513399,
+      "pinball_weighted_quantiles": 452212.83981357265
+    },
+    {
+      "scf_year": 2022,
+      "seed": 3,
+      "method": "statmatch_hotdeck",
+      "target": "debt",
+      "pinball_as_coded": 49244.455243469536,
+      "pinball_weighted_quantiles": 48486.54956837765
+    },
+    {
+      "scf_year": 2022,
+      "seed": 3,
+      "method": "statmatch_hotdeck",
+      "target": "networth",
+      "pinball_as_coded": 586069.9129227401,
+      "pinball_weighted_quantiles": 447841.58522045
+    },
+    {
+      "scf_year": 2022,
+      "seed": 3,
+      "method": "weighted_marginal",
+      "target": "debt",
+      "pinball_as_coded": 48470.97539819959,
+      "pinball_weighted_quantiles": 48479.48958989354
+    },
+    {
+      "scf_year": 2022,
+      "seed": 3,
+      "method": "weighted_marginal",
+      "target": "networth",
+      "pinball_as_coded": 447856.7426451732,
+      "pinball_weighted_quantiles": 447970.6869152151
+    },
+    {
+      "scf_year": 2022,
+      "seed": 4,
+      "method": "populace_fit",
+      "target": "debt",
+      "pinball_as_coded": 45673.85998857565,
+      "pinball_weighted_quantiles": 45033.56903096975
+    },
+    {
+      "scf_year": 2022,
+      "seed": 4,
+      "method": "populace_fit",
+      "target": "networth",
+      "pinball_as_coded": 542227.6627022914,
+      "pinball_weighted_quantiles": 452725.17279653833
+    },
+    {
+      "scf_year": 2022,
+      "seed": 4,
+      "method": "populace_fit_unweighted",
+      "target": "debt",
+      "pinball_as_coded": 48243.16089023336,
+      "pinball_weighted_quantiles": 45504.8636080085
+    },
+    {
+      "scf_year": 2022,
+      "seed": 4,
+      "method": "populace_fit_unweighted",
+      "target": "networth",
+      "pinball_as_coded": 681267.743253104,
+      "pinball_weighted_quantiles": 454900.4222422952
+    },
+    {
+      "scf_year": 2022,
+      "seed": 4,
+      "method": "populace_fit_unchained",
+      "target": "debt",
+      "pinball_as_coded": 45673.85998857565,
+      "pinball_weighted_quantiles": 45033.56903096975
+    },
+    {
+      "scf_year": 2022,
+      "seed": 4,
+      "method": "populace_fit_unchained",
+      "target": "networth",
+      "pinball_as_coded": 573370.6987602586,
+      "pinball_weighted_quantiles": 453812.81858221185
+    },
+    {
+      "scf_year": 2022,
+      "seed": 4,
+      "method": "plain_qrf",
+      "target": "debt",
+      "pinball_as_coded": 47013.54416843546,
+      "pinball_weighted_quantiles": 44990.51269624893
+    },
+    {
+      "scf_year": 2022,
+      "seed": 4,
+      "method": "plain_qrf",
+      "target": "networth",
+      "pinball_as_coded": 571596.2349508461,
+      "pinball_weighted_quantiles": 453485.64574160083
+    },
+    {
+      "scf_year": 2022,
+      "seed": 4,
+      "method": "microimpute_qrf",
+      "target": "debt",
+      "pinball_as_coded": 47013.54416843546,
+      "pinball_weighted_quantiles": 44990.51269624893
+    },
+    {
+      "scf_year": 2022,
+      "seed": 4,
+      "method": "microimpute_qrf",
+      "target": "networth",
+      "pinball_as_coded": 571596.2349508461,
+      "pinball_weighted_quantiles": 453485.64574160083
+    },
+    {
+      "scf_year": 2022,
+      "seed": 4,
+      "method": "microimpute_ols",
+      "target": "debt",
+      "pinball_as_coded": 62469.5452401581,
+      "pinball_weighted_quantiles": 52452.602013345546
+    },
+    {
+      "scf_year": 2022,
+      "seed": 4,
+      "method": "microimpute_ols",
+      "target": "networth",
+      "pinball_as_coded": 925175.5345501688,
+      "pinball_weighted_quantiles": 726745.7492095912
+    },
+    {
+      "scf_year": 2022,
+      "seed": 4,
+      "method": "microimpute_quantreg",
+      "target": "debt",
+      "pinball_as_coded": 46226.14961367345,
+      "pinball_weighted_quantiles": 45150.79609057467
+    },
+    {
+      "scf_year": 2022,
+      "seed": 4,
+      "method": "microimpute_quantreg",
+      "target": "networth",
+      "pinball_as_coded": 578706.4044855188,
+      "pinball_weighted_quantiles": 455048.7705097142
+    },
+    {
+      "scf_year": 2022,
+      "seed": 4,
+      "method": "statmatch_hotdeck",
+      "target": "debt",
+      "pinball_as_coded": 46711.95355584351,
+      "pinball_weighted_quantiles": 45476.17501007858
+    },
+    {
+      "scf_year": 2022,
+      "seed": 4,
+      "method": "statmatch_hotdeck",
+      "target": "networth",
+      "pinball_as_coded": 646158.9547107258,
+      "pinball_weighted_quantiles": 453970.57357720286
+    },
+    {
+      "scf_year": 2022,
+      "seed": 4,
+      "method": "weighted_marginal",
+      "target": "debt",
+      "pinball_as_coded": 45242.4403746002,
+      "pinball_weighted_quantiles": 45322.02460178954
+    },
+    {
+      "scf_year": 2022,
+      "seed": 4,
+      "method": "weighted_marginal",
+      "target": "networth",
+      "pinball_as_coded": 452923.95106104633,
+      "pinball_weighted_quantiles": 453272.6788233963
+    },
+    {
+      "scf_year": 2022,
+      "seed": 5,
+      "method": "populace_fit",
+      "target": "debt",
+      "pinball_as_coded": 51699.91033149406,
+      "pinball_weighted_quantiles": 50655.22834267073
+    },
+    {
+      "scf_year": 2022,
+      "seed": 5,
+      "method": "populace_fit",
+      "target": "networth",
+      "pinball_as_coded": 578858.9374863855,
+      "pinball_weighted_quantiles": 455578.40247340535
+    },
+    {
+      "scf_year": 2022,
+      "seed": 5,
+      "method": "populace_fit_unweighted",
+      "target": "debt",
+      "pinball_as_coded": 52109.318633787625,
+      "pinball_weighted_quantiles": 50614.29274595138
+    },
+    {
+      "scf_year": 2022,
+      "seed": 5,
+      "method": "populace_fit_unweighted",
+      "target": "networth",
+      "pinball_as_coded": 689894.4275174335,
+      "pinball_weighted_quantiles": 455863.5413602116
+    },
+    {
+      "scf_year": 2022,
+      "seed": 5,
+      "method": "populace_fit_unchained",
+      "target": "debt",
+      "pinball_as_coded": 51699.91033149406,
+      "pinball_weighted_quantiles": 50655.22834267073
+    },
+    {
+      "scf_year": 2022,
+      "seed": 5,
+      "method": "populace_fit_unchained",
+      "target": "networth",
+      "pinball_as_coded": 579867.0486018782,
+      "pinball_weighted_quantiles": 455063.3366545478
+    },
+    {
+      "scf_year": 2022,
+      "seed": 5,
+      "method": "plain_qrf",
+      "target": "debt",
+      "pinball_as_coded": 52886.15471064273,
+      "pinball_weighted_quantiles": 50575.3579520292
+    },
+    {
+      "scf_year": 2022,
+      "seed": 5,
+      "method": "plain_qrf",
+      "target": "networth",
+      "pinball_as_coded": 612019.726817154,
+      "pinball_weighted_quantiles": 455408.2842256303
+    },
+    {
+      "scf_year": 2022,
+      "seed": 5,
+      "method": "microimpute_qrf",
+      "target": "debt",
+      "pinball_as_coded": 52886.15471064273,
+      "pinball_weighted_quantiles": 50575.3579520292
+    },
+    {
+      "scf_year": 2022,
+      "seed": 5,
+      "method": "microimpute_qrf",
+      "target": "networth",
+      "pinball_as_coded": 612019.726817154,
+      "pinball_weighted_quantiles": 455408.2842256303
+    },
+    {
+      "scf_year": 2022,
+      "seed": 5,
+      "method": "microimpute_ols",
+      "target": "debt",
+      "pinball_as_coded": 63649.60079284597,
+      "pinball_weighted_quantiles": 59042.22104306788
+    },
+    {
+      "scf_year": 2022,
+      "seed": 5,
+      "method": "microimpute_ols",
+      "target": "networth",
+      "pinball_as_coded": 950651.229924025,
+      "pinball_weighted_quantiles": 802854.2151813244
+    },
+    {
+      "scf_year": 2022,
+      "seed": 5,
+      "method": "microimpute_quantreg",
+      "target": "debt",
+      "pinball_as_coded": 50890.97666047219,
+      "pinball_weighted_quantiles": 50676.45865539657
+    },
+    {
+      "scf_year": 2022,
+      "seed": 5,
+      "method": "microimpute_quantreg",
+      "target": "networth",
+      "pinball_as_coded": 554609.7067371594,
+      "pinball_weighted_quantiles": 456502.82777435327
+    },
+    {
+      "scf_year": 2022,
+      "seed": 5,
+      "method": "statmatch_hotdeck",
+      "target": "debt",
+      "pinball_as_coded": 51786.67101487323,
+      "pinball_weighted_quantiles": 50368.03367747171
+    },
+    {
+      "scf_year": 2022,
+      "seed": 5,
+      "method": "statmatch_hotdeck",
+      "target": "networth",
+      "pinball_as_coded": 646447.6095335381,
+      "pinball_weighted_quantiles": 455384.32058405445
+    },
+    {
+      "scf_year": 2022,
+      "seed": 5,
+      "method": "weighted_marginal",
+      "target": "debt",
+      "pinball_as_coded": 50471.174072717484,
+      "pinball_weighted_quantiles": 50483.357673417115
+    },
+    {
+      "scf_year": 2022,
+      "seed": 5,
+      "method": "weighted_marginal",
+      "target": "networth",
+      "pinball_as_coded": 455100.6061370314,
+      "pinball_weighted_quantiles": 455147.6797057401
+    },
+    {
+      "scf_year": 2022,
+      "seed": 6,
+      "method": "populace_fit",
+      "target": "debt",
+      "pinball_as_coded": 45709.23468914761,
+      "pinball_weighted_quantiles": 44590.506415936965
+    },
+    {
+      "scf_year": 2022,
+      "seed": 6,
+      "method": "populace_fit",
+      "target": "networth",
+      "pinball_as_coded": 538732.3892599376,
+      "pinball_weighted_quantiles": 471980.51943642134
+    },
+    {
+      "scf_year": 2022,
+      "seed": 6,
+      "method": "populace_fit_unweighted",
+      "target": "debt",
+      "pinball_as_coded": 46677.58727087681,
+      "pinball_weighted_quantiles": 44710.00108259205
+    },
+    {
+      "scf_year": 2022,
+      "seed": 6,
+      "method": "populace_fit_unweighted",
+      "target": "networth",
+      "pinball_as_coded": 671712.9692706739,
+      "pinball_weighted_quantiles": 472096.75058956514
+    },
+    {
+      "scf_year": 2022,
+      "seed": 6,
+      "method": "populace_fit_unchained",
+      "target": "debt",
+      "pinball_as_coded": 45709.23468914761,
+      "pinball_weighted_quantiles": 44590.506415936965
+    },
+    {
+      "scf_year": 2022,
+      "seed": 6,
+      "method": "populace_fit_unchained",
+      "target": "networth",
+      "pinball_as_coded": 542889.032284857,
+      "pinball_weighted_quantiles": 472373.44179687597
+    },
+    {
+      "scf_year": 2022,
+      "seed": 6,
+      "method": "plain_qrf",
+      "target": "debt",
+      "pinball_as_coded": 46787.123558365936,
+      "pinball_weighted_quantiles": 44541.40508604994
+    },
+    {
+      "scf_year": 2022,
+      "seed": 6,
+      "method": "plain_qrf",
+      "target": "networth",
+      "pinball_as_coded": 554011.1757333674,
+      "pinball_weighted_quantiles": 471836.982857711
+    },
+    {
+      "scf_year": 2022,
+      "seed": 6,
+      "method": "microimpute_qrf",
+      "target": "debt",
+      "pinball_as_coded": 46787.123558365936,
+      "pinball_weighted_quantiles": 44541.40508604994
+    },
+    {
+      "scf_year": 2022,
+      "seed": 6,
+      "method": "microimpute_qrf",
+      "target": "networth",
+      "pinball_as_coded": 554011.1757333674,
+      "pinball_weighted_quantiles": 471836.982857711
+    },
+    {
+      "scf_year": 2022,
+      "seed": 6,
+      "method": "microimpute_ols",
+      "target": "debt",
+      "pinball_as_coded": 57216.84107602524,
+      "pinball_weighted_quantiles": 52211.97968009613
+    },
+    {
+      "scf_year": 2022,
+      "seed": 6,
+      "method": "microimpute_ols",
+      "target": "networth",
+      "pinball_as_coded": 753298.3248847716,
+      "pinball_weighted_quantiles": 671165.8850997895
+    },
+    {
+      "scf_year": 2022,
+      "seed": 6,
+      "method": "microimpute_quantreg",
+      "target": "debt",
+      "pinball_as_coded": 45862.46404495582,
+      "pinball_weighted_quantiles": 44338.42701538909
+    },
+    {
+      "scf_year": 2022,
+      "seed": 6,
+      "method": "microimpute_quantreg",
+      "target": "networth",
+      "pinball_as_coded": 505358.2332723362,
+      "pinball_weighted_quantiles": 472211.6503154762
+    },
+    {
+      "scf_year": 2022,
+      "seed": 6,
+      "method": "statmatch_hotdeck",
+      "target": "debt",
+      "pinball_as_coded": 46177.59753491379,
+      "pinball_weighted_quantiles": 44437.03525761952
+    },
+    {
+      "scf_year": 2022,
+      "seed": 6,
+      "method": "statmatch_hotdeck",
+      "target": "networth",
+      "pinball_as_coded": 611931.5522848038,
+      "pinball_weighted_quantiles": 471915.1576293208
+    },
+    {
+      "scf_year": 2022,
+      "seed": 6,
+      "method": "weighted_marginal",
+      "target": "debt",
+      "pinball_as_coded": 44327.14065749487,
+      "pinball_weighted_quantiles": 44304.978476842014
+    },
+    {
+      "scf_year": 2022,
+      "seed": 6,
+      "method": "weighted_marginal",
+      "target": "networth",
+      "pinball_as_coded": 471856.0062727872,
+      "pinball_weighted_quantiles": 471809.6908934477
+    },
+    {
+      "scf_year": 2022,
+      "seed": 7,
+      "method": "populace_fit",
+      "target": "debt",
+      "pinball_as_coded": 50643.49119824114,
+      "pinball_weighted_quantiles": 50262.31864041997
+    },
+    {
+      "scf_year": 2022,
+      "seed": 7,
+      "method": "populace_fit",
+      "target": "networth",
+      "pinball_as_coded": 525057.830839112,
+      "pinball_weighted_quantiles": 419177.3169716346
+    },
+    {
+      "scf_year": 2022,
+      "seed": 7,
+      "method": "populace_fit_unweighted",
+      "target": "debt",
+      "pinball_as_coded": 50896.83433222558,
+      "pinball_weighted_quantiles": 50263.42946761185
+    },
+    {
+      "scf_year": 2022,
+      "seed": 7,
+      "method": "populace_fit_unweighted",
+      "target": "networth",
+      "pinball_as_coded": 619503.0233165084,
+      "pinball_weighted_quantiles": 421101.48598252237
+    },
+    {
+      "scf_year": 2022,
+      "seed": 7,
+      "method": "populace_fit_unchained",
+      "target": "debt",
+      "pinball_as_coded": 50643.49119824114,
+      "pinball_weighted_quantiles": 50262.31864041997
+    },
+    {
+      "scf_year": 2022,
+      "seed": 7,
+      "method": "populace_fit_unchained",
+      "target": "networth",
+      "pinball_as_coded": 534170.8088229027,
+      "pinball_weighted_quantiles": 419180.1876306382
+    },
+    {
+      "scf_year": 2022,
+      "seed": 7,
+      "method": "plain_qrf",
+      "target": "debt",
+      "pinball_as_coded": 51942.23435295877,
+      "pinball_weighted_quantiles": 50143.91721982974
+    },
+    {
+      "scf_year": 2022,
+      "seed": 7,
+      "method": "plain_qrf",
+      "target": "networth",
+      "pinball_as_coded": 516038.7830740712,
+      "pinball_weighted_quantiles": 419839.54572224536
+    },
+    {
+      "scf_year": 2022,
+      "seed": 7,
+      "method": "microimpute_qrf",
+      "target": "debt",
+      "pinball_as_coded": 51942.23435295877,
+      "pinball_weighted_quantiles": 50143.91721982974
+    },
+    {
+      "scf_year": 2022,
+      "seed": 7,
+      "method": "microimpute_qrf",
+      "target": "networth",
+      "pinball_as_coded": 516038.7830740712,
+      "pinball_weighted_quantiles": 419839.54572224536
+    },
+    {
+      "scf_year": 2022,
+      "seed": 7,
+      "method": "microimpute_ols",
+      "target": "debt",
+      "pinball_as_coded": 69255.13698352811,
+      "pinball_weighted_quantiles": 64174.89039321904
+    },
+    {
+      "scf_year": 2022,
+      "seed": 7,
+      "method": "microimpute_ols",
+      "target": "networth",
+      "pinball_as_coded": 1832913.5138459338,
+      "pinball_weighted_quantiles": 1585661.586035644
+    },
+    {
+      "scf_year": 2022,
+      "seed": 7,
+      "method": "microimpute_quantreg",
+      "target": "debt",
+      "pinball_as_coded": 52818.10427560598,
+      "pinball_weighted_quantiles": 56421.831240624124
+    },
+    {
+      "scf_year": 2022,
+      "seed": 7,
+      "method": "microimpute_quantreg",
+      "target": "networth",
+      "pinball_as_coded": 504057.4914067115,
+      "pinball_weighted_quantiles": 455128.171769324
+    },
+    {
+      "scf_year": 2022,
+      "seed": 7,
+      "method": "statmatch_hotdeck",
+      "target": "debt",
+      "pinball_as_coded": 50908.517355493655,
+      "pinball_weighted_quantiles": 50374.09046959342
+    },
+    {
+      "scf_year": 2022,
+      "seed": 7,
+      "method": "statmatch_hotdeck",
+      "target": "networth",
+      "pinball_as_coded": 592910.796253437,
+      "pinball_weighted_quantiles": 419465.94473633345
+    },
+    {
+      "scf_year": 2022,
+      "seed": 7,
+      "method": "weighted_marginal",
+      "target": "debt",
+      "pinball_as_coded": 50636.868243957295,
+      "pinball_weighted_quantiles": 50536.290328462856
+    },
+    {
+      "scf_year": 2022,
+      "seed": 7,
+      "method": "weighted_marginal",
+      "target": "networth",
+      "pinball_as_coded": 419233.1523120901,
+      "pinball_weighted_quantiles": 419305.15552814037
+    },
+    {
+      "scf_year": 2022,
+      "seed": 8,
+      "method": "populace_fit",
+      "target": "debt",
+      "pinball_as_coded": 48323.60429001311,
+      "pinball_weighted_quantiles": 46736.356327157184
+    },
+    {
+      "scf_year": 2022,
+      "seed": 8,
+      "method": "populace_fit",
+      "target": "networth",
+      "pinball_as_coded": 556494.7197565336,
+      "pinball_weighted_quantiles": 443206.5910972291
+    },
+    {
+      "scf_year": 2022,
+      "seed": 8,
+      "method": "populace_fit_unweighted",
+      "target": "debt",
+      "pinball_as_coded": 48816.21490106941,
+      "pinball_weighted_quantiles": 46923.04153529786
+    },
+    {
+      "scf_year": 2022,
+      "seed": 8,
+      "method": "populace_fit_unweighted",
+      "target": "networth",
+      "pinball_as_coded": 715275.8718905769,
+      "pinball_weighted_quantiles": 446015.32164636353
+    },
+    {
+      "scf_year": 2022,
+      "seed": 8,
+      "method": "populace_fit_unchained",
+      "target": "debt",
+      "pinball_as_coded": 48323.60429001311,
+      "pinball_weighted_quantiles": 46736.356327157184
+    },
+    {
+      "scf_year": 2022,
+      "seed": 8,
+      "method": "populace_fit_unchained",
+      "target": "networth",
+      "pinball_as_coded": 585634.4294572335,
+      "pinball_weighted_quantiles": 444829.89832151704
+    },
+    {
+      "scf_year": 2022,
+      "seed": 8,
+      "method": "plain_qrf",
+      "target": "debt",
+      "pinball_as_coded": 48439.19519059108,
+      "pinball_weighted_quantiles": 46681.85750757099
+    },
+    {
+      "scf_year": 2022,
+      "seed": 8,
+      "method": "plain_qrf",
+      "target": "networth",
+      "pinball_as_coded": 547844.2925983538,
+      "pinball_weighted_quantiles": 444098.98893171595
+    },
+    {
+      "scf_year": 2022,
+      "seed": 8,
+      "method": "microimpute_qrf",
+      "target": "debt",
+      "pinball_as_coded": 48439.19519059108,
+      "pinball_weighted_quantiles": 46681.85750757099
+    },
+    {
+      "scf_year": 2022,
+      "seed": 8,
+      "method": "microimpute_qrf",
+      "target": "networth",
+      "pinball_as_coded": 547844.2925983538,
+      "pinball_weighted_quantiles": 444098.98893171595
+    },
+    {
+      "scf_year": 2022,
+      "seed": 8,
+      "method": "microimpute_ols",
+      "target": "debt",
+      "pinball_as_coded": 63511.05509394785,
+      "pinball_weighted_quantiles": 58217.49457606348
+    },
+    {
+      "scf_year": 2022,
+      "seed": 8,
+      "method": "microimpute_ols",
+      "target": "networth",
+      "pinball_as_coded": 949684.5119357692,
+      "pinball_weighted_quantiles": 704105.4659495626
+    },
+    {
+      "scf_year": 2022,
+      "seed": 8,
+      "method": "microimpute_quantreg",
+      "target": "debt",
+      "pinball_as_coded": 47085.94918834142,
+      "pinball_weighted_quantiles": 46845.58853534006
+    },
+    {
+      "scf_year": 2022,
+      "seed": 8,
+      "method": "microimpute_quantreg",
+      "target": "networth",
+      "pinball_as_coded": 549852.7159583014,
+      "pinball_weighted_quantiles": 446278.11074682506
+    },
+    {
+      "scf_year": 2022,
+      "seed": 8,
+      "method": "statmatch_hotdeck",
+      "target": "debt",
+      "pinball_as_coded": 48589.406654426624,
+      "pinball_weighted_quantiles": 46738.497986167735
+    },
+    {
+      "scf_year": 2022,
+      "seed": 8,
+      "method": "statmatch_hotdeck",
+      "target": "networth",
+      "pinball_as_coded": 652576.6717745198,
+      "pinball_weighted_quantiles": 442871.59929278435
+    },
+    {
+      "scf_year": 2022,
+      "seed": 8,
+      "method": "weighted_marginal",
+      "target": "debt",
+      "pinball_as_coded": 46671.207307408135,
+      "pinball_weighted_quantiles": 46707.60235924399
+    },
+    {
+      "scf_year": 2022,
+      "seed": 8,
+      "method": "weighted_marginal",
+      "target": "networth",
+      "pinball_as_coded": 443065.80082579114,
+      "pinball_weighted_quantiles": 442947.01047172176
+    },
+    {
+      "scf_year": 2022,
+      "seed": 9,
+      "method": "populace_fit",
+      "target": "debt",
+      "pinball_as_coded": 51045.25813768006,
+      "pinball_weighted_quantiles": 50221.74461622898
+    },
+    {
+      "scf_year": 2022,
+      "seed": 9,
+      "method": "populace_fit",
+      "target": "networth",
+      "pinball_as_coded": 583636.6143133692,
+      "pinball_weighted_quantiles": 460310.51168190606
+    },
+    {
+      "scf_year": 2022,
+      "seed": 9,
+      "method": "populace_fit_unweighted",
+      "target": "debt",
+      "pinball_as_coded": 51856.45408288077,
+      "pinball_weighted_quantiles": 50254.7049140047
+    },
+    {
+      "scf_year": 2022,
+      "seed": 9,
+      "method": "populace_fit_unweighted",
+      "target": "networth",
+      "pinball_as_coded": 799013.908067313,
+      "pinball_weighted_quantiles": 460933.5844018155
+    },
+    {
+      "scf_year": 2022,
+      "seed": 9,
+      "method": "populace_fit_unchained",
+      "target": "debt",
+      "pinball_as_coded": 51045.25813768006,
+      "pinball_weighted_quantiles": 50221.74461622898
+    },
+    {
+      "scf_year": 2022,
+      "seed": 9,
+      "method": "populace_fit_unchained",
+      "target": "networth",
+      "pinball_as_coded": 576638.3130964955,
+      "pinball_weighted_quantiles": 461490.1876157748
+    },
+    {
+      "scf_year": 2022,
+      "seed": 9,
+      "method": "plain_qrf",
+      "target": "debt",
+      "pinball_as_coded": 52790.22156875726,
+      "pinball_weighted_quantiles": 50319.964764722725
+    },
+    {
+      "scf_year": 2022,
+      "seed": 9,
+      "method": "plain_qrf",
+      "target": "networth",
+      "pinball_as_coded": 625093.7040013927,
+      "pinball_weighted_quantiles": 460538.5507509508
+    },
+    {
+      "scf_year": 2022,
+      "seed": 9,
+      "method": "microimpute_qrf",
+      "target": "debt",
+      "pinball_as_coded": 52790.22156875726,
+      "pinball_weighted_quantiles": 50319.964764722725
+    },
+    {
+      "scf_year": 2022,
+      "seed": 9,
+      "method": "microimpute_qrf",
+      "target": "networth",
+      "pinball_as_coded": 625093.7040013927,
+      "pinball_weighted_quantiles": 460538.5507509508
+    },
+    {
+      "scf_year": 2022,
+      "seed": 9,
+      "method": "microimpute_ols",
+      "target": "debt",
+      "pinball_as_coded": 77222.99692670825,
+      "pinball_weighted_quantiles": 68535.9562048913
+    },
+    {
+      "scf_year": 2022,
+      "seed": 9,
+      "method": "microimpute_ols",
+      "target": "networth",
+      "pinball_as_coded": 1185088.551034657,
+      "pinball_weighted_quantiles": 972284.7090102027
+    },
+    {
+      "scf_year": 2022,
+      "seed": 9,
+      "method": "microimpute_quantreg",
+      "target": "debt",
+      "pinball_as_coded": 50816.833039373756,
+      "pinball_weighted_quantiles": 50896.54627992522
+    },
+    {
+      "scf_year": 2022,
+      "seed": 9,
+      "method": "microimpute_quantreg",
+      "target": "networth",
+      "pinball_as_coded": 555684.4412526495,
+      "pinball_weighted_quantiles": 461533.24008666846
+    },
+    {
+      "scf_year": 2022,
+      "seed": 9,
+      "method": "statmatch_hotdeck",
+      "target": "debt",
+      "pinball_as_coded": 51661.96226091228,
+      "pinball_weighted_quantiles": 50326.13070405533
+    },
+    {
+      "scf_year": 2022,
+      "seed": 9,
+      "method": "statmatch_hotdeck",
+      "target": "networth",
+      "pinball_as_coded": 714819.7709372478,
+      "pinball_weighted_quantiles": 461696.63761735795
+    },
+    {
+      "scf_year": 2022,
+      "seed": 9,
+      "method": "weighted_marginal",
+      "target": "debt",
+      "pinball_as_coded": 50248.30851452871,
+      "pinball_weighted_quantiles": 50254.49963726082
+    },
+    {
+      "scf_year": 2022,
+      "seed": 9,
+      "method": "weighted_marginal",
+      "target": "networth",
+      "pinball_as_coded": 460162.34693550074,
+      "pinball_weighted_quantiles": 460908.82940816163
+    },
+    {
+      "scf_year": 2025,
+      "seed": 0,
+      "method": "populace_fit",
+      "target": "debt",
+      "pinball_as_coded": 51654.78045631686,
+      "pinball_weighted_quantiles": 50429.30595135081
+    },
+    {
+      "scf_year": 2025,
+      "seed": 0,
+      "method": "populace_fit",
+      "target": "networth",
+      "pinball_as_coded": 819170.8817928876,
+      "pinball_weighted_quantiles": 569805.8264895091
+    },
+    {
+      "scf_year": 2025,
+      "seed": 0,
+      "method": "populace_fit_unweighted",
+      "target": "debt",
+      "pinball_as_coded": 51356.230137953484,
+      "pinball_weighted_quantiles": 50512.14939933432
+    },
+    {
+      "scf_year": 2025,
+      "seed": 0,
+      "method": "populace_fit_unweighted",
+      "target": "networth",
+      "pinball_as_coded": 912840.6164899635,
+      "pinball_weighted_quantiles": 569475.8889007579
+    },
+    {
+      "scf_year": 2025,
+      "seed": 0,
+      "method": "populace_fit_unchained",
+      "target": "debt",
+      "pinball_as_coded": 51654.78045631686,
+      "pinball_weighted_quantiles": 50429.30595135081
+    },
+    {
+      "scf_year": 2025,
+      "seed": 0,
+      "method": "populace_fit_unchained",
+      "target": "networth",
+      "pinball_as_coded": 706111.9076465355,
+      "pinball_weighted_quantiles": 569699.2123445098
+    },
+    {
+      "scf_year": 2025,
+      "seed": 0,
+      "method": "plain_qrf",
+      "target": "debt",
+      "pinball_as_coded": 53226.53033184333,
+      "pinball_weighted_quantiles": 50527.23144362158
+    },
+    {
+      "scf_year": 2025,
+      "seed": 0,
+      "method": "plain_qrf",
+      "target": "networth",
+      "pinball_as_coded": 685508.1063426542,
+      "pinball_weighted_quantiles": 569768.0420093776
+    },
+    {
+      "scf_year": 2025,
+      "seed": 0,
+      "method": "microimpute_qrf",
+      "target": "debt",
+      "pinball_as_coded": 53226.53033184333,
+      "pinball_weighted_quantiles": 50527.23144362158
+    },
+    {
+      "scf_year": 2025,
+      "seed": 0,
+      "method": "microimpute_qrf",
+      "target": "networth",
+      "pinball_as_coded": 685508.1063426542,
+      "pinball_weighted_quantiles": 569768.0420093776
+    },
+    {
+      "scf_year": 2025,
+      "seed": 0,
+      "method": "microimpute_ols",
+      "target": "debt",
+      "pinball_as_coded": 68558.58082420492,
+      "pinball_weighted_quantiles": 64896.11727030419
+    },
+    {
+      "scf_year": 2025,
+      "seed": 0,
+      "method": "microimpute_ols",
+      "target": "networth",
+      "pinball_as_coded": 1253289.9707303399,
+      "pinball_weighted_quantiles": 1040491.9873662196
+    },
+    {
+      "scf_year": 2025,
+      "seed": 0,
+      "method": "microimpute_quantreg",
+      "target": "debt",
+      "pinball_as_coded": 52300.11116774599,
+      "pinball_weighted_quantiles": 50580.137066179195
+    },
+    {
+      "scf_year": 2025,
+      "seed": 0,
+      "method": "microimpute_quantreg",
+      "target": "networth",
+      "pinball_as_coded": 708624.1453081634,
+      "pinball_weighted_quantiles": 572292.8158410528
+    },
+    {
+      "scf_year": 2025,
+      "seed": 0,
+      "method": "statmatch_hotdeck",
+      "target": "debt",
+      "pinball_as_coded": 51280.29832128983,
+      "pinball_weighted_quantiles": 50473.999983150214
+    },
+    {
+      "scf_year": 2025,
+      "seed": 0,
+      "method": "statmatch_hotdeck",
+      "target": "networth",
+      "pinball_as_coded": 835400.3428760008,
+      "pinball_weighted_quantiles": 570861.7175106802
+    },
+    {
+      "scf_year": 2025,
+      "seed": 0,
+      "method": "weighted_marginal",
+      "target": "debt",
+      "pinball_as_coded": 50478.451638945044,
+      "pinball_weighted_quantiles": 50580.952920821845
+    },
+    {
+      "scf_year": 2025,
+      "seed": 0,
+      "method": "weighted_marginal",
+      "target": "networth",
+      "pinball_as_coded": 569842.9998552517,
+      "pinball_weighted_quantiles": 569812.3327837794
+    },
+    {
+      "scf_year": 2025,
+      "seed": 1,
+      "method": "populace_fit",
+      "target": "debt",
+      "pinball_as_coded": 52873.66162981151,
+      "pinball_weighted_quantiles": 51807.87355933629
+    },
+    {
+      "scf_year": 2025,
+      "seed": 1,
+      "method": "populace_fit",
+      "target": "networth",
+      "pinball_as_coded": 659430.5354882958,
+      "pinball_weighted_quantiles": 536536.9248951842
+    },
+    {
+      "scf_year": 2025,
+      "seed": 1,
+      "method": "populace_fit_unweighted",
+      "target": "debt",
+      "pinball_as_coded": 53075.83075488878,
+      "pinball_weighted_quantiles": 51791.01231822872
+    },
+    {
+      "scf_year": 2025,
+      "seed": 1,
+      "method": "populace_fit_unweighted",
+      "target": "networth",
+      "pinball_as_coded": 879536.1390579815,
+      "pinball_weighted_quantiles": 537998.3046351596
+    },
+    {
+      "scf_year": 2025,
+      "seed": 1,
+      "method": "populace_fit_unchained",
+      "target": "debt",
+      "pinball_as_coded": 52873.66162981151,
+      "pinball_weighted_quantiles": 51807.87355933629
+    },
+    {
+      "scf_year": 2025,
+      "seed": 1,
+      "method": "populace_fit_unchained",
+      "target": "networth",
+      "pinball_as_coded": 693237.8597332694,
+      "pinball_weighted_quantiles": 536615.6957624567
+    },
+    {
+      "scf_year": 2025,
+      "seed": 1,
+      "method": "plain_qrf",
+      "target": "debt",
+      "pinball_as_coded": 54914.91299230658,
+      "pinball_weighted_quantiles": 52055.29573025124
+    },
+    {
+      "scf_year": 2025,
+      "seed": 1,
+      "method": "plain_qrf",
+      "target": "networth",
+      "pinball_as_coded": 654053.4644998463,
+      "pinball_weighted_quantiles": 537086.122191171
+    },
+    {
+      "scf_year": 2025,
+      "seed": 1,
+      "method": "microimpute_qrf",
+      "target": "debt",
+      "pinball_as_coded": 54914.91299230658,
+      "pinball_weighted_quantiles": 52055.29573025124
+    },
+    {
+      "scf_year": 2025,
+      "seed": 1,
+      "method": "microimpute_qrf",
+      "target": "networth",
+      "pinball_as_coded": 654053.4644998463,
+      "pinball_weighted_quantiles": 537086.122191171
+    },
+    {
+      "scf_year": 2025,
+      "seed": 1,
+      "method": "microimpute_ols",
+      "target": "debt",
+      "pinball_as_coded": 72751.62946525685,
+      "pinball_weighted_quantiles": 64136.36579575026
+    },
+    {
+      "scf_year": 2025,
+      "seed": 1,
+      "method": "microimpute_ols",
+      "target": "networth",
+      "pinball_as_coded": 913695.867005164,
+      "pinball_weighted_quantiles": 718678.1297532273
+    },
+    {
+      "scf_year": 2025,
+      "seed": 1,
+      "method": "microimpute_quantreg",
+      "target": "debt",
+      "pinball_as_coded": 52849.43960388329,
+      "pinball_weighted_quantiles": 51762.21310961057
+    },
+    {
+      "scf_year": 2025,
+      "seed": 1,
+      "method": "microimpute_quantreg",
+      "target": "networth",
+      "pinball_as_coded": 642613.7068009018,
+      "pinball_weighted_quantiles": 538490.1064533143
+    },
+    {
+      "scf_year": 2025,
+      "seed": 1,
+      "method": "statmatch_hotdeck",
+      "target": "debt",
+      "pinball_as_coded": 52826.33307491908,
+      "pinball_weighted_quantiles": 51766.337140937256
+    },
+    {
+      "scf_year": 2025,
+      "seed": 1,
+      "method": "statmatch_hotdeck",
+      "target": "networth",
+      "pinball_as_coded": 742045.7495030784,
+      "pinball_weighted_quantiles": 537100.9210191423
+    },
+    {
+      "scf_year": 2025,
+      "seed": 1,
+      "method": "weighted_marginal",
+      "target": "debt",
+      "pinball_as_coded": 51685.574660115955,
+      "pinball_weighted_quantiles": 51726.80619050783
+    },
+    {
+      "scf_year": 2025,
+      "seed": 1,
+      "method": "weighted_marginal",
+      "target": "networth",
+      "pinball_as_coded": 539044.9891439535,
+      "pinball_weighted_quantiles": 540025.2595983448
+    },
+    {
+      "scf_year": 2025,
+      "seed": 2,
+      "method": "populace_fit",
+      "target": "debt",
+      "pinball_as_coded": 51783.58232780237,
+      "pinball_weighted_quantiles": 50868.26502379761
+    },
+    {
+      "scf_year": 2025,
+      "seed": 2,
+      "method": "populace_fit",
+      "target": "networth",
+      "pinball_as_coded": 574301.916356822,
+      "pinball_weighted_quantiles": 461918.90122945834
+    },
+    {
+      "scf_year": 2025,
+      "seed": 2,
+      "method": "populace_fit_unweighted",
+      "target": "debt",
+      "pinball_as_coded": 52307.11437632989,
+      "pinball_weighted_quantiles": 50828.35215361816
+    },
+    {
+      "scf_year": 2025,
+      "seed": 2,
+      "method": "populace_fit_unweighted",
+      "target": "networth",
+      "pinball_as_coded": 734605.0229868491,
+      "pinball_weighted_quantiles": 463685.5064929801
+    },
+    {
+      "scf_year": 2025,
+      "seed": 2,
+      "method": "populace_fit_unchained",
+      "target": "debt",
+      "pinball_as_coded": 51783.58232780237,
+      "pinball_weighted_quantiles": 50868.26502379761
+    },
+    {
+      "scf_year": 2025,
+      "seed": 2,
+      "method": "populace_fit_unchained",
+      "target": "networth",
+      "pinball_as_coded": 627547.3712449697,
+      "pinball_weighted_quantiles": 460531.4773018237
+    },
+    {
+      "scf_year": 2025,
+      "seed": 2,
+      "method": "plain_qrf",
+      "target": "debt",
+      "pinball_as_coded": 54579.82374490582,
+      "pinball_weighted_quantiles": 50873.31960061047
+    },
+    {
+      "scf_year": 2025,
+      "seed": 2,
+      "method": "plain_qrf",
+      "target": "networth",
+      "pinball_as_coded": 671178.4073733757,
+      "pinball_weighted_quantiles": 463113.47329043515
+    },
+    {
+      "scf_year": 2025,
+      "seed": 2,
+      "method": "microimpute_qrf",
+      "target": "debt",
+      "pinball_as_coded": 54579.82374490582,
+      "pinball_weighted_quantiles": 50873.31960061047
+    },
+    {
+      "scf_year": 2025,
+      "seed": 2,
+      "method": "microimpute_qrf",
+      "target": "networth",
+      "pinball_as_coded": 671178.4073733757,
+      "pinball_weighted_quantiles": 463113.47329043515
+    },
+    {
+      "scf_year": 2025,
+      "seed": 2,
+      "method": "microimpute_ols",
+      "target": "debt",
+      "pinball_as_coded": 59723.53917555956,
+      "pinball_weighted_quantiles": 57639.52634149139
+    },
+    {
+      "scf_year": 2025,
+      "seed": 2,
+      "method": "microimpute_ols",
+      "target": "networth",
+      "pinball_as_coded": 1271089.1799723997,
+      "pinball_weighted_quantiles": 797187.7003999791
+    },
+    {
+      "scf_year": 2025,
+      "seed": 2,
+      "method": "microimpute_quantreg",
+      "target": "debt",
+      "pinball_as_coded": 52984.707371995464,
+      "pinball_weighted_quantiles": 51418.30183020416
+    },
+    {
+      "scf_year": 2025,
+      "seed": 2,
+      "method": "microimpute_quantreg",
+      "target": "networth",
+      "pinball_as_coded": 628098.7115222781,
+      "pinball_weighted_quantiles": 463850.9667340573
+    },
+    {
+      "scf_year": 2025,
+      "seed": 2,
+      "method": "statmatch_hotdeck",
+      "target": "debt",
+      "pinball_as_coded": 51278.67103986297,
+      "pinball_weighted_quantiles": 51169.57768583284
+    },
+    {
+      "scf_year": 2025,
+      "seed": 2,
+      "method": "statmatch_hotdeck",
+      "target": "networth",
+      "pinball_as_coded": 725006.0171581722,
+      "pinball_weighted_quantiles": 461713.8189641246
+    },
+    {
+      "scf_year": 2025,
+      "seed": 2,
+      "method": "weighted_marginal",
+      "target": "debt",
+      "pinball_as_coded": 50900.18129085234,
+      "pinball_weighted_quantiles": 51101.667605352544
+    },
+    {
+      "scf_year": 2025,
+      "seed": 2,
+      "method": "weighted_marginal",
+      "target": "networth",
+      "pinball_as_coded": 461884.7264895656,
+      "pinball_weighted_quantiles": 462471.3448252602
+    },
+    {
+      "scf_year": 2025,
+      "seed": 3,
+      "method": "populace_fit",
+      "target": "debt",
+      "pinball_as_coded": 54581.579905449114,
+      "pinball_weighted_quantiles": 54302.666296591204
+    },
+    {
+      "scf_year": 2025,
+      "seed": 3,
+      "method": "populace_fit",
+      "target": "networth",
+      "pinball_as_coded": 648100.6683416163,
+      "pinball_weighted_quantiles": 517849.8818998447
+    },
+    {
+      "scf_year": 2025,
+      "seed": 3,
+      "method": "populace_fit_unweighted",
+      "target": "debt",
+      "pinball_as_coded": 55133.03665540187,
+      "pinball_weighted_quantiles": 54354.7420928089
+    },
+    {
+      "scf_year": 2025,
+      "seed": 3,
+      "method": "populace_fit_unweighted",
+      "target": "networth",
+      "pinball_as_coded": 844608.2608966217,
+      "pinball_weighted_quantiles": 519214.6471023353
+    },
+    {
+      "scf_year": 2025,
+      "seed": 3,
+      "method": "populace_fit_unchained",
+      "target": "debt",
+      "pinball_as_coded": 54581.579905449114,
+      "pinball_weighted_quantiles": 54302.666296591204
+    },
+    {
+      "scf_year": 2025,
+      "seed": 3,
+      "method": "populace_fit_unchained",
+      "target": "networth",
+      "pinball_as_coded": 611005.8896683329,
+      "pinball_weighted_quantiles": 517943.7153712714
+    },
+    {
+      "scf_year": 2025,
+      "seed": 3,
+      "method": "plain_qrf",
+      "target": "debt",
+      "pinball_as_coded": 54871.27541954388,
+      "pinball_weighted_quantiles": 54268.62900448651
+    },
+    {
+      "scf_year": 2025,
+      "seed": 3,
+      "method": "plain_qrf",
+      "target": "networth",
+      "pinball_as_coded": 690435.9352758587,
+      "pinball_weighted_quantiles": 517965.1346293062
+    },
+    {
+      "scf_year": 2025,
+      "seed": 3,
+      "method": "microimpute_qrf",
+      "target": "debt",
+      "pinball_as_coded": 54871.27541954388,
+      "pinball_weighted_quantiles": 54268.62900448651
+    },
+    {
+      "scf_year": 2025,
+      "seed": 3,
+      "method": "microimpute_qrf",
+      "target": "networth",
+      "pinball_as_coded": 690435.9352758587,
+      "pinball_weighted_quantiles": 517965.1346293062
+    },
+    {
+      "scf_year": 2025,
+      "seed": 3,
+      "method": "microimpute_ols",
+      "target": "debt",
+      "pinball_as_coded": 66054.4803291102,
+      "pinball_weighted_quantiles": 61291.06930577237
+    },
+    {
+      "scf_year": 2025,
+      "seed": 3,
+      "method": "microimpute_ols",
+      "target": "networth",
+      "pinball_as_coded": 908626.4014160002,
+      "pinball_weighted_quantiles": 752927.5180412238
+    },
+    {
+      "scf_year": 2025,
+      "seed": 3,
+      "method": "microimpute_quantreg",
+      "target": "debt",
+      "pinball_as_coded": 54594.046712577474,
+      "pinball_weighted_quantiles": 55867.24867860951
+    },
+    {
+      "scf_year": 2025,
+      "seed": 3,
+      "method": "microimpute_quantreg",
+      "target": "networth",
+      "pinball_as_coded": 618332.4971231202,
+      "pinball_weighted_quantiles": 520126.0712017449
+    },
+    {
+      "scf_year": 2025,
+      "seed": 3,
+      "method": "statmatch_hotdeck",
+      "target": "debt",
+      "pinball_as_coded": 54639.03544179196,
+      "pinball_weighted_quantiles": 54242.641807287626
+    },
+    {
+      "scf_year": 2025,
+      "seed": 3,
+      "method": "statmatch_hotdeck",
+      "target": "networth",
+      "pinball_as_coded": 722415.5866348608,
+      "pinball_weighted_quantiles": 517506.77896876953
+    },
+    {
+      "scf_year": 2025,
+      "seed": 3,
+      "method": "weighted_marginal",
+      "target": "debt",
+      "pinball_as_coded": 54150.64916510599,
+      "pinball_weighted_quantiles": 54264.88142790205
+    },
+    {
+      "scf_year": 2025,
+      "seed": 3,
+      "method": "weighted_marginal",
+      "target": "networth",
+      "pinball_as_coded": 518483.7229340812,
+      "pinball_weighted_quantiles": 518221.1140768737
+    },
+    {
+      "scf_year": 2025,
+      "seed": 4,
+      "method": "populace_fit",
+      "target": "debt",
+      "pinball_as_coded": 56303.64813245827,
+      "pinball_weighted_quantiles": 53532.7274823211
+    },
+    {
+      "scf_year": 2025,
+      "seed": 4,
+      "method": "populace_fit",
+      "target": "networth",
+      "pinball_as_coded": 705887.9599542741,
+      "pinball_weighted_quantiles": 549919.3885217204
+    },
+    {
+      "scf_year": 2025,
+      "seed": 4,
+      "method": "populace_fit_unweighted",
+      "target": "debt",
+      "pinball_as_coded": 55159.49927942203,
+      "pinball_weighted_quantiles": 53531.987483659264
+    },
+    {
+      "scf_year": 2025,
+      "seed": 4,
+      "method": "populace_fit_unweighted",
+      "target": "networth",
+      "pinball_as_coded": 940411.726753827,
+      "pinball_weighted_quantiles": 548974.4534395151
+    },
+    {
+      "scf_year": 2025,
+      "seed": 4,
+      "method": "populace_fit_unchained",
+      "target": "debt",
+      "pinball_as_coded": 56303.64813245827,
+      "pinball_weighted_quantiles": 53532.7274823211
+    },
+    {
+      "scf_year": 2025,
+      "seed": 4,
+      "method": "populace_fit_unchained",
+      "target": "networth",
+      "pinball_as_coded": 749797.4559705723,
+      "pinball_weighted_quantiles": 549519.1793044205
+    },
+    {
+      "scf_year": 2025,
+      "seed": 4,
+      "method": "plain_qrf",
+      "target": "debt",
+      "pinball_as_coded": 56149.72728568045,
+      "pinball_weighted_quantiles": 53588.47249306329
+    },
+    {
+      "scf_year": 2025,
+      "seed": 4,
+      "method": "plain_qrf",
+      "target": "networth",
+      "pinball_as_coded": 719922.9807866898,
+      "pinball_weighted_quantiles": 549226.0391524538
+    },
+    {
+      "scf_year": 2025,
+      "seed": 4,
+      "method": "microimpute_qrf",
+      "target": "debt",
+      "pinball_as_coded": 56149.72728568045,
+      "pinball_weighted_quantiles": 53588.47249306329
+    },
+    {
+      "scf_year": 2025,
+      "seed": 4,
+      "method": "microimpute_qrf",
+      "target": "networth",
+      "pinball_as_coded": 719922.9807866898,
+      "pinball_weighted_quantiles": 549226.0391524538
+    },
+    {
+      "scf_year": 2025,
+      "seed": 4,
+      "method": "microimpute_ols",
+      "target": "debt",
+      "pinball_as_coded": 76896.77998756168,
+      "pinball_weighted_quantiles": 70699.59561267089
+    },
+    {
+      "scf_year": 2025,
+      "seed": 4,
+      "method": "microimpute_ols",
+      "target": "networth",
+      "pinball_as_coded": 1479083.8679070668,
+      "pinball_weighted_quantiles": 1146109.312838872
+    },
+    {
+      "scf_year": 2025,
+      "seed": 4,
+      "method": "microimpute_quantreg",
+      "target": "debt",
+      "pinball_as_coded": 54404.44220304447,
+      "pinball_weighted_quantiles": 53598.85555029482
+    },
+    {
+      "scf_year": 2025,
+      "seed": 4,
+      "method": "microimpute_quantreg",
+      "target": "networth",
+      "pinball_as_coded": 717654.4281763163,
+      "pinball_weighted_quantiles": 551470.092185918
+    },
+    {
+      "scf_year": 2025,
+      "seed": 4,
+      "method": "statmatch_hotdeck",
+      "target": "debt",
+      "pinball_as_coded": 54287.37185045538,
+      "pinball_weighted_quantiles": 53556.72388327219
+    },
+    {
+      "scf_year": 2025,
+      "seed": 4,
+      "method": "statmatch_hotdeck",
+      "target": "networth",
+      "pinball_as_coded": 812527.5952245417,
+      "pinball_weighted_quantiles": 550513.0226364594
+    },
+    {
+      "scf_year": 2025,
+      "seed": 4,
+      "method": "weighted_marginal",
+      "target": "debt",
+      "pinball_as_coded": 53510.21813141927,
+      "pinball_weighted_quantiles": 53491.03811647606
+    },
+    {
+      "scf_year": 2025,
+      "seed": 4,
+      "method": "weighted_marginal",
+      "target": "networth",
+      "pinball_as_coded": 550292.672012164,
+      "pinball_weighted_quantiles": 549803.150634408
+    },
+    {
+      "scf_year": 2025,
+      "seed": 5,
+      "method": "populace_fit",
+      "target": "debt",
+      "pinball_as_coded": 55578.46594769407,
+      "pinball_weighted_quantiles": 54972.023406797314
+    },
+    {
+      "scf_year": 2025,
+      "seed": 5,
+      "method": "populace_fit",
+      "target": "networth",
+      "pinball_as_coded": 672891.9999203458,
+      "pinball_weighted_quantiles": 536024.4487871596
+    },
+    {
+      "scf_year": 2025,
+      "seed": 5,
+      "method": "populace_fit_unweighted",
+      "target": "debt",
+      "pinball_as_coded": 55972.72057718254,
+      "pinball_weighted_quantiles": 54922.97862455849
+    },
+    {
+      "scf_year": 2025,
+      "seed": 5,
+      "method": "populace_fit_unweighted",
+      "target": "networth",
+      "pinball_as_coded": 804723.3428598421,
+      "pinball_weighted_quantiles": 540106.3601055562
+    },
+    {
+      "scf_year": 2025,
+      "seed": 5,
+      "method": "populace_fit_unchained",
+      "target": "debt",
+      "pinball_as_coded": 55578.46594769407,
+      "pinball_weighted_quantiles": 54972.023406797314
+    },
+    {
+      "scf_year": 2025,
+      "seed": 5,
+      "method": "populace_fit_unchained",
+      "target": "networth",
+      "pinball_as_coded": 666205.6630833904,
+      "pinball_weighted_quantiles": 538005.7978470178
+    },
+    {
+      "scf_year": 2025,
+      "seed": 5,
+      "method": "plain_qrf",
+      "target": "debt",
+      "pinball_as_coded": 57258.6106453532,
+      "pinball_weighted_quantiles": 55034.440347139986
+    },
+    {
+      "scf_year": 2025,
+      "seed": 5,
+      "method": "plain_qrf",
+      "target": "networth",
+      "pinball_as_coded": 671703.8499358634,
+      "pinball_weighted_quantiles": 539204.5888960536
+    },
+    {
+      "scf_year": 2025,
+      "seed": 5,
+      "method": "microimpute_qrf",
+      "target": "debt",
+      "pinball_as_coded": 57258.6106453532,
+      "pinball_weighted_quantiles": 55034.440347139986
+    },
+    {
+      "scf_year": 2025,
+      "seed": 5,
+      "method": "microimpute_qrf",
+      "target": "networth",
+      "pinball_as_coded": 671703.8499358634,
+      "pinball_weighted_quantiles": 539204.5888960536
+    },
+    {
+      "scf_year": 2025,
+      "seed": 5,
+      "method": "microimpute_ols",
+      "target": "debt",
+      "pinball_as_coded": 65061.46422477727,
+      "pinball_weighted_quantiles": 59974.55534020281
+    },
+    {
+      "scf_year": 2025,
+      "seed": 5,
+      "method": "microimpute_ols",
+      "target": "networth",
+      "pinball_as_coded": 1014027.8250007773,
+      "pinball_weighted_quantiles": 812802.4683675545
+    },
+    {
+      "scf_year": 2025,
+      "seed": 5,
+      "method": "microimpute_quantreg",
+      "target": "debt",
+      "pinball_as_coded": 55814.29365831692,
+      "pinball_weighted_quantiles": 55197.01857858703
+    },
+    {
+      "scf_year": 2025,
+      "seed": 5,
+      "method": "microimpute_quantreg",
+      "target": "networth",
+      "pinball_as_coded": 643069.0390232394,
+      "pinball_weighted_quantiles": 539407.6035214224
+    },
+    {
+      "scf_year": 2025,
+      "seed": 5,
+      "method": "statmatch_hotdeck",
+      "target": "debt",
+      "pinball_as_coded": 56276.60081833473,
+      "pinball_weighted_quantiles": 54989.278932462264
+    },
+    {
+      "scf_year": 2025,
+      "seed": 5,
+      "method": "statmatch_hotdeck",
+      "target": "networth",
+      "pinball_as_coded": 754430.1223974503,
+      "pinball_weighted_quantiles": 538587.9918982397
+    },
+    {
+      "scf_year": 2025,
+      "seed": 5,
+      "method": "weighted_marginal",
+      "target": "debt",
+      "pinball_as_coded": 55000.67169068616,
+      "pinball_weighted_quantiles": 54943.361872841226
+    },
+    {
+      "scf_year": 2025,
+      "seed": 5,
+      "method": "weighted_marginal",
+      "target": "networth",
+      "pinball_as_coded": 535982.966373051,
+      "pinball_weighted_quantiles": 536678.0163402581
+    },
+    {
+      "scf_year": 2025,
+      "seed": 6,
+      "method": "populace_fit",
+      "target": "debt",
+      "pinball_as_coded": 56989.19953538112,
+      "pinball_weighted_quantiles": 55625.150030508754
+    },
+    {
+      "scf_year": 2025,
+      "seed": 6,
+      "method": "populace_fit",
+      "target": "networth",
+      "pinball_as_coded": 759516.8396596252,
+      "pinball_weighted_quantiles": 573295.5521344399
+    },
+    {
+      "scf_year": 2025,
+      "seed": 6,
+      "method": "populace_fit_unweighted",
+      "target": "debt",
+      "pinball_as_coded": 56897.79649497004,
+      "pinball_weighted_quantiles": 55536.37261025526
+    },
+    {
+      "scf_year": 2025,
+      "seed": 6,
+      "method": "populace_fit_unweighted",
+      "target": "networth",
+      "pinball_as_coded": 876622.2460476452,
+      "pinball_weighted_quantiles": 573841.1482082049
+    },
+    {
+      "scf_year": 2025,
+      "seed": 6,
+      "method": "populace_fit_unchained",
+      "target": "debt",
+      "pinball_as_coded": 56989.19953538112,
+      "pinball_weighted_quantiles": 55625.150030508754
+    },
+    {
+      "scf_year": 2025,
+      "seed": 6,
+      "method": "populace_fit_unchained",
+      "target": "networth",
+      "pinball_as_coded": 722103.7858673963,
+      "pinball_weighted_quantiles": 573486.9704276555
+    },
+    {
+      "scf_year": 2025,
+      "seed": 6,
+      "method": "plain_qrf",
+      "target": "debt",
+      "pinball_as_coded": 58431.287323369565,
+      "pinball_weighted_quantiles": 55759.378478280676
+    },
+    {
+      "scf_year": 2025,
+      "seed": 6,
+      "method": "plain_qrf",
+      "target": "networth",
+      "pinball_as_coded": 723672.4408748057,
+      "pinball_weighted_quantiles": 574701.2698808401
+    },
+    {
+      "scf_year": 2025,
+      "seed": 6,
+      "method": "microimpute_qrf",
+      "target": "debt",
+      "pinball_as_coded": 58431.287323369565,
+      "pinball_weighted_quantiles": 55759.378478280676
+    },
+    {
+      "scf_year": 2025,
+      "seed": 6,
+      "method": "microimpute_qrf",
+      "target": "networth",
+      "pinball_as_coded": 723672.4408748057,
+      "pinball_weighted_quantiles": 574701.2698808401
+    },
+    {
+      "scf_year": 2025,
+      "seed": 6,
+      "method": "microimpute_ols",
+      "target": "debt",
+      "pinball_as_coded": 81547.31332205566,
+      "pinball_weighted_quantiles": 67452.04652728362
+    },
+    {
+      "scf_year": 2025,
+      "seed": 6,
+      "method": "microimpute_ols",
+      "target": "networth",
+      "pinball_as_coded": 1187330.0592285001,
+      "pinball_weighted_quantiles": 883179.7104858079
+    },
+    {
+      "scf_year": 2025,
+      "seed": 6,
+      "method": "microimpute_quantreg",
+      "target": "debt",
+      "pinball_as_coded": 58031.78417573791,
+      "pinball_weighted_quantiles": 55617.43590200325
+    },
+    {
+      "scf_year": 2025,
+      "seed": 6,
+      "method": "microimpute_quantreg",
+      "target": "networth",
+      "pinball_as_coded": 741147.3968710963,
+      "pinball_weighted_quantiles": 575874.233374548
+    },
+    {
+      "scf_year": 2025,
+      "seed": 6,
+      "method": "statmatch_hotdeck",
+      "target": "debt",
+      "pinball_as_coded": 55884.97102710945,
+      "pinball_weighted_quantiles": 55522.65694480374
+    },
+    {
+      "scf_year": 2025,
+      "seed": 6,
+      "method": "statmatch_hotdeck",
+      "target": "networth",
+      "pinball_as_coded": 822315.5402411986,
+      "pinball_weighted_quantiles": 573851.1747434417
+    },
+    {
+      "scf_year": 2025,
+      "seed": 6,
+      "method": "weighted_marginal",
+      "target": "debt",
+      "pinball_as_coded": 55571.09849883348,
+      "pinball_weighted_quantiles": 55507.047941434845
+    },
+    {
+      "scf_year": 2025,
+      "seed": 6,
+      "method": "weighted_marginal",
+      "target": "networth",
+      "pinball_as_coded": 573453.7063654894,
+      "pinball_weighted_quantiles": 573513.2951071161
+    },
+    {
+      "scf_year": 2025,
+      "seed": 7,
+      "method": "populace_fit",
+      "target": "debt",
+      "pinball_as_coded": 52116.776338727475,
+      "pinball_weighted_quantiles": 52367.68929140705
+    },
+    {
+      "scf_year": 2025,
+      "seed": 7,
+      "method": "populace_fit",
+      "target": "networth",
+      "pinball_as_coded": 671881.2546441505,
+      "pinball_weighted_quantiles": 513022.96456551994
+    },
+    {
+      "scf_year": 2025,
+      "seed": 7,
+      "method": "populace_fit_unweighted",
+      "target": "debt",
+      "pinball_as_coded": 52476.991962836124,
+      "pinball_weighted_quantiles": 52467.65341419238
+    },
+    {
+      "scf_year": 2025,
+      "seed": 7,
+      "method": "populace_fit_unweighted",
+      "target": "networth",
+      "pinball_as_coded": 822949.9054939718,
+      "pinball_weighted_quantiles": 517177.47444681934
+    },
+    {
+      "scf_year": 2025,
+      "seed": 7,
+      "method": "populace_fit_unchained",
+      "target": "debt",
+      "pinball_as_coded": 52116.776338727475,
+      "pinball_weighted_quantiles": 52367.68929140705
+    },
+    {
+      "scf_year": 2025,
+      "seed": 7,
+      "method": "populace_fit_unchained",
+      "target": "networth",
+      "pinball_as_coded": 752854.8147653504,
+      "pinball_weighted_quantiles": 514329.6700186535
+    },
+    {
+      "scf_year": 2025,
+      "seed": 7,
+      "method": "plain_qrf",
+      "target": "debt",
+      "pinball_as_coded": 53155.15474165182,
+      "pinball_weighted_quantiles": 52077.55321499192
+    },
+    {
+      "scf_year": 2025,
+      "seed": 7,
+      "method": "plain_qrf",
+      "target": "networth",
+      "pinball_as_coded": 693451.2559001235,
+      "pinball_weighted_quantiles": 514753.7579199175
+    },
+    {
+      "scf_year": 2025,
+      "seed": 7,
+      "method": "microimpute_qrf",
+      "target": "debt",
+      "pinball_as_coded": 53155.15474165182,
+      "pinball_weighted_quantiles": 52077.55321499192
+    },
+    {
+      "scf_year": 2025,
+      "seed": 7,
+      "method": "microimpute_qrf",
+      "target": "networth",
+      "pinball_as_coded": 693451.2559001235,
+      "pinball_weighted_quantiles": 514753.7579199175
+    },
+    {
+      "scf_year": 2025,
+      "seed": 7,
+      "method": "microimpute_ols",
+      "target": "debt",
+      "pinball_as_coded": 65815.3281297106,
+      "pinball_weighted_quantiles": 59948.718534051186
+    },
+    {
+      "scf_year": 2025,
+      "seed": 7,
+      "method": "microimpute_ols",
+      "target": "networth",
+      "pinball_as_coded": 841663.6985303147,
+      "pinball_weighted_quantiles": 672491.3574405849
+    },
+    {
+      "scf_year": 2025,
+      "seed": 7,
+      "method": "microimpute_quantreg",
+      "target": "debt",
+      "pinball_as_coded": 53865.08769175758,
+      "pinball_weighted_quantiles": 52431.462233770784
+    },
+    {
+      "scf_year": 2025,
+      "seed": 7,
+      "method": "microimpute_quantreg",
+      "target": "networth",
+      "pinball_as_coded": 681080.8479604628,
+      "pinball_weighted_quantiles": 516511.68247057777
+    },
+    {
+      "scf_year": 2025,
+      "seed": 7,
+      "method": "statmatch_hotdeck",
+      "target": "debt",
+      "pinball_as_coded": 52870.06560594702,
+      "pinball_weighted_quantiles": 52205.87526604662
+    },
+    {
+      "scf_year": 2025,
+      "seed": 7,
+      "method": "statmatch_hotdeck",
+      "target": "networth",
+      "pinball_as_coded": 854156.5437737224,
+      "pinball_weighted_quantiles": 516548.4891767229
+    },
+    {
+      "scf_year": 2025,
+      "seed": 7,
+      "method": "weighted_marginal",
+      "target": "debt",
+      "pinball_as_coded": 52122.382884765844,
+      "pinball_weighted_quantiles": 52199.74949989918
+    },
+    {
+      "scf_year": 2025,
+      "seed": 7,
+      "method": "weighted_marginal",
+      "target": "networth",
+      "pinball_as_coded": 511973.12019617646,
+      "pinball_weighted_quantiles": 512253.8392578634
+    },
+    {
+      "scf_year": 2025,
+      "seed": 8,
+      "method": "populace_fit",
+      "target": "debt",
+      "pinball_as_coded": 56958.91773061201,
+      "pinball_weighted_quantiles": 55661.66464294085
+    },
+    {
+      "scf_year": 2025,
+      "seed": 8,
+      "method": "populace_fit",
+      "target": "networth",
+      "pinball_as_coded": 695034.9731686921,
+      "pinball_weighted_quantiles": 545591.6512263506
+    },
+    {
+      "scf_year": 2025,
+      "seed": 8,
+      "method": "populace_fit_unweighted",
+      "target": "debt",
+      "pinball_as_coded": 56996.8349747072,
+      "pinball_weighted_quantiles": 55684.67270910279
+    },
+    {
+      "scf_year": 2025,
+      "seed": 8,
+      "method": "populace_fit_unweighted",
+      "target": "networth",
+      "pinball_as_coded": 778746.476302578,
+      "pinball_weighted_quantiles": 545191.7095411686
+    },
+    {
+      "scf_year": 2025,
+      "seed": 8,
+      "method": "populace_fit_unchained",
+      "target": "debt",
+      "pinball_as_coded": 56958.91773061201,
+      "pinball_weighted_quantiles": 55661.66464294085
+    },
+    {
+      "scf_year": 2025,
+      "seed": 8,
+      "method": "populace_fit_unchained",
+      "target": "networth",
+      "pinball_as_coded": 707627.5414756213,
+      "pinball_weighted_quantiles": 545070.2954686101
+    },
+    {
+      "scf_year": 2025,
+      "seed": 8,
+      "method": "plain_qrf",
+      "target": "debt",
+      "pinball_as_coded": 56688.74851993421,
+      "pinball_weighted_quantiles": 55632.11084838438
+    },
+    {
+      "scf_year": 2025,
+      "seed": 8,
+      "method": "plain_qrf",
+      "target": "networth",
+      "pinball_as_coded": 681276.00402614,
+      "pinball_weighted_quantiles": 545562.8553895431
+    },
+    {
+      "scf_year": 2025,
+      "seed": 8,
+      "method": "microimpute_qrf",
+      "target": "debt",
+      "pinball_as_coded": 56688.74851993421,
+      "pinball_weighted_quantiles": 55632.11084838438
+    },
+    {
+      "scf_year": 2025,
+      "seed": 8,
+      "method": "microimpute_qrf",
+      "target": "networth",
+      "pinball_as_coded": 681276.00402614,
+      "pinball_weighted_quantiles": 545562.8553895431
+    },
+    {
+      "scf_year": 2025,
+      "seed": 8,
+      "method": "microimpute_ols",
+      "target": "debt",
+      "pinball_as_coded": 75945.75003453762,
+      "pinball_weighted_quantiles": 67235.01250762976
+    },
+    {
+      "scf_year": 2025,
+      "seed": 8,
+      "method": "microimpute_ols",
+      "target": "networth",
+      "pinball_as_coded": 1142384.6392432242,
+      "pinball_weighted_quantiles": 834108.5055936718
+    },
+    {
+      "scf_year": 2025,
+      "seed": 8,
+      "method": "microimpute_quantreg",
+      "target": "debt",
+      "pinball_as_coded": 56141.40566453003,
+      "pinball_weighted_quantiles": 56061.99732107633
+    },
+    {
+      "scf_year": 2025,
+      "seed": 8,
+      "method": "microimpute_quantreg",
+      "target": "networth",
+      "pinball_as_coded": 692518.5341518957,
+      "pinball_weighted_quantiles": 547832.9303353479
+    },
+    {
+      "scf_year": 2025,
+      "seed": 8,
+      "method": "statmatch_hotdeck",
+      "target": "debt",
+      "pinball_as_coded": 56189.036767383266,
+      "pinball_weighted_quantiles": 55915.63760939813
+    },
+    {
+      "scf_year": 2025,
+      "seed": 8,
+      "method": "statmatch_hotdeck",
+      "target": "networth",
+      "pinball_as_coded": 751254.4693055939,
+      "pinball_weighted_quantiles": 545208.0483691728
+    },
+    {
+      "scf_year": 2025,
+      "seed": 8,
+      "method": "weighted_marginal",
+      "target": "debt",
+      "pinball_as_coded": 55656.91369035416,
+      "pinball_weighted_quantiles": 55719.303826561685
+    },
+    {
+      "scf_year": 2025,
+      "seed": 8,
+      "method": "weighted_marginal",
+      "target": "networth",
+      "pinball_as_coded": 545074.239561236,
+      "pinball_weighted_quantiles": 545166.0152819826
+    },
+    {
+      "scf_year": 2025,
+      "seed": 9,
+      "method": "populace_fit",
+      "target": "debt",
+      "pinball_as_coded": 49993.42290128618,
+      "pinball_weighted_quantiles": 48878.04906107388
+    },
+    {
+      "scf_year": 2025,
+      "seed": 9,
+      "method": "populace_fit",
+      "target": "networth",
+      "pinball_as_coded": 709494.610052564,
+      "pinball_weighted_quantiles": 509072.21072965284
+    },
+    {
+      "scf_year": 2025,
+      "seed": 9,
+      "method": "populace_fit_unweighted",
+      "target": "debt",
+      "pinball_as_coded": 51236.94840895233,
+      "pinball_weighted_quantiles": 48897.28349615039
+    },
+    {
+      "scf_year": 2025,
+      "seed": 9,
+      "method": "populace_fit_unweighted",
+      "target": "networth",
+      "pinball_as_coded": 944360.4277189632,
+      "pinball_weighted_quantiles": 509807.25700004195
+    },
+    {
+      "scf_year": 2025,
+      "seed": 9,
+      "method": "populace_fit_unchained",
+      "target": "debt",
+      "pinball_as_coded": 49993.42290128618,
+      "pinball_weighted_quantiles": 48878.04906107388
+    },
+    {
+      "scf_year": 2025,
+      "seed": 9,
+      "method": "populace_fit_unchained",
+      "target": "networth",
+      "pinball_as_coded": 697800.0760149254,
+      "pinball_weighted_quantiles": 509515.5068257033
+    },
+    {
+      "scf_year": 2025,
+      "seed": 9,
+      "method": "plain_qrf",
+      "target": "debt",
+      "pinball_as_coded": 52560.63191772628,
+      "pinball_weighted_quantiles": 48821.5464353887
+    },
+    {
+      "scf_year": 2025,
+      "seed": 9,
+      "method": "plain_qrf",
+      "target": "networth",
+      "pinball_as_coded": 699904.633498067,
+      "pinball_weighted_quantiles": 509535.66064315126
+    },
+    {
+      "scf_year": 2025,
+      "seed": 9,
+      "method": "microimpute_qrf",
+      "target": "debt",
+      "pinball_as_coded": 52560.63191772628,
+      "pinball_weighted_quantiles": 48821.5464353887
+    },
+    {
+      "scf_year": 2025,
+      "seed": 9,
+      "method": "microimpute_qrf",
+      "target": "networth",
+      "pinball_as_coded": 699904.633498067,
+      "pinball_weighted_quantiles": 509535.66064315126
+    },
+    {
+      "scf_year": 2025,
+      "seed": 9,
+      "method": "microimpute_ols",
+      "target": "debt",
+      "pinball_as_coded": 65295.748926899614,
+      "pinball_weighted_quantiles": 55249.650920956155
+    },
+    {
+      "scf_year": 2025,
+      "seed": 9,
+      "method": "microimpute_ols",
+      "target": "networth",
+      "pinball_as_coded": 1157673.6686081523,
+      "pinball_weighted_quantiles": 849304.1993585555
+    },
+    {
+      "scf_year": 2025,
+      "seed": 9,
+      "method": "microimpute_quantreg",
+      "target": "debt",
+      "pinball_as_coded": 51658.70294806397,
+      "pinball_weighted_quantiles": 49108.41833403971
+    },
+    {
+      "scf_year": 2025,
+      "seed": 9,
+      "method": "microimpute_quantreg",
+      "target": "networth",
+      "pinball_as_coded": 650497.145437821,
+      "pinball_weighted_quantiles": 510564.614355209
+    },
+    {
+      "scf_year": 2025,
+      "seed": 9,
+      "method": "statmatch_hotdeck",
+      "target": "debt",
+      "pinball_as_coded": 50449.87544939259,
+      "pinball_weighted_quantiles": 48947.92020453195
+    },
+    {
+      "scf_year": 2025,
+      "seed": 9,
+      "method": "statmatch_hotdeck",
+      "target": "networth",
+      "pinball_as_coded": 849736.7251641693,
+      "pinball_weighted_quantiles": 509335.10762314143
+    },
+    {
+      "scf_year": 2025,
+      "seed": 9,
+      "method": "weighted_marginal",
+      "target": "debt",
+      "pinball_as_coded": 48858.71017051087,
+      "pinball_weighted_quantiles": 48788.52237101835
+    },
+    {
+      "scf_year": 2025,
+      "seed": 9,
+      "method": "weighted_marginal",
+      "target": "networth",
+      "pinball_as_coded": 508984.42464869027,
+      "pinball_weighted_quantiles": 509023.16737307707
+    }
+  ]
+}

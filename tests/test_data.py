@@ -7,6 +7,10 @@ with::
 
     uv run python -m pytest tests/test_data.py -q
 
+The SCF tests cover both waves: the 2022 wave the paper's experiments use and
+the 2025 replication wave, including the weight total, the balance-sheet
+identity, and a differential check against the Fed's published Table 2.
+
 Each test asserts the :class:`~imputation_paper.data.base.TaskFrame` contract
 (float64 columns, no NaNs in used columns, positive weights, a fresh index, a
 real row count, and the predictors/targets present) plus the task-specific
@@ -79,6 +83,14 @@ def cps_task() -> TaskFrame:
     return load_cps(2025)
 
 
+@pytest.fixture(scope="module")
+def scf_population() -> dict[int, dict[str, float | int]]:
+    """Weight totals, identity errors, and net-worth statistics per wave."""
+    from imputation_paper.data.scf_checks import population_summary
+
+    return {year: population_summary(year) for year in (2022, 2025)}
+
+
 def test_load_scf(scf_task: TaskFrame) -> None:
     """SCF wealth: invariants, plus sign-mixed net worth and zero-inflated debt."""
     _assert_taskframe_invariants(scf_task)
@@ -106,6 +118,145 @@ def test_load_scf(scf_task: TaskFrame) -> None:
     # The int64 implicate filter keeps all households, not just the low-id ones
     # the naive int16 arithmetic would (the extract has 4595 households).
     assert len(scf_task.frame) == 4595
+
+
+def test_load_scf_2025() -> None:
+    """The replication wave loads through the same contract as 2022."""
+    task = load_scf(2025)
+    _assert_taskframe_invariants(task)
+    assert task.name == "scf_wealth"
+    assert task.targets == ("debt", "networth")
+    assert len(task.frame) == 4360  # 21,800 rows / five implicates
+    assert task.provenance["dollar_year"] == 2025
+    assert task.provenance["rebase_factor"] == 1.0
+    networth, debt = task.frame["networth"], task.frame["debt"]
+    assert (networth < 0).any() and (networth > 0).any()
+    assert (debt == 0).any() and (debt >= 0).all()
+
+    rich = load_scf(2025, profile="populace-scale")
+    _assert_taskframe_invariants(rich)
+    assert set(rich.frame["race"].unique()) == {1.0, 2.0, 3.0, 4.0, 5.0}
+
+
+def test_paper_2022_inputs_are_unchanged() -> None:
+    """``load_scf(2022)`` still returns the 2022-dollar frame the runs used.
+
+    The Fed re-issued the 2022 file in 2025 dollars on 2026-10-09; whichever
+    copy is cached, the default load is on the 2022 basis.
+    """
+    task = load_scf(2022)
+    assert task.provenance["dollar_year"] == 2022
+    weight = task.frame["wgt"].sum()
+    assert weight == pytest.approx(131.3e6 / 5, rel=1e-3)  # implicate 1 only
+    rebased = load_scf(2022, dollar_year=2025)
+    np.testing.assert_allclose(
+        rebased.frame["networth"], task.frame["networth"] * 4789 / 4376, rtol=1e-12
+    )
+    np.testing.assert_array_equal(rebased.frame["wgt"], task.frame["wgt"])
+
+
+def test_rebasing_agrees_with_the_feds_reissued_2022_file() -> None:
+    """Differential: our re-basing against the Fed's own re-based file.
+
+    On 2026-10-09 the Fed replaced the 2022 extract with a copy in 2025
+    dollars. Fetch whatever the Fed serves now under a separate cache name and
+    read it through the loader's own path. If it is the registered 2025-dollar
+    re-issue, its values must equal the 2022-dollar file's times 4789/4376,
+    and its default (2022-dollar) load must equal the paper's inputs, so a
+    cold cache reproduces the paper. If the Fed has replaced the file again
+    the hash is unregistered and the loader refuses it, which fails here and
+    says the registry needs a new entry.
+    """
+    from imputation_paper.data import scf
+    from imputation_paper.data.base import download, sha256_of_file
+
+    served = download(scf._SCF_ZIP_URL.format(year=2022), "scfp2022s.as-served.zip")
+    vintage = scf.KNOWN_EXTRACTS.get(sha256_of_file(served))
+    assert vintage is not None, "the Fed serves an unregistered 2022 extract"
+    if (vintage.survey_year, vintage.dollar_year) != (2022, 2025):
+        pytest.skip("the Fed serves the original 2022-dollar file")
+
+    keys = ["y1"]
+    theirs_2025, _ = scf._implicates_from_zip(served, 2022, 2025)
+    theirs_2022, _ = scf._implicates_from_zip(served, 2022, None)
+    ours_2025 = scf.load_scf_implicates(2022, dollar_year=2025)
+    ours_2022 = scf.load_scf_implicates(2022)
+    for theirs, ours in ((theirs_2025, ours_2025), (theirs_2022, ours_2022)):
+        theirs, ours = (
+            theirs.set_index(keys).sort_index(),
+            ours.set_index(keys).sort_index(),
+        )
+        assert theirs.index.equals(ours.index)
+        for column in ours.columns:
+            if column in scf.DOLLAR_COLUMNS:
+                np.testing.assert_allclose(
+                    theirs[column], ours[column], rtol=1e-9, atol=1e-6, err_msg=column
+                )
+            else:
+                np.testing.assert_array_equal(theirs[column], ours[column], column)
+
+
+@pytest.mark.parametrize("year", [2022, 2025])
+def test_scf_weight_total_and_balance_sheet_identity(
+    scf_population: dict[int, dict[str, float | int]], year: int
+) -> None:
+    """Weights sum to the families represented; the balance sheet adds up.
+
+    ``wgt`` is the analysis weight divided by five, so summed over all five
+    implicates it is the number of families the survey represents: 131.3
+    million (2022) and 135.0 million (2025) in the Fed's Table B.1, published
+    to the nearest 0.1 million. The identity networth = fin + nfin - debt,
+    which the populace-scale chaining result relies on, must hold on every
+    row of every implicate (to storage rounding: some 2022 columns are
+    stored as 32-bit numbers).
+    """
+    from imputation_paper.data.scf_checks import PUBLISHED_FAMILIES_MILLIONS
+
+    wave = scf_population[year]
+    assert wave["implicates"] == 5
+    assert wave["rows"] == 5 * wave["families"]
+    assert wave["families"] == {2022: 4595, 2025: 4360}[year]
+    published = PUBLISHED_FAMILIES_MILLIONS[year] * 1e6
+    assert wave["weight_total"] == pytest.approx(published, abs=0.05e6)
+    assert wave["net_worth_identity_max_abs_error"] < 0.01
+    assert wave["asset_identity_max_abs_error"] < 0.01
+
+
+def test_scf_net_worth_matches_the_feds_table_2(
+    scf_population: dict[int, dict[str, float | int]],
+) -> None:
+    """All-family median and mean net worth against the Fed's Table 2.
+
+    Differential check: the public extract, pooled over its five implicates
+    under ``wgt``, against the published figures in thousands of 2025 dollars
+    (2022: median 211.1, mean 1,164.1; 2025: median 215.9, mean 1,241.5).
+
+    A gap is expected and is not an error in the loader. The Fed computes its
+    tables from the internal data set. Per each wave's codebook ("Disclosure
+    review"), the public file rounds continuous variables, blurs and
+    re-imputes some values, and removes the families whose net worth reaches
+    the minimum for the Forbes 400 list: seven in each wave (4,595 of 4,602
+    families in 2022; 4,360 of 4,367 in 2025). Removing the very top is
+    consistent with the public mean sitting below the published one in both
+    waves, while the median barely moves. Rather than guess the gap, the
+    tolerance on 2025 is calibrated on 2022, the wave the paper used: the
+    larger of one percent and twice the 2022 gap. On the 2022 file the gaps
+    are -0.10 percent (median) and -0.40 percent (mean), so both 2025
+    tolerances are one percent.
+    """
+    from imputation_paper.data.scf_checks import published_gaps
+
+    gaps = published_gaps(scf_population[2022], scf_population[2025])
+    for statistic in ("net_worth_median", "net_worth_mean", "weight_total"):
+        gap = gaps[statistic]
+        # The calibration wave itself sits close to the published figure.
+        assert abs(gap["gap_calibration"]) < 0.01, statistic
+        assert gap["within_tolerance"], (
+            f"{statistic}: 2025 public {gap['public_replication']:,.0f} vs "
+            f"published {gap['published_replication']:,.0f} "
+            f"({100 * gap['gap_replication']:+.2f}%; tolerance "
+            f"{100 * gap['tolerance']:.2f}%)"
+        )
 
 
 def test_load_cps_components(cps_task: TaskFrame) -> None:
