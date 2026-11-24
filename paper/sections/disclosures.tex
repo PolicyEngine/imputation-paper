@@ -30,13 +30,14 @@ at commit \texttt{094a242}.
 
 The inputs are public and need no registration: the \scf{} 2022 summary
 extract from the Federal Reserve (SHA-256 beginning \texttt{3bb4d890}); the
-Census Bureau's ASEC public-use bundles for 2023, 2024, and 2025 (the 2025
-bundle, \texttt{asecpub25csv.zip}, has SHA-256 beginning
-\texttt{318845a2}); and the six OpenML datasets of
+Census Bureau's ASEC public-use bundles for 2023, 2024, and 2025
+(\texttt{asecpub23csv.zip}, \texttt{asecpub24csv.zip}, and
+\texttt{asecpub25csv.zip}, with SHA-256 beginning \texttt{d2e00025},
+\texttt{cdb39cda}, and \texttt{318845a2}); and the six OpenML datasets of
 Section~\ref{sec:task-openml}, fetched by name at versions the loader
 asserts. The Federal Reserve replaced the 2022 extract at its published
 address on 9 October 2026 with a version re-based to 2025 dollars, so the
 file this paper used can no longer be downloaded from the agency.
 % TODO before submission (PolicyEngine/imputation-paper#8): say where the
-% original SCF file is deposited, and add the ASEC 2023 and 2024 hashes.
+% original SCF file is deposited.
 Each run directory's manifest records rows, caps, seeds, and methods.

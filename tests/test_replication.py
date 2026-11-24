@@ -508,6 +508,18 @@ def test_report_on_identical_arms(tmp_path: Path) -> None:
     assert macros["nw-w1-candidate:2022r"] == "148,694"  # 135,871 x 4789/4376
 
 
+def test_number_macros_carry_the_rebased_arm_when_it_ran(tmp_path: Path) -> None:
+    """Arm C's numbers get their own macros, so the appendix can cite them."""
+    for suffix in ("", "-2025", "-2022-rerun"):
+        _copy_arm("", suffix, tmp_path)
+    without = report_cli.number_macros(report_cli.build_report(tmp_path))
+    assert not any(key.endswith(":rebased") for key in without)
+
+    _copy_arm("", "-2022-in-2025-dollars", tmp_path)
+    macros = report_cli.number_macros(report_cli.build_report(tmp_path))
+    assert macros["scale-q90-candidate:rebased"] == macros["scale-q90-candidate:2022"]
+
+
 def test_rerun_that_drifts_replaces_the_baseline(tmp_path: Path) -> None:
     """If today's environment does not reproduce the paper, say so and switch."""
     for suffix in ("", "-2025", "-2022-rerun"):
