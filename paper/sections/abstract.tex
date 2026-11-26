@@ -1,29 +1,28 @@
 \section*{Abstract}
 
-Microsimulation models impute variables from one survey onto another's
-records. A model fitted without design weights learns the sample's
-conditional distributions, which differ from the population's where
-weights are informative. We present the imputation estimator of
-\policyengine{}'s \populace{} microdata stack: a quantile regression forest
-with a weighted bootstrap, sign-regime gates, and sequential chaining, whose
-interface requires stated weights. To evaluate it we formalize a
-\emph{population-view harness}, which scores a candidate file against each
-survey's holdout. On two waves of the Survey of Consumer Finances, the
-unweighted estimator is 4.3 to 6.1 times worse on net-worth marginal fit and
-imputes a 99th percentile 1.8 to 2.3 times the holdout's, which the joint
-metrics miss. With its gates off, it
-misses the zero share of Current Population Survey dividend income by 7.2
-percentage points instead of 0.6 (4.3 with chaining also off). Fitting four
-balance-sheet components independently costs 4.9 to 5.8 points of classifier
-two-sample AUC, and the accounting identity recovers them. A hot deck that
-draws donors by weight matches the estimator on within-survey marginal fit,
-and hot decks score within about one noise standard deviation of it on the
-joint. The estimator's own imputed 99th percentile is 23 to 37 percent below
-the holdout's. Under rules fixed before the second wave was used, six of
-eight headline findings replicated and two were inconclusive; five of
-nineteen others did not, and the identity and weighted hot deck
-arms were added afterwards. The estimator is available standalone as
-\populacefit{}.
+Microsimulation models impute variables from one survey onto another. A
+model fitted without design weights learns the sample's conditional
+distributions, not the population's, where weights are informative. We present \populacefit{}, \policyengine{}'s imputation
+estimator: a quantile regression forest that resamples its training data by
+weight, models zero, negative, and positive values separately (sign gates),
+and imputes targets in sequence (chaining). We compare it with regression
+and hot-deck baselines, switching off one design choice at a time, within
+the Survey of Consumer Finances (SCF) and the Current Population Survey
+(CPS), and across them with the population-view harness, scoring CPS
+households with imputed wealth against held-out SCF households. On two SCF
+waves, fitting without weights is 4.3 to 6.1 times worse on net-worth
+fit and yields a 99th percentile 1.8 to 2.3 times the holdout's,
+which the joint metrics miss. The full estimator reproduces the
+share of adults without dividend income to within 0.6 percentage points,
+against 7.2 with its gates off. Imputing four balance-sheet items
+independently costs 4.9 to 5.8 points of classifier AUC, and
+computing net worth from the other three removes that cost. A hot deck that
+draws donors by weight matches the estimator on within-survey marginal fit
+and scores within about one noise standard deviation of it on the joint metrics. The
+estimator's imputed 99th percentile is 23 to 37 percent below the
+holdout's. Under rules fixed before the second wave was used, six of eight
+headline findings replicated, two were inconclusive, and five of nineteen
+others failed.
 
 \vspace{1em}
 \noindent\textbf{Keywords:} imputation, survey weights, quantile regression

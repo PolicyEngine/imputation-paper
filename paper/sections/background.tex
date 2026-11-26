@@ -4,10 +4,10 @@
 
 Survey agencies and microsimulation teams draw on a small set of imputation
 families. \emph{Hot-deck and statistical matching} methods donate observed
-values from a matched donor record; they preserve marginal distributions by
-construction because every imputed value is a real donor value
-\citep{andridge2010review, dorazio2006statistical}, and remain the standard
-data-fusion tool in European microsimulation practice
+values from a matched donor record. They preserve marginal distributions by
+construction, because every imputed value is a real donor value
+\citep{andridge2010review, dorazio2006statistical}, and they remain the
+standard data-fusion tool in European microsimulation practice
 \citep{sutherland2013euromod}. \emph{Regression-based} methods impute from a
 fitted conditional model (ordinary least squares with residual draws
 \citep{vonhippel2013should}, linear quantile regression
@@ -72,14 +72,14 @@ estimator here draws a fresh one for each forest, and it has no gate. The
 contrast between the two forests in Section~\ref{sec:results} is therefore
 not a weighting contrast.
 
-Tree ensembles add a mechanical reason to resample. A fully grown forest's
-\emph{predictive distribution} is a leaf-membership distribution, which
-per-record \texttt{sample\_weight} arguments do not reweight, so honoring
-weights requires materializing them into the training data. Zero-inflated
+Tree ensembles add a mechanical reason to resample. A fully grown forest
+predicts from the training rows stored in its leaves, and per-record weights
+passed to the forest do not reweight those rows, so honoring weights
+requires putting them into the training data. Zero-inflated
 targets add a second consideration: weighting the zero/nonzero gate by
 resampling can delete a rare sign class outright, so the gate must be
 weighted directly. Weighting by resampling is not new. We are not aware of
-prior survey-imputation work that combines it with sign-regime gating and
+prior survey-imputation work that combines it with sign gating and
 chaining in one forest estimator whose interface makes the weighted fit the
 default. This paper documents and tests that combination.
 
@@ -90,20 +90,11 @@ pointwise accuracy metrics understate quality; the relevant question is
 distributional. We report pinball loss, from the quantile-loss tradition
 \citep{koenker2005quantile, meinshausen2006quantile}, and Wasserstein
 distance; as computed here both score marginal fit
-(Section~\ref{sec:metrics}). For the joint, this paper formalizes an
-evaluation perspective with one latent population, surveys as partial views
-of it, and candidates scored through each view against held-out survey
-samples. It draws on several literatures that have not, to our knowledge,
-been assembled into an operational benchmark: the survey-statistics
-treatment of multiple sources observing one population
-\citep{lohr2017combining}, the missing-data view of fusion as block
-missingness on a single file \citep{little2002statistical,
-rassler2002statistical}, strictly proper scoring of distributional claims
-against realized samples \citep{gneiting2007strictly, szekely2013energy},
-classifier two-sample tests \citep{lopezpaz2017revisiting}, and the
-precision--recall--density--coverage geometry of generative-model
-evaluation \citep{naeem2020reliable}. Population-synthesis practice validates
-against input marginals rather than held-out views.\todo{cite a source for
-this statement about population-synthesis practice, or cut it} Section~3.3
-puts the combination into practice; the reweighting fragility diagnostic of
-Section~3.4 is, to our knowledge, new.
+(Section~\ref{sec:metrics}). For the joint distribution we use the
+population-view harness of \citet{ghenis2026popdgp}, which treats surveys as
+partial views of one population and scores a candidate file through each
+view against a held-out sample of that survey. This paper is its first
+application: Section~\ref{sec:harness} summarizes the four metrics it
+reports, and the framework's general treatment is in that work. The
+reweighting fragility diagnostic of Section~\ref{sec:metrics} is, to our
+knowledge, new.
