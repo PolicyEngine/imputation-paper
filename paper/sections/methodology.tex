@@ -204,7 +204,7 @@ For the joint distribution we use the population-view harness of
 section summarizes what is needed to read the results; the framework's
 general treatment is in that work.
 
-\landscapefloat{figure}{The population-view harness}{fig:harness}{%
+\landscapefloat{figure}{The population-view experiment}{fig:harness}{%
 \fitwidth{\tablefont\input{figures/harness_schematic}}}{%
 Notes: Two surveys observe the same population. The Survey of Consumer
 Finances (\scf{}) records demographics and wealth, under a design that
@@ -230,30 +230,25 @@ The harness reports four metrics. Two of them compare every pair of points,
 which is costly on large samples. For those two, each sample larger than
 2,048 points is first reduced to 2,048 by a resample drawn in proportion to
 weight. We call this limit the \emph{subsample cap}, and we say a metric is
-capped when it applies and uncapped when the metric uses every row. Write
-$X = \{(x_i, a_i)\}$ for the candidate sample and $Y = \{(y_j, b_j)\}$ for
-the holdout, with weights normalized to sum to one.
+capped when it applies and uncapped when the metric uses every row. Both
+capped metrics measure distances between points after each variable is
+standardized by the holdout's weighted mean and standard deviation, which
+puts the variables on a common scale.
 
 \paragraph{Energy distance (capped; lower is better, 0 is perfect).}
-The weighted energy distance \citep{szekely2013energy}
-\begin{equation}
-\mathcal{E}(X, Y) = 2 \sum_{i,j} a_i b_j \lVert x_i - y_j \rVert
-- \sum_{i,i'} a_i a_{i'} \lVert x_i - x_{i'} \rVert
-- \sum_{j,j'} b_j b_{j'} \lVert y_j - y_{j'} \rVert
-\label{eq:energy}
-\end{equation}
-is the sample form of a strictly proper scoring rule
-\citep{gneiting2007strictly}: in expectation it is smallest only for the
-true distribution.
+The weighted energy distance \citep{szekely2013energy} compares the two
+files as whole distributions. It is twice the weighted mean distance between
+a candidate point and a holdout point, minus the weighted mean distance
+between two candidate points and the weighted mean distance between two
+holdout points. It is zero when the two weighted samples have the same
+distribution and positive otherwise.
 
-\paragraph{Coverage (capped; higher is better, 1 is perfect).} \prdc{}
-coverage \citep{naeem2020reliable} is the weighted fraction of holdout
-points with at least one candidate point inside their
-$k$-nearest-neighbour radius. It asks whether the candidate reaches every
-neighbourhood the holdout occupies. It depends on the candidate only through
-which points it contains, so in principle reweighting the candidate cannot
-change it. As implemented, the weight-proportional resample to the cap makes
-that hold only approximately.
+\paragraph{Coverage (capped; higher is better, 1 is perfect).} Coverage
+comes from the precision, recall, density, and coverage (\prdc{}) metrics
+of \citet{naeem2020reliable}. It is the weighted fraction of holdout points
+that have at least one candidate point within the distance to their
+fifth-nearest holdout neighbour. It asks whether the candidate reaches every
+neighbourhood the holdout occupies.
 
 \paragraph{Classifier two-sample test (uncapped; 0.5 is indistinguishable).}
 A gradient-boosted classifier is trained to tell candidate rows from

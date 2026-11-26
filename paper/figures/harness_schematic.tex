@@ -1,5 +1,7 @@
-% The population-view harness, schematically. Hand-authored (a design
-% description, not a results exhibit); pdflatex-compatible TikZ only.
+% The population-view experiment of this paper, schematically: how the
+% candidate file is assembled and scored. Hand-authored (a design
+% description, not a results exhibit); pdflatex-compatible TikZ only. The
+% harness's general notation is in the popdgp paper, not here.
 % All text is 10 pt sans serif (IJM: text in figures in Arial or similar,
 % size 10).
 \begin{tikzpicture}[
@@ -13,17 +15,17 @@
     lab/.style={font=\sffamily\fontsize{10}{12}\selectfont\itshape, align=center},
 ]
 
-% Latent population
-\node[box, minimum width=4.2cm] (pop)
-    {latent population $P$\\[-1pt]joint of demographics,
-     income, wealth, \ldots};
+% The population both surveys observe. The width is fixed because the two
+% view boxes are placed from this box's corners.
+\node[box, minimum width=193.97pt] (pop)
+    {one population\\[-1pt]demographics, income, wealth, \ldots};
 
 % Two survey views
 \node[box, below left=1.35cm and -2.9cm of pop, minimum width=4.2cm] (scf)
-    {\scf{} view $V_{\text{\scf{}}}(P)$\\[-1pt]demographics
+    {\scf{} view\\[-1pt]demographics
      $+$ wealth; list design, \scf{} weights};
 \node[box, below right=1.35cm and -2.9cm of pop, minimum width=4.2cm] (cps)
-    {\cps{} view $V_{\text{\cps{}}}(P)$\\[-1pt]demographics
+    {\cps{} view\\[-1pt]demographics
      $+$ income; area design, \cps{} weights};
 
 \draw[flow] (pop) -- (scf) node[midway, left=14pt, lab] {observed\\through};
@@ -32,15 +34,15 @@
 % SCF splits
 \node[box, below left=1.1cm and -3.6cm of scf, minimum width=2.5cm] (donor)
     {donor split};
-\node[box, below right=1.1cm and -2.6cm of scf, minimum width=2.5cm] (holdout)
-    {holdout $H_{\text{\scf{}}}$\\[-1pt]never used upstream};
+\node[box, below right=1.1cm and -2.6cm of scf, minimum width=101.78pt] (holdout)
+    {holdout\\[-1pt]never used in a fit};
 
 \draw[flow] (scf) -- (donor) node[midway, left=8pt, lab] {80\%};
 \draw[flow] (scf) -- (holdout) node[midway, right=8pt, lab] {20\%};
 
 % Candidate assembly
 \node[box, below=2.4cm of cps, minimum width=4.2cm] (cand)
-    {candidate file $Q$\\[-1pt]real \cps{} demographics
+    {candidate file\\[-1pt]real \cps{} demographics
      $+$ imputed wealth,\\[-2pt]under \cps{} weights};
 
 \draw[flow] (cps) -- (cand);
@@ -51,20 +53,20 @@
 % Scorecard
 \node[box, below=3.2cm of donor, anchor=north west, xshift=-0.3cm,
       minimum width=9.6cm] (score) at (donor.south -| donor.west)
-    {score $V_{\text{\scf{}}}(Q)$ against $H_{\text{\scf{}}}$, in the
-     \scf{} view's own variables\\[1pt]
-     energy distance (joint) \;$\cdot$\; coverage (support)
+    {candidate scored against the holdout, on the \scf{} view's
+     variables\\[1pt]
+     joint metrics: energy distance \;$\cdot$\; coverage
      \;$\cdot$\; classifier AUC\\[1pt]
-     tail metrics (uncapped $W_1$/sd, q90/q99 ratios)};
+     tail metrics: $W_1$/sd, q90 and q99 ratios};
 
 \draw[flow] (cand.south) to[out=-90, in=0]
-    node[pos=0.5, right=4pt, lab] {projected\\through $V_{\text{\scf{}}}$}
+    node[pos=0.5, right=4pt, lab] {restricted to the\\\scf{} view's variables}
     (score.east);
 \draw[flow] (holdout) -- (holdout |- score.north);
 
 % Sampling-noise floor
 \draw[faintflow] (donor) -- (donor |- score.north)
     node[midway, left=2pt, lab, text=black!55]
-    {donor split\\scored as a\\reference candidate\\(sampling-noise floor)};
+    {donor split\\scored as a\\candidate\\(sampling floor)};
 
 \end{tikzpicture}
