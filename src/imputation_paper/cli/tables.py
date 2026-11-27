@@ -46,6 +46,9 @@ METHOD_ORDER: tuple[tuple[str, str], ...] = (
     ("statmatch_rand_hotdeck_unweighted", "Random hot deck"),
     ("statmatch_rand_hotdeck", "Weighted random hot deck"),
     ("statmatch_constrained_hotdeck", "Constrained hot deck"),
+    # A diagnostic variant: it appears only in the conditional-fit tables,
+    # whose added-arms runs include it.
+    ("statmatch_constrained_hotdeck_two_uses", r"\quad -- two uses per donor"),
     ("weighted_marginal", "Weighted marginal draw"),
 )
 _DISPLAY = dict(METHOD_ORDER)
@@ -85,9 +88,37 @@ REPLICATION_WAVES: tuple[tuple[str, str, str], ...] = (
 _LOWER_BETTER = {
     "pinball_loss",
     "wasserstein1",
+    "within_group_wasserstein1",
     "zero_share_error",
     "energy_distance",
 }
+
+#: The within-survey conditional-fit tables: ``(run directory, table file,
+#: targets as (column, label), divisor of the within-group distance)``. The
+#: SCF distances are printed in thousands of dollars so the six columns fit a
+#: landscape page; the tables' notes state the unit.
+CONDITIONAL_FIT_TABLES: tuple[
+    tuple[str, str, tuple[tuple[str, str], ...], float], ...
+] = (
+    (
+        "conditional-fit-scf-wealth",
+        "conditional_fit_scf_wealth.tex",
+        (("networth", "Net worth"), ("debt", "Debt")),
+        1000.0,
+    ),
+    (
+        "conditional-fit-scf-wealth-2025",
+        "conditional_fit_scf_wealth_2025.tex",
+        (("networth", "Net worth"), ("debt", "Debt")),
+        1000.0,
+    ),
+    (
+        "conditional-fit-cps-components",
+        "conditional_fit_cps_components.tex",
+        (("interest_income", "Interest"), ("dividend_income", "Dividends")),
+        1.0,
+    ),
+)
 
 
 def _fmt(value: float) -> str:
@@ -182,12 +213,16 @@ def _tabular(
         if contenders.empty:
             continue
         means = contenders.map(lambda cell: cell[0])
+        if metric == "total_ratio":
+            # Several methods sit within noise of 1; the column is there to
+            # show the ones far from it, so it is not ranked.
+            continue
         if metric.startswith(("q90_ratio", "q99_ratio")):
             # Tail ratios target 1 (candidate tail = holdout tail).
             target_metric_best = means.loc[(means - 1.0).abs().idxmin()]
         elif metric.startswith("w1_over_sd"):
             target_metric_best = means.min()
-        elif metric == "c2st_auc":
+        elif metric in ("c2st_auc", "conditional_auc"):
             # Indistinguishability is the target: best is closest to 0.5,
             # not the extremum.
             target_metric_best = means.loc[(means - 0.5).abs().idxmin()]
@@ -201,8 +236,8 @@ def _tabular(
                 pivot[truth_key].dropna().map(lambda cell: cell[0]).mean()
             )
             target_metric_best = means.loc[(means - truth_mean).abs().idxmin()]
-        elif metric.endswith("_truth"):
-            # Constant reference columns are never bolded.
+        elif metric.endswith(("_truth", "_null")):
+            # Reference columns are never bolded.
             continue
         elif metric in _LOWER_BETTER:
             target_metric_best = means.min()
@@ -512,6 +547,45 @@ def _replication_wave_tables(runs_dir: Path, out_dir: Path, written: list[str]) 
             written.append(name)
 
 
+def _conditional_fit_tables(runs_dir: Path, out_dir: Path, written: list[str]) -> None:
+    """One table per survey task from the ``imp conditional-fit`` runs.
+
+    Columns: the paired classifier AUC over all targets and its label-swap
+    null, then for each target the Wasserstein-1 distance between imputed and
+    true values within groups of receivers and the imputed total as a multiple
+    of the full sample's.
+    """
+    from imputation_paper.cli.conditional import JOINT
+
+    for run_name, out_name, targets, divisor in CONDITIONAL_FIT_TABLES:
+        long = _read_long(runs_dir / run_name, "metrics_long.csv")
+        summary = _long_to_summary(runs_dir / run_name, "metrics_long.csv", "target")
+        if long is None or summary is None:
+            print(f"  {run_name}: no run found; table skipped")
+            continue
+        distance = summary["metric"] == "within_group_wasserstein1"
+        summary.loc[distance, ["mean", "sd"]] /= divisor
+        columns = [
+            (JOINT, "conditional_auc", "Classifier AUC"),
+            (JOINT, "conditional_auc_null", "Null AUC"),
+        ]
+        for column, label in targets:
+            columns += [
+                (column, "within_group_wasserstein1", f"{label} $W_1$ in groups"),
+                (column, "total_ratio", f"{label} total"),
+            ]
+        (out_dir / out_name).write_text(
+            _tabular(
+                summary,
+                columns,
+                f"Conditional fit within the survey ({run_name}), mean (sd) over "
+                f"{long['seed'].nunique()} paired seeds. AUC of 0.5 is "
+                "indistinguishable; a total of 1 equals the full sample's.",
+            )
+        )
+        written.append(out_name)
+
+
 def make_tables(
     runs_dir: Path = Path("runs"), out_dir: Path = Path("paper/tables")
 ) -> int:
@@ -614,6 +688,7 @@ def make_tables(
 
     _openml_table(runs_dir, out_dir, written)
     _ablation_table(runs_dir, out_dir, written)
+    _conditional_fit_tables(runs_dir, out_dir, written)
 
     for name in written:
         print(f"  wrote {out_dir / name}")

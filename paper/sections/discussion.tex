@@ -71,10 +71,9 @@ uniform.
 \subsection{Comparison with matching}
 \label{sec:discussion-matching}
 
-The results do not show that the estimator outperforms a hot deck that uses
-the weights. On the metrics of this paper the two are level within noise,
-and the differences in the estimator's favour are about one floor standard
-deviation.
+No method is ahead on every measure. Whether the estimator or a hot deck
+does better depends on which hot deck it is, on the survey, and on whether
+the measure counts households or dollars.
 
 Within a survey, a hot deck that draws its donor among the nearest in
 proportion to weight equals the full estimator on marginal fit, where the
@@ -95,23 +94,56 @@ and by 2.4 and 3.3 with net worth derived. Those margins run from a third of
 the floor's seed-to-seed standard deviation to one and a half times it, and
 on the 2025 wave at scale the nearest-neighbour hot deck's AUC is the lower
 of the two by 0.3 points. The constrained hot deck, which has the best
-marginal fit on several within-survey columns, was not run on the population
-view, so its joint scores are unknown.
+marginal fit on several within-survey columns, does not carry that over
+either. Its AUC on the population view is 0.6 to 2.5 points above the
+estimator's across the two profiles and waves, and its imputed 99th
+percentile of net worth is 4.9 to 8.4 times the holdout's, because its limit
+of six uses per donor there forces nearly even use of the donors
+(Section~\ref{sec:results-harness}).
 
-Two readings of this near-parity are possible, and the experiments do not
-separate them. The first is that the methods are close on these tasks. The
-survey tasks have three to ten predictors and at most four targets. Whether
-the estimator gains on a hot deck when there are more predictors, and close
-donors become scarce, is not tested by any task here. The second is that the
-metrics are weak where a difference would show. The within-survey metrics
-score each imputed variable on its own and say nothing about how it varies
-with the predictors. On the population view, every candidate carries the
-same demographic difference between the two surveys, which raises every
-candidate's AUC and leaves less room for the methods to differ: the full
-estimator's AUC is 0.73 and 0.76, against a sampling floor of 0.50. And
-energy distance separates only OLS from the rest. Conditional fit can be
-tested directly within a survey, where the receivers' true values are known
-(Section~\ref{sec:future}). We did not run that test.
+The direct test of conditional fit
+(Section~\ref{sec:results-conditional}) separates the methods more than
+those metrics do, and it does not give one order.
+
+Against the weighted random hot deck, which chooses donors by weight, the
+estimator is ahead on the \scf{} on both conditional measures. Its AUC is the
+lower in every seed of both waves (0.561 and 0.564 against 0.611 and 0.612),
+and its within-group distance on net worth is lower by a factor of 1.4. On
+the \cps{} the classifier puts the hot deck ahead (0.525 against 0.534), and
+the two are level in dollars.
+
+Against the constrained hot deck the two measures disagree on the \scf{}.
+The classifier finds the hot deck's values harder to tell from the truth
+(0.526 and 0.519). That lead comes from the hot deck's limit of one use per
+donor and not from closer matches: with two uses allowed, its AUC equals the
+estimator's (Section~\ref{sec:results-conditional}). In dollars the hot deck
+is behind. Its within-group
+distance on net worth is 2.9 and 1.6 times the estimator's, and its wealth
+total is 1.97 and 1.32 times the survey's, because it chooses donors without
+the weights from a sample in which wealthy households are over-represented.
+On the \cps{}, where the weights carry little information about the targets,
+it is ahead of the estimator on the classifier and level with it in dollars.
+
+The earlier metrics left open whether the methods were as close as they
+looked. The direct test shows that they differ. It does not say which method
+is better, because that depends on the use.
+The classifier gives every household the same say. The dollar measures are
+moved by the few households that hold most of the wealth. A file used to
+cost a policy that bears on wealth depends on totals and on the top of the
+distribution, which the dollar measures score. The classifier's order also
+depends on the test's split. Where donors outnumber receivers, a method that
+never repeats a donor scores best on it. A production file has many more
+receivers than donors, and no method that draws from donor records can avoid
+repeating them there. On the population view, where the constrained hot
+deck's limit is six uses per donor, its 99th percentile of net worth is 4.9
+to 8.4 times the holdout's.
+
+Two limits apply. The survey tasks have three to ten predictors and at most
+four targets, and no task here tests whether the comparison changes when
+there are more predictors and close donors become scarce. And the test was
+run with four donors for each receiver, which is what lets a limit of one
+use per donor hold. We ran one other limit and no other split
+(Section~\ref{sec:future}).
 
 \subsection{What the evaluation shows}
 \label{sec:discussion-evaluation}
@@ -203,10 +235,8 @@ view, and the targets were chosen to exercise its gates and chaining, while
 the baselines were not tuned to these tasks. The 2025 wave is the only
 \scf{} data that no design decision saw.
 
-\paragraph{Arms evaluated on part of the tasks.} The constrained hot deck
-took thirteen minutes per split at the population view's 20,000 receivers,
-against seconds for every other method, and was not run there. The gates are
-tested on targets whose sign classes are all common, not on a rare class.
+\paragraph{Gates on common sign classes only.} The gates are tested on
+targets whose sign classes are all common, not on a rare class.
 
 \paragraph{Dollar basis.} The population view does not put the two surveys'
 incomes on a common dollar basis: the \scf{}'s are in survey-year dollars
@@ -239,13 +269,13 @@ treatment.
 \subsection{Open questions and future work}
 \label{sec:future}
 
-\paragraph{A direct test of conditional fit.} Within a survey the receivers'
-true values are known, so conditional fit can be scored directly: with a
-classifier that tries to tell receiver rows carrying their true values from
-the same rows carrying imputed ones, or with a proper score of each method's
-predictive distribution at each row. Either would show whether the
-near-parity between the estimator and the weighted random hot deck belongs
-to the methods or to the metrics used here.
+\paragraph{Other splits, and a second test of conditional fit.} The paired
+classifier test was run with one receiver for every four donors. With more
+receivers than donors, every method that draws from donor records must
+repeat them, and the order of the methods on the test may change. We did not
+run that split. A proper score of each method's predictive distribution at
+each receiver row would be a second direct test of conditional fit, and we
+did not run one.
 
 \paragraph{Harder tasks.} The survey tasks have three to ten predictors and
 at most four targets, and the donor and receiver are either the same survey
@@ -262,8 +292,7 @@ in each wave with a much higher AUC at production scale; the interaction of
 gating and chaining on the dividend zero share; and the part of the fall in
 the q90 ratio on the 2025 wave that re-basing does not account for.
 
-\paragraph{Runs not made.} The constrained hot deck was not run on the
-population view, the subsample cap was not varied, and the fragility
+\paragraph{Runs not made.} The subsample cap was not varied, and the fragility
 diagnostic was not run on a cross-survey file, which is the setting that
 motivates it. No run uses the other four \scf{} implicates or the replicate
 weights, and the gates were not tested on a rare sign class. The zero-share

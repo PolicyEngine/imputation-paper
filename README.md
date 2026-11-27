@@ -77,6 +77,41 @@ py-statmatch (git). CI deliberately runs without it:
 the registry imports methods lazily, and sweeps record unavailable methods in
 `skipped.csv` rather than failing or silently dropping them.
 
+### Conditional fit within each survey
+
+The paired classifier test and the dollar measures of the paper's section on
+conditional fit have their own runs. `imp conditional-fit` refits every method
+on the sweep's splits with the sweep's seeds, so it scores the same draws, and
+it writes its own run directory:
+
+```bash
+export OMP_NUM_THREADS=1
+uv run imp conditional-fit --task scf_wealth --seeds 30 --out runs/conditional-fit-scf-wealth
+uv run imp conditional-fit --task scf_wealth --scf-year 2025 --seeds 30 --out runs/conditional-fit-scf-wealth-2025
+uv run imp conditional-fit --task cps_components --seeds 30 --out runs/conditional-fit-cps-components
+for name in space_ga elevators brazilian_houses onlinenewspopularity abalone house_sales; do
+  uv run imp conditional-fit --task "openml_$name" --out "runs/conditional-fit-openml-$name"
+done
+uv run imp tables
+```
+
+The survey tasks use 30 seeds; the first ten are the sweep's. A test checks
+that each run's Wasserstein-1 distances equal the sweep's, cell for cell, on
+the seeds they share.
+
+One diagnostic variant sits beside those runs: the constrained hot deck with
+two uses allowed per donor, which is kept out of the method registry. Its
+runs rerun three methods as controls and record how many receivers share a
+value with another receiver:
+
+```bash
+ARMS=(populace_fit statmatch_hotdeck statmatch_constrained_hotdeck statmatch_constrained_hotdeck_two_uses)
+uv run imp conditional-fit --task scf_wealth --seeds 30 --value-reuse --methods "${ARMS[@]}" --out runs/conditional-fit-scf-wealth-added-arms
+uv run imp conditional-fit --task scf_wealth --scf-year 2025 --seeds 30 --value-reuse --methods "${ARMS[@]}" --out runs/conditional-fit-scf-wealth-2025-added-arms
+uv run imp conditional-fit --task cps_components --seeds 30 --value-reuse --constrained-max-cells 200000000 --methods "${ARMS[@]}" --out runs/conditional-fit-cps-components-added-arms
+uv run imp tables
+```
+
 ### Arms added after the first sweeps
 
 Seven methods joined the surface after the first sweeps were committed: the
@@ -88,9 +123,14 @@ into it:
 export OMP_NUM_THREADS=1
 ARMS=(populace_fit weighted_marginal statmatch_hotdeck populace_fit_ungated populace_fit_ungated_unchained populace_fit_derived populace_fit_unchained_derived statmatch_rand_hotdeck statmatch_constrained_hotdeck statmatch_rand_hotdeck_unweighted)
 uv run imp sweep --task scf_wealth --methods "${ARMS[@]}" --out runs/scf-wealth-added-arms
-uv run imp harness --profile populace-scale --methods "${ARMS[@]}" --out runs/scf-to-cps-harness-scale-added-arms
+uv run imp harness --profile populace-scale --methods "${ARMS[@]}" --constrained-max-cells 500000000 --out runs/scf-to-cps-harness-scale-added-arms
 uv run imp tables
 ```
+
+`--constrained-max-cells` lets the constrained hot deck run at the population
+view's size, where it is skipped by default. One split then takes about
+thirteen minutes and 6 GB, so the four population-view directories take about
+nine hours, one at a time.
 
 The first three keys are controls: methods the first sweep also ran. `imp
 tables` reads the two directories together and refuses to write a table

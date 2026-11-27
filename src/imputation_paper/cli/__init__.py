@@ -122,6 +122,15 @@ def main(argv: list[str] | None = None) -> int:
         default=20_000,
         help="Deterministic cap on the CPS receiver sample.",
     )
+    harness.add_argument(
+        "--constrained-max-cells",
+        type=int,
+        default=None,
+        help="Largest assignment problem, in cells, the constrained hot deck "
+        "is asked to solve. By default it is skipped at the population "
+        "view's size; 500000000 runs it, at minutes and several gigabytes "
+        "per split.",
+    )
     _add_scf_wave_arguments(harness, "the SCF donor")
 
     tables = subcommands.add_parser(
@@ -200,6 +209,54 @@ def main(argv: list[str] | None = None) -> int:
         "--runs-dir", type=Path, default=Path("runs"), help="Runs root."
     )
 
+    conditional = subcommands.add_parser(
+        "conditional-fit",
+        help="Score conditional fit within a survey: a classifier tries to "
+        "tell the receivers' true values from the imputed ones (needs the "
+        "methods extra for most methods).",
+    )
+    conditional.add_argument("--task", default="toy", help="Task to run.")
+    conditional.add_argument(
+        "--out",
+        type=Path,
+        default=Path("runs/conditional-fit-toy"),
+        help="Run directory to write metrics_long.csv into.",
+    )
+    conditional.add_argument(
+        "--methods",
+        nargs="*",
+        default=None,
+        help="Registry keys to run (default: every registered method).",
+    )
+    conditional.add_argument(
+        "--seeds", type=int, default=10, help="Number of repeated splits."
+    )
+    conditional.add_argument(
+        "--max-rows",
+        type=int,
+        default=20_000,
+        help="Deterministic row cap applied to the task before splitting.",
+    )
+    conditional.add_argument(
+        "--scf-year",
+        type=int,
+        default=2022,
+        help="SCF wave for the scf_wealth task: 2022 or 2025.",
+    )
+    conditional.add_argument(
+        "--value-reuse",
+        action="store_true",
+        help="Also record how many receivers share a non-zero imputed value "
+        "with another receiver, next to the same share for the true values.",
+    )
+    conditional.add_argument(
+        "--constrained-max-cells",
+        type=int,
+        default=None,
+        help="Size limit, in cells, for the constrained hot deck in this run "
+        "(default: the package's).",
+    )
+
     figures = subcommands.add_parser(
         "figures",
         help="Aggregate a run's long-format artifacts into summary tables.",
@@ -240,6 +297,7 @@ def main(argv: list[str] | None = None) -> int:
             profile=args.profile,
             scf_year=args.scf_year,
             scf_dollar_year=args.scf_dollar_year,
+            constrained_max_cells=args.constrained_max_cells,
         )
     if args.command == "tables":
         from imputation_paper.cli.tables import make_tables
@@ -265,6 +323,19 @@ def main(argv: list[str] | None = None) -> int:
         from imputation_paper.cli.replication import make_pinball_weighting
 
         return make_pinball_weighting(out=args.out, runs_dir=args.runs_dir)
+    if args.command == "conditional-fit":
+        from imputation_paper.cli.conditional import run_conditional_fit
+
+        return run_conditional_fit(
+            task=args.task,
+            out=args.out,
+            methods=args.methods,
+            n_seeds=args.seeds,
+            max_rows=args.max_rows,
+            scf_year=args.scf_year,
+            value_reuse=args.value_reuse,
+            constrained_max_cells=args.constrained_max_cells,
+        )
     if args.command == "figures":
         from imputation_paper.cli.figures import make_figures
 

@@ -1,0 +1,114 @@
+{
+  "task": "scf_wealth",
+  "rows_used": 4360,
+  "rows_available": 4360,
+  "row_cap_applied": false,
+  "max_rows": 20000,
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29
+  ],
+  "methods_requested": [
+    "populace_fit",
+    "populace_fit_unweighted",
+    "populace_fit_unchained",
+    "populace_fit_ungated",
+    "populace_fit_ungated_unchained",
+    "populace_fit_derived",
+    "populace_fit_unchained_derived",
+    "plain_qrf",
+    "microimpute_qrf",
+    "microimpute_ols",
+    "microimpute_quantreg",
+    "statmatch_hotdeck",
+    "statmatch_rand_hotdeck_unweighted",
+    "statmatch_rand_hotdeck",
+    "statmatch_constrained_hotdeck",
+    "weighted_marginal"
+  ],
+  "predictors": [
+    "age",
+    "hhsex",
+    "edcl",
+    "married",
+    "kids",
+    "income",
+    "wageinc"
+  ],
+  "targets": [
+    "debt",
+    "networth"
+  ],
+  "weight_column": "wgt",
+  "test": {
+    "statistic": "weighted out-of-fold AUC of a classifier telling the receivers' true target values from the imputed ones, on predictors and targets together",
+    "classifier": "sklearn HistGradientBoostingClassifier at its defaults",
+    "folds": 5,
+    "folds_over": "receiver rows (both copies of a row share a fold)",
+    "null": "the same test with the labels of a random half of the receiver rows swapped"
+  },
+  "dollar_measures": {
+    "within_group_wasserstein1": "weighted Wasserstein-1 distance between imputed and true values inside each group of receivers, averaged by group weight",
+    "groups": {
+      "income_column": "income",
+      "income_cuts": [
+        35945.94594594595,
+        62648.648648648654,
+        102702.7027027027,
+        172378.2354884572
+      ],
+      "zero_band": false,
+      "age_column": "age",
+      "age_cuts": [
+        40.0,
+        65.0
+      ],
+      "cut_on": "the task's full sample, weighted"
+    },
+    "ratios": "imputed weighted mean and upper quantiles over the receivers, as multiples of the full sample's",
+    "quantile_levels": [
+      0.9,
+      0.99
+    ]
+  },
+  "scf_year": 2025,
+  "input_provenance": {
+    "scf_year": 2025,
+    "file": "rscfp2025.dta",
+    "zip_sha256": "32dcf86be48b20fb5fd9e659f79fa22a4d9cccf456e44b6ca9b1329e9869bbeb",
+    "file_dollar_year": 2025,
+    "file_description": "SCF 2025 in 2025 dollars (rscfp2025.dta dated 2026-10-05), first release, served from 2026-10-09",
+    "dollar_year": 2025,
+    "rebase_factor": 1.0,
+    "url": "https://www.federalreserve.gov/econres/files/scfp2025s.zip",
+    "profile": "minimal"
+  }
+}

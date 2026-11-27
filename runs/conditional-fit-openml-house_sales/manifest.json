@@ -1,0 +1,62 @@
+{
+  "task": "openml_house_sales",
+  "rows_used": 20000,
+  "rows_available": 21613,
+  "row_cap_applied": true,
+  "max_rows": 20000,
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+  ],
+  "methods_requested": [
+    "populace_fit",
+    "populace_fit_unweighted",
+    "populace_fit_unchained",
+    "populace_fit_ungated",
+    "populace_fit_ungated_unchained",
+    "populace_fit_derived",
+    "populace_fit_unchained_derived",
+    "plain_qrf",
+    "microimpute_qrf",
+    "microimpute_ols",
+    "microimpute_quantreg",
+    "statmatch_hotdeck",
+    "statmatch_rand_hotdeck_unweighted",
+    "statmatch_rand_hotdeck",
+    "statmatch_constrained_hotdeck",
+    "weighted_marginal"
+  ],
+  "predictors": [
+    "sqft_living",
+    "grade",
+    "sqft_above",
+    "sqft_living15",
+    "bathrooms",
+    "view",
+    "sqft_basement",
+    "bedrooms",
+    "lat",
+    "waterfront",
+    "floors",
+    "yr_renovated"
+  ],
+  "targets": [
+    "price"
+  ],
+  "weight_column": "weight",
+  "test": {
+    "statistic": "weighted out-of-fold AUC of a classifier telling the receivers' true target values from the imputed ones, on predictors and targets together",
+    "classifier": "sklearn HistGradientBoostingClassifier at its defaults",
+    "folds": 5,
+    "folds_over": "receiver rows (both copies of a row share a fold)",
+    "null": "the same test with the labels of a random half of the receiver rows swapped"
+  }
+}

@@ -33,7 +33,7 @@ share by 7 points, or by 4 with chaining off as well. Hot decks and the
 unconditional draw, which reuse observed values, hold it within about 2
 points without a gate.
 
-Against matching the results show parity within noise. Matching that
+Against matching, no method is ahead on every measure. Matching that
 chooses donors in proportion to weight equals the estimator on marginal fit
 within a survey. On the population view the nearest-neighbour and weighted
 random hot decks' AUC is 0.7 to 2.9 points higher than the estimator's on
@@ -41,6 +41,19 @@ the 2022 wave, within about one standard deviation of the sampling floor,
 and on the 2025 wave the nearest-neighbour hot deck is level with it at
 production scale. The estimator's imputed 99th percentile of net worth is 23
 to 37 percent below the holdout's across the two waves.
+
+A direct test of conditional fit within each survey, added after the
+replication, separates the methods further. On a classifier that tries to
+tell imputed from true values given the predictors, the estimator is ahead
+of the weight-drawing hot deck on the \scf{} and behind it on the \cps{}. A
+constrained hot deck that does not use the weights has the best classifier
+score on all three tasks. It gives no donor's record to two receivers, which
+the test's four donors for each receiver allow, and with two uses per donor
+its score equals the estimator's on the \scf{}. On the \scf{} it also
+imputes 1.3 to 2.0 times the
+survey's total net worth, where the estimator imputes 0.98 to 1.00 times.
+On the population view, where its limit is six uses per donor, its 99th
+percentile of net worth is 4.9 to 8.4 times the holdout's.
 
 Marginal metrics rank an unconditional marginal draw first on \scf{} pinball
 loss as coded and tied for second of ten methods on the OpenML suite, while

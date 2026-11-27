@@ -13,8 +13,7 @@ variants indented beneath it. The \microimpute{} forest, OLS, quantile
 regression, and the hot decks are the baselines (Table~\ref{tab:methods}),
 and the weighted marginal draw is the unconditional reference. A row appears
 only where its method applies: the net-worth-derived variants at production
-scale, the constrained hot deck on the within-survey tasks, and the random
-hot deck wherever the donor weights are not uniform.
+scale, and the random hot deck wherever the donor weights are not uniform.
 
 Unless a table's notes say otherwise, every cell is the mean over the ten
 paired seeds, with the standard deviation across seeds in parentheses. Bold
@@ -260,11 +259,11 @@ scores the variables together.
 
 \landscapefloat{table}{The population-view experiment, minimal profile}{tab:harness}{%
 \generatedtable[3pt]{harness}}{%
-Notes: Six shared predictors, two targets, and a fixed subsample of 20,000 of the 55,762 ASEC 2025 receiver households. Candidates are assembled from real \cps{} demographics plus each method's imputed wealth, under \cps{} household weights, and scored against the held-out \scf{} through the \scf{} view. The first row is the sampling-noise floor: another sample of the \scf{} itself. Cells are means over the ten paired donor splits, with the standard deviation in parentheses. Energy distance: lower is better. Coverage: higher is better. C2ST AUC: 0.5 is indistinguishable from the holdout. Net-worth $W_1$/sd: lower is better. Net-worth q99 ratio: 1 is a perfect extreme tail. Bold marks the best non-reference value in a column under those conventions. Indented rows are the full estimator with design choices switched off; the other rows are baselines (Table~\ref{tab:methods}). Source: authors' calculations from the 2022 Survey of Consumer Finances and the 2025 \cps{} ASEC.}
+Notes: Six shared predictors, two targets, and a fixed subsample of 20,000 of the 55,762 ASEC 2025 receiver households. Candidates are assembled from real \cps{} demographics plus each method's imputed wealth, under \cps{} household weights, and scored against the held-out \scf{} through the \scf{} view. The first row is the sampling-noise floor: another sample of the \scf{} itself. Cells are means over the ten paired donor splits, with the standard deviation in parentheses. Energy distance: lower is better. Coverage: higher is better. C2ST AUC: 0.5 is indistinguishable from the holdout. Net-worth $W_1$/sd: lower is better. Net-worth q99 ratio: 1 is a perfect extreme tail. Bold marks the best non-reference value in a column under those conventions. Indented rows are the full estimator with design choices switched off; the other rows are baselines (Table~\ref{tab:methods}). The constrained hot deck was run with its size limit raised. Source: authors' calculations from the 2022 Survey of Consumer Finances and the 2025 \cps{} ASEC.}
 
 \landscapefloat{table}{The population-view experiment, production-scale profile}{tab:harness-scale}{%
 \generatedtable[3pt]{harness_scale}}{%
-Notes: Ten shared predictors, four chain-ordered balance-sheet targets, and a fixed subsample of 20,000 of the 168,852 pooled ASEC 2023--2025 receiver households. Candidates are assembled from real \cps{} demographics plus each method's imputed wealth, under \cps{} household weights, and scored against the held-out \scf{} through the \scf{} view. The first row is the sampling-noise floor. Cells are means over the ten paired donor splits, with the standard deviation in parentheses. Energy distance: lower is better. Coverage: higher is better. C2ST AUC: 0.5 is indistinguishable from the holdout. Net-worth $W_1$/sd: lower is better. Net-worth q99 ratio: 1 is a perfect extreme tail. Bold marks the best non-reference value in a column. Indented rows are the full estimator with design choices switched off or, for net worth derived, with net worth computed from imputed components; the other rows are baselines (Table~\ref{tab:methods}). Source: authors' calculations from the 2022 Survey of Consumer Finances and the 2023--2025 \cps{} ASEC.}
+Notes: Ten shared predictors, four chain-ordered balance-sheet targets, and a fixed subsample of 20,000 of the 168,852 pooled ASEC 2023--2025 receiver households. Candidates are assembled from real \cps{} demographics plus each method's imputed wealth, under \cps{} household weights, and scored against the held-out \scf{} through the \scf{} view. The first row is the sampling-noise floor. Cells are means over the ten paired donor splits, with the standard deviation in parentheses. Energy distance: lower is better. Coverage: higher is better. C2ST AUC: 0.5 is indistinguishable from the holdout. Net-worth $W_1$/sd: lower is better. Net-worth q99 ratio: 1 is a perfect extreme tail. Bold marks the best non-reference value in a column. Indented rows are the full estimator with design choices switched off or, for net worth derived, with net worth computed from imputed components; the other rows are baselines (Table~\ref{tab:methods}). The constrained hot deck was run with its size limit raised. Source: authors' calculations from the 2022 Survey of Consumer Finances and the 2023--2025 \cps{} ASEC.}
 
 Tables \ref{tab:harness} and \ref{tab:harness-scale} report the
 population-view experiment in its two profiles. The sampling floor behaves
@@ -382,6 +381,20 @@ weighted one's (1.08 and 1.57, against 0.52 and 0.60), so in this pair the
 weights go with a lower imputed tail, as they do for the estimator in the
 first finding.
 
+The constrained hot deck shows what its limit on donor use does when
+receivers outnumber donors. Here 20,000 receivers are matched to fewer than
+3,700 donors, so the limit is six uses per donor, and the receivers need 5.4
+to 5.7 uses per donor on average. The limit therefore forces nearly even use
+of all donors, the oversampled wealthy ones included, and the imputed file
+takes the composition of the sample and not of the population. Its
+net-worth q99 is 4.9 times the holdout's in both profiles, and 8.4 times on
+the 2025 wave. Its tail $W_1$/sd is 0.346 and 0.360, against the full
+estimator's 0.031 and 0.027. The joint metrics do not show that error. The
+constrained hot deck's AUC is 0.749 and 0.767, which is 1.7 and 0.6 points
+above the full estimator's, and its coverage is the highest of any method in
+both profiles and both waves. This is the first finding again: an error at
+the top that only the tail metrics capture.
+
 What the full estimator adds over matching is
 therefore not within-survey marginal fit, once the donor is chosen with the
 weights (Table~\ref{tab:scf-wealth}), and not the zero mass, which donation
@@ -457,3 +470,166 @@ arms repeats. The random hot deck's net-worth $W_1$ is twice the
 nearest-neighbour hot deck's on the 2022 wave and 0.85 of it on the 2025
 wave, and on the 2025 wave its q99 ratio is nearer 1 than the full
 estimator's in both profiles (0.77 and 0.95, against 0.64 and 0.63).
+
+\subsection{Conditional fit within each survey}
+\label{sec:results-conditional}
+
+The within-survey tables above compare one imputed variable at a time with
+the donor's distribution. This subsection tests conditional fit directly,
+with the paired classifier test and the within-group distance of
+Section~\ref{sec:metrics}. Both were added after the 2025 replication had
+been scored, so no rule was fixed for them in advance, and the two waves are
+reported on the same footing. They read 30 paired seeds on the three survey
+tasks, the first ten of which are the seeds of the other tables, and ten
+seeds on the OpenML datasets. Table~\ref{tab:conditional-scf} gives the 2022
+wave, Table~\ref{tab:conditional-scf-2025} in Appendix~\ref{app:scf2025} the
+2025 wave, and Table~\ref{tab:conditional-cps} the \cps{}.
+
+\landscapefloat{table}{Conditional fit within the \scf{}}{tab:conditional-scf}{%
+\generatedtable[2pt]{conditional_fit_scf_wealth}}{%
+Notes: Debt and net worth are imputed within the 2022 \scf{}, as in Table~\ref{tab:scf-wealth}. Classifier AUC is the paired classifier test over both targets: a classifier tries to tell the receivers' true values from the imputed ones given the predictors, and 0.5 means it cannot. Null AUC is the same test with the labels of a random half of the receivers swapped. $W_1$ in groups is the Wasserstein-1 distance between imputed and true values within 15 groups of receivers (fifths of income by three age bands), averaged by group weight, in thousands of 2022 dollars. Total is the imputed total as a multiple of the survey's. Cells are means over 30 paired seeds, with the standard deviation across seeds in parentheses. Bold marks the AUC closest to 0.5 and the lowest distance; the null AUC and the totals are not ranked. Two debt distances are bold because debt is the first target of the chain, so switching chaining off leaves it unchanged. With the gates off the debt distance differs from the full estimator's by less than the rounding shown. Rows indented beneath the full estimator are the estimator with design choices switched off. The row indented beneath the constrained hot deck allows each donor two uses where the method allows one; it is a diagnostic and not one of the paper's methods. The other rows are baselines (Table~\ref{tab:methods}). Source: authors' calculations from the 2022 Survey of Consumer Finances.}
+
+\landscapefloat{table}{Conditional fit within the \cps{}}{tab:conditional-cps}{%
+\generatedtable[2pt]{conditional_fit_cps_components}}{%
+Notes: Interest and dividend income are imputed for adults, as in Table~\ref{tab:cps-components}. Classifier AUC, null AUC and total are defined as in Table~\ref{tab:conditional-scf}. $W_1$ in groups is the Wasserstein-1 distance between imputed and true values within 12 groups of receivers (adults with no earnings and thirds of those with earnings, by three age bands), averaged by group weight, in dollars. Cells are means over 30 paired seeds, with the standard deviation across seeds in parentheses. Bold marks the AUC closest to 0.5 and the lowest distance; the null AUC and the totals are not ranked. Rows indented beneath the full estimator are the estimator with design choices switched off. The row indented beneath the constrained hot deck allows each donor two uses where the method allows one; it is a diagnostic and not one of the paper's methods. The other rows are baselines (Table~\ref{tab:methods}). Source: authors' calculations from the 2025 \cps{} ASEC.}
+
+\paragraph{The classifier puts the constrained hot deck first.} On the
+\scf{} the constrained hot deck's AUC is the closest to 0.5 of any method,
+at 0.526 on the 2022 wave and 0.519 on the 2025 wave. The full estimator's is
+0.561 and 0.564, and the hot deck's is the lower of the two in 27 and 29 of
+the 30 seeds. For scale, the full estimator's null AUC has a standard
+deviation of 0.029 and 0.025 across seeds, so the two methods are 1.2 and
+1.8 of those standard deviations apart.
+
+The nearest-neighbour hot deck is close to the full estimator (0.573 and
+0.569; the estimator's AUC is the lower in 17 and 16 of the 30 seeds). The
+two hot decks that draw among the nearest donors are behind it. The random
+hot deck scores 0.609 and 0.613. The weighted random hot deck scores 0.611
+and 0.612, higher than the full estimator in every seed of both waves.
+
+The methods the classifier separates most easily from the truth are the two
+linear ones and the draw that ignores the predictors. OLS scores 0.977 and
+0.970, linear quantile regression 0.888 and 0.860, and the weighted marginal
+draw 0.790 and 0.789. The \microimpute{} forest scores 0.689 and 0.683.
+
+\paragraph{The constrained hot deck's lead comes from its limit on donor
+use.} The constrained hot deck lets a donor serve at most as many receivers
+as there are receivers for each donor, rounded up
+(Section~\ref{sec:ablations}). The test holds out one row for every four
+donors, so the limit is one, and no donor's record is given to two
+receivers. The receivers' true values are like that too. On the \scf{}, 3.7
+and 2.8 percent of the receivers with non-zero net worth have the same value
+as another receiver. Under the constrained hot deck the share is 3.5 and 3.2
+percent. Under the nearest-neighbour hot deck it is 31 and 30 percent, and
+under the full estimator 39 and 38 percent. A classifier can learn that
+receivers with similar predictors were given the same value.
+
+To test whether the limit is what the classifier rewards, we reran the
+constrained hot deck with two uses allowed per donor and nothing else
+changed. It is the row beneath the constrained hot deck in
+Tables~\ref{tab:conditional-scf}, \ref{tab:conditional-scf-2025}
+and~\ref{tab:conditional-cps}. Its AUC rises from 0.526 to 0.563 on the 2022
+wave, from 0.519 to 0.562 on the 2025 wave, and from 0.504 to 0.550 on the
+\cps{}, in every one of the 30 seeds. With two uses the hot deck is level
+with the full estimator on the \scf{} (0.561 and 0.564) and behind it on the
+\cps{} (0.534), and 30 and 29 percent of its receivers share a value.
+
+The lead is therefore not evidence that a matched record is a closer
+conditional draw than the forest's. It shows that the hot deck hands out its
+donors without repeating one, and this test's split is what allows that. A
+limit of one use can hold only where donors outnumber receivers. A file
+imputed onto many more receivers than there are donors must repeat donor
+records under any method that draws from them. On the \cps{} the true
+amounts repeat as well (71 percent of receivers with interest income share
+its amount with another receiver), so the share of repeated values is not
+informative there, and the two-use result is the evidence.
+
+\paragraph{In dollars the order reverses on the \scf{}.} The constrained hot
+deck does not use the weights when it chooses a donor, and the \scf{}
+oversamples wealthy households. Its imputed net worth adds up to 1.97 times
+the survey's total on the 2022 wave and 1.32 times on the 2025 wave. The
+full estimator's adds up to 0.98 and 1.00 times. The nearest-neighbour and
+random hot decks, which also choose donors without the weights, overstate
+the total by similar amounts (1.80 and 2.05 times on the 2022 wave, 1.35 and
+1.41 on the 2025 wave). So does the unweighted ablation (2.14 and 1.57). The
+classifier does not show this, because the households that are given too
+much wealth are few.
+
+The within-group distance does show it. On net worth the full estimator's
+distance is the lowest of any method on both waves, 431 and 405 thousand
+dollars. The weighted random hot deck's is 1.4 times the estimator's on both
+waves, the constrained hot deck's is 2.9 and 1.6 times, and the
+nearest-neighbour hot deck's is 2.6 and 1.8 times. Against each of the
+three, the estimator's distance is the lower in 28 or 29 of the 30 seeds.
+
+On debt, which has no comparable tail, the methods are closer. The full
+estimator's distance is the lowest on the 2022 wave and 1 percent above the
+lowest, the \microimpute{} forest's, on the 2025 wave. The
+nearest-neighbour, weighted random and constrained hot decks are 4 to 19
+percent above the estimator, and every method's debt total is between 0.94
+and 1.22 times the survey's.
+
+The two measures therefore disagree about the constrained hot deck on the
+\scf{}. It is the method the classifier finds hardest to tell from the
+truth, and it doubles the wealth total on the 2022 wave. The measures agree
+about the weighted random hot deck, which is behind the full estimator on
+both. The unweighted ablation shows the same disagreement as the constrained
+hot deck. Its AUC (0.546 and 0.542) is lower than the full estimator's in 21
+and 24 of the 30 seeds, and its net-worth total is 2.14 and 1.57 times the
+survey's.
+
+\paragraph{On the \cps{} the constrained hot deck is at least level on every
+measure.} The \cps{} person weights carry little information about the two
+targets, and neither target has a tail like net worth's. The constrained hot
+deck's AUC is 0.504, against 0.534 for the full estimator, and it is the
+lower of the two in 29 of the 30 seeds. The full estimator's null AUC has a
+standard deviation of 0.010 across seeds, so the two are about three of
+those standard deviations apart. In dollars the two are level. The hot
+deck's within-group distances are 4 and 8 percent below the estimator's on
+interest and dividends, each less than two standard errors of the paired
+difference, and its totals are 0.99 and 1.06 times the survey's against the
+estimator's 1.02 and 1.04.
+
+The weighted random hot deck is also ahead of the full estimator on the
+classifier here (0.525, lower in 23 of the 30 seeds) and level with it in
+dollars. The nearest-neighbour hot deck is behind on both. Its AUC is 0.694
+and its totals are 0.82 and 0.80 times the survey's. It takes the first of
+several donors at the same distance, and most receivers on this task have
+such ties (Section~\ref{sec:limitations}). We did not vary that rule. The unweighted ablation
+is at least level with the full estimator on every measure in the table.
+Its AUC is 0.521, lower in 27 of the 30 seeds, and its within-group distance
+on interest is 6 percent lower.
+
+\paragraph{Switching off chaining or the gates raises the estimator's AUC.}
+Fitting the targets independently raises the AUC from 0.561 to 0.587 on the
+2022 wave, from 0.564 to 0.585 on the 2025 wave, and from 0.534 to 0.579 on
+the \cps{}. Switching the gates off raises it to 0.578, 0.590 and 0.566. On
+the \cps{} each rise holds in all 30 seeds. On the \scf{} the rise from
+switching chaining off holds in 24 and 26 seeds and the rise from switching
+the gates off in 21 and 20.
+
+The marginal metrics of Section~\ref{sec:results-ablations} showed no effect
+of chaining on the \cps{} while the gates were on, because they score one
+variable at a time. The classifier scores the targets together and does show
+one. The dollar measures move little with either switch. With chaining or
+the gates off, every within-group distance is within 13 percent of the full
+estimator's, and the totals stay between 0.94 and 1.06 times the survey's.
+The exception is the dividend total with the gates off, which falls to 0.72
+of the survey's (0.78 with chaining off as well).
+
+\paragraph{On the OpenML datasets the hot decks' scores depend on the units
+of the predictors.} These six datasets have uniform weights and one target,
+and each was run on ten seeds. With uniform weights the matching package
+does not standardize the predictors, so the hot decks match on their
+original units there (Section~\ref{sec:limitations}). The constrained hot
+deck's AUC is lower than the full estimator's in all ten seeds on three
+datasets: \texttt{abalone} (0.506 against 0.560), \texttt{brazilian\_houses}
+(0.507 against 0.526), and \texttt{onlinenewspopularity} (0.522 against
+0.547). The two are level on \texttt{space\_ga} (0.543 and 0.557). The
+estimator's AUC is lower than every hot deck's on \texttt{elevators} (0.547,
+against 0.619 for the constrained hot deck) and \texttt{house\_sales} (0.535
+against 0.718). We did not rerun the hot decks on standardized predictors,
+so we do not read those two datasets as evidence for the estimator. On the
+other three the weights are uniform, so the constrained hot deck's lead
+cannot come from the weights. Its limit there is one use per donor, as on
+the survey tasks.
