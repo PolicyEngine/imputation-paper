@@ -206,6 +206,14 @@ contrasts with the full estimator mix the gate with the sampler. Every
 target of a row is read at the same quantile index, which bears on its joint
 score with four chained targets (AUC 0.817).
 
+The hot decks follow two defaults of the matching package. Where every
+weight is equal, as on the OpenML datasets, the package does not standardize
+the matching variables, so the hot decks there measure distance on the
+predictors in their original units. And the nearest-neighbour hot deck takes
+the first of several donors at the same distance. On the \cps{} task, which
+has three predictors, most receivers have more than one donor at the
+smallest distance. We did not test how either default changes the results.
+
 \paragraph{Defaults and the choice of tasks.} The comparisons hold shared
 forest backends and default hyperparameters fixed and do not tune each
 method per task. The four ablations are exact controls, and the comparisons
