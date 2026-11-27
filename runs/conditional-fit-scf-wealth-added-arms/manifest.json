@@ -1,0 +1,103 @@
+{
+  "task": "scf_wealth",
+  "rows_used": 4595,
+  "rows_available": 4595,
+  "row_cap_applied": false,
+  "max_rows": 20000,
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29
+  ],
+  "methods_requested": [
+    "populace_fit",
+    "statmatch_hotdeck",
+    "statmatch_constrained_hotdeck",
+    "statmatch_constrained_hotdeck_two_uses"
+  ],
+  "predictors": [
+    "age",
+    "hhsex",
+    "edcl",
+    "married",
+    "kids",
+    "income",
+    "wageinc"
+  ],
+  "targets": [
+    "debt",
+    "networth"
+  ],
+  "weight_column": "wgt",
+  "test": {
+    "statistic": "weighted out-of-fold AUC of a classifier telling the receivers' true target values from the imputed ones, on predictors and targets together",
+    "classifier": "sklearn HistGradientBoostingClassifier at its defaults",
+    "folds": 5,
+    "folds_over": "receiver rows (both copies of a row share a fold)",
+    "null": "the same test with the labels of a random half of the receiver rows swapped"
+  },
+  "value_reuse": "shared_value_share: among receivers with a non-zero imputed value, the share whose value another receiver also has; shared_value_share_truth: the same for the true values",
+  "dollar_measures": {
+    "within_group_wasserstein1": "weighted Wasserstein-1 distance between imputed and true values inside each group of receivers, averaged by group weight",
+    "groups": {
+      "income_column": "income",
+      "income_cuts": [
+        31346.442885771543,
+        54045.59118236473,
+        88634.76953907816,
+        149165.83166332665
+      ],
+      "zero_band": false,
+      "age_column": "age",
+      "age_cuts": [
+        40.0,
+        65.0
+      ],
+      "cut_on": "the task's full sample, weighted"
+    },
+    "ratios": "imputed weighted mean and upper quantiles over the receivers, as multiples of the full sample's",
+    "quantile_levels": [
+      0.9,
+      0.99
+    ]
+  },
+  "scf_year": 2022,
+  "input_provenance": {
+    "scf_year": 2022,
+    "file": "rscfp2022.dta",
+    "zip_sha256": "3bb4d890ae2463ff6039ec7692e375f544dd98a55a37ca2cb2340354b9cc9d80",
+    "file_dollar_year": 2022,
+    "file_description": "SCF 2022 in 2022 dollars (rscfp2022.dta dated 2024-03-29), served until 2026-10-09; the input of the paper's committed 2022 runs",
+    "dollar_year": 2022,
+    "rebase_factor": 1.0,
+    "url": "https://www.federalreserve.gov/econres/files/scfp2022s.zip",
+    "profile": "minimal"
+  }
+}

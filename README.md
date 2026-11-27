@@ -99,6 +99,19 @@ The survey tasks use 30 seeds; the first ten are the sweep's. A test checks
 that each run's Wasserstein-1 distances equal the sweep's, cell for cell, on
 the seeds they share.
 
+One diagnostic variant sits beside those runs: the constrained hot deck with
+two uses allowed per donor, which is kept out of the method registry. Its
+runs rerun three methods as controls and record how many receivers share a
+value with another receiver:
+
+```bash
+ARMS=(populace_fit statmatch_hotdeck statmatch_constrained_hotdeck statmatch_constrained_hotdeck_two_uses)
+uv run imp conditional-fit --task scf_wealth --seeds 30 --value-reuse --methods "${ARMS[@]}" --out runs/conditional-fit-scf-wealth-added-arms
+uv run imp conditional-fit --task scf_wealth --scf-year 2025 --seeds 30 --value-reuse --methods "${ARMS[@]}" --out runs/conditional-fit-scf-wealth-2025-added-arms
+uv run imp conditional-fit --task cps_components --seeds 30 --value-reuse --constrained-max-cells 200000000 --methods "${ARMS[@]}" --out runs/conditional-fit-cps-components-added-arms
+uv run imp tables
+```
+
 ### What the one-off weighted resample costs
 
 One diagnostic variant of the estimator samples by weight inside each tree,

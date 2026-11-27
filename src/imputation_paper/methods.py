@@ -32,7 +32,7 @@ from __future__ import annotations
 
 import contextlib
 import inspect
-from collections.abc import Callable, Sequence
+from collections.abc import Callable, Iterator, Sequence
 from dataclasses import dataclass
 from typing import Protocol
 
@@ -552,7 +552,27 @@ def _donor_use_cap(n_receivers: int, n_donors: int) -> int:
 CONSTRAINED_MAX_CELLS = 100_000_000
 
 
-def _statmatch_hotdeck_constructor(selection: str = "nearest") -> FitFn:
+@contextlib.contextmanager
+def constrained_cell_limit(limit: int | None) -> Iterator[None]:
+    """Run the block with another size limit for the constrained hot deck.
+
+    ``None`` leaves :data:`CONSTRAINED_MAX_CELLS` as it is.
+    """
+    global CONSTRAINED_MAX_CELLS  # noqa: PLW0603 - a run-scoped override
+    if limit is None:
+        yield
+        return
+    default = CONSTRAINED_MAX_CELLS
+    CONSTRAINED_MAX_CELLS = limit
+    try:
+        yield
+    finally:
+        CONSTRAINED_MAX_CELLS = default
+
+
+def _statmatch_hotdeck_constructor(
+    selection: str = "nearest", *, min_uses: int = 1
+) -> FitFn:
     """Adapter for py-statmatch's distance hot decks (statistical matching).
 
     py-statmatch is a Python port of R's StatMatch. Each receiver is matched
@@ -614,7 +634,7 @@ def _statmatch_hotdeck_constructor(selection: str = "nearest") -> FitFn:
                     data_rec=receiver, data_don=donor, match_vars=predictors, **weighted
                 )["mtc.ids"]
             if selection == "constrained":
-                cap = _donor_use_cap(len(receiver), len(donor))
+                cap = max(_donor_use_cap(len(receiver), len(donor)), min_uses)
                 cells = len(receiver) * len(donor) * cap
                 if cells > CONSTRAINED_MAX_CELLS:
                     raise NotImplementedError(
@@ -903,10 +923,21 @@ REGISTRY: dict[str, Method] = {
     ),
 }
 
-#: Diagnostic variants of the candidate. They are kept out of
+#: Diagnostic variants of the paper's methods. They are kept out of
 #: :data:`REGISTRY`, so no sweep, table or default method list includes them.
 #: A command runs one only when it is asked for by key.
 DIAGNOSTICS: dict[str, Method] = {
+    "statmatch_constrained_hotdeck_two_uses": Method(
+        key="statmatch_constrained_hotdeck_two_uses",
+        category=MethodCategory.DIAGNOSTIC,
+        description=(
+            "The constrained hot deck with each donor allowed to serve two "
+            "receivers where the registered method allows one. Distance, "
+            "tie rule and solver are unchanged."
+        ),
+        citation_key="dorazio2025statmatch",
+        constructor=lambda: _statmatch_hotdeck_constructor("constrained", min_uses=2),
+    ),
     "populace_fit_per_tree": Method(
         key="populace_fit_per_tree",
         category=MethodCategory.DIAGNOSTIC,

@@ -10,16 +10,19 @@ import numpy as np
 import pandas as pd
 import pytest
 
+from imputation_paper import methods
 from imputation_paper.cli.conditional import (
     GROUPINGS,
     JOINT,
     run_conditional_fit,
 )
+from imputation_paper.cli.tables import _read_long
 from imputation_paper.experiments.conditional_fit import (
     ReceiverGroups,
     paired_folds,
     paired_two_sample_auc,
     ratios_to_sample,
+    shared_value_share,
     swap_mask,
     within_group_wasserstein1,
 )
@@ -321,3 +324,97 @@ def test_committed_run_scores_the_draws_behind_the_tables(run: str) -> None:
     assert {key[0] for key in theirs} <= {key[0] for key in ours}
     for key in shared:
         assert ours[key] == pytest.approx(theirs[key], rel=1e-9), key
+
+
+TWO_USES = "statmatch_constrained_hotdeck_two_uses"
+
+
+def test_shared_value_share_counts_repeated_non_zero_values() -> None:
+    # Two rows share 5.0, one row has 7.0, and the zeros are left out.
+    assert shared_value_share(np.array([0.0, 0.0, 5.0, 5.0, 7.0])) == pytest.approx(
+        2 / 3
+    )
+    assert shared_value_share(np.array([1.0, 2.0, 3.0])) == 0.0
+    assert np.isnan(shared_value_share(np.zeros(4)))
+
+
+def test_the_two_uses_hot_deck_is_a_diagnostic_outside_the_registry() -> None:
+    assert TWO_USES in methods.DIAGNOSTICS
+    assert TWO_USES not in methods.REGISTRY
+    assert TWO_USES not in methods.list_methods()
+    variant = methods.get_method(TWO_USES)
+    assert variant.category == methods.MethodCategory.DIAGNOSTIC
+    with pytest.raises(KeyError, match="diagnostic variants"):
+        methods.get_method("nope")
+
+
+def test_the_size_limit_is_restored_after_the_block() -> None:
+    default = methods.CONSTRAINED_MAX_CELLS
+    with methods.constrained_cell_limit(7):
+        assert methods.CONSTRAINED_MAX_CELLS == 7
+    assert methods.CONSTRAINED_MAX_CELLS == default
+    with methods.constrained_cell_limit(None):
+        assert methods.CONSTRAINED_MAX_CELLS == default
+
+
+def test_two_uses_lets_a_donor_serve_two_receivers_and_no_more() -> None:
+    pytest.importorskip("statmatch")
+    rng = np.random.default_rng(0)
+    donors = pd.DataFrame({"x": rng.normal(size=40), "weight": 1.0})
+    donors["y"] = np.arange(1.0, 41.0)  # every donor has its own value
+    # Every receiver sits on one donor, so an unlimited match would reuse it.
+    receivers = pd.DataFrame({"x": np.full(10, donors["x"].iloc[0]), "weight": 1.0})
+
+    def uses(key: str) -> int:
+        fit = methods.get_method(key).constructor()
+        drawn = fit(donors, ["x"], ["y"], "weight", seed=0)(receivers)
+        return int(drawn["y"].value_counts().max())
+
+    assert uses("statmatch_constrained_hotdeck") == 1
+    assert uses(TWO_USES) == 2
+    assert uses("statmatch_hotdeck") == 10
+
+
+def test_command_records_value_reuse_only_when_asked(tmp_path: Path) -> None:
+    def metrics(**options: object) -> set[str]:
+        out = tmp_path / ("reuse" if options else "plain")
+        assert (
+            run_conditional_fit(
+                task="toy", out=out, methods=["weighted_marginal"], n_seeds=1, **options
+            )
+            == 0
+        )
+        with (out / "metrics_long.csv").open() as handle:
+            return {row["metric"] for row in csv.DictReader(handle)}
+
+    reuse = {"shared_value_share", "shared_value_share_truth"}
+    assert not metrics() & reuse
+    assert reuse <= metrics(value_reuse=True)
+
+
+@pytest.mark.parametrize(
+    "run",
+    [
+        "conditional-fit-scf-wealth",
+        "conditional-fit-scf-wealth-2025",
+        "conditional-fit-cps-components",
+    ],
+)
+def test_committed_two_uses_runs_share_the_controls_draws(run: str) -> None:
+    """The variant's run reran three methods as controls, with identical rows."""
+    added_path = RUNS / f"{run}-added-arms" / "metrics_long.csv"
+    if not added_path.exists():
+        pytest.skip(f"{run}-added-arms is not committed")
+    # _read_long raises unless the controls' rows agree and the seeds match.
+    merged = _read_long(RUNS / run, "metrics_long.csv")
+    assert merged is not None
+    assert set(merged[merged["method"] == TWO_USES]["seed"]) == set(merged["seed"])
+    with added_path.open() as handle:
+        added = list(csv.DictReader(handle))
+    assert {row["method"] for row in added} == {
+        "populace_fit",
+        "statmatch_hotdeck",
+        "statmatch_constrained_hotdeck",
+        TWO_USES,
+    }
+    assert "shared_value_share" in {row["metric"] for row in added}
