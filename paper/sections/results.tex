@@ -13,8 +13,7 @@ variants indented beneath it. The \microimpute{} forest, OLS, quantile
 regression, and the hot decks are the baselines (Table~\ref{tab:methods}),
 and the weighted marginal draw is the unconditional reference. A row appears
 only where its method applies: the net-worth-derived variants at production
-scale, the constrained hot deck on the within-survey tasks, and the random
-hot deck wherever the donor weights are not uniform.
+scale, and the random hot deck wherever the donor weights are not uniform.
 
 Unless a table's notes say otherwise, every cell is the mean over the ten
 paired seeds, with the standard deviation across seeds in parentheses. Bold
@@ -260,11 +259,11 @@ scores the variables together.
 
 \landscapefloat{table}{The population-view experiment, minimal profile}{tab:harness}{%
 \generatedtable[3pt]{harness}}{%
-Notes: Six shared predictors, two targets, and a fixed subsample of 20,000 of the 55,762 ASEC 2025 receiver households. Candidates are assembled from real \cps{} demographics plus each method's imputed wealth, under \cps{} household weights, and scored against the held-out \scf{} through the \scf{} view. The first row is the sampling-noise floor: another sample of the \scf{} itself. Cells are means over the ten paired donor splits, with the standard deviation in parentheses. Energy distance: lower is better. Coverage: higher is better. C2ST AUC: 0.5 is indistinguishable from the holdout. Net-worth $W_1$/sd: lower is better. Net-worth q99 ratio: 1 is a perfect extreme tail. Bold marks the best non-reference value in a column under those conventions. Indented rows are the full estimator with design choices switched off; the other rows are baselines (Table~\ref{tab:methods}). Source: authors' calculations from the 2022 Survey of Consumer Finances and the 2025 \cps{} ASEC.}
+Notes: Six shared predictors, two targets, and a fixed subsample of 20,000 of the 55,762 ASEC 2025 receiver households. Candidates are assembled from real \cps{} demographics plus each method's imputed wealth, under \cps{} household weights, and scored against the held-out \scf{} through the \scf{} view. The first row is the sampling-noise floor: another sample of the \scf{} itself. Cells are means over the ten paired donor splits, with the standard deviation in parentheses. Energy distance: lower is better. Coverage: higher is better. C2ST AUC: 0.5 is indistinguishable from the holdout. Net-worth $W_1$/sd: lower is better. Net-worth q99 ratio: 1 is a perfect extreme tail. Bold marks the best non-reference value in a column under those conventions. Indented rows are the full estimator with design choices switched off; the other rows are baselines (Table~\ref{tab:methods}). The constrained hot deck was run with its size limit raised. Source: authors' calculations from the 2022 Survey of Consumer Finances and the 2025 \cps{} ASEC.}
 
 \landscapefloat{table}{The population-view experiment, production-scale profile}{tab:harness-scale}{%
 \generatedtable[3pt]{harness_scale}}{%
-Notes: Ten shared predictors, four chain-ordered balance-sheet targets, and a fixed subsample of 20,000 of the 168,852 pooled ASEC 2023--2025 receiver households. Candidates are assembled from real \cps{} demographics plus each method's imputed wealth, under \cps{} household weights, and scored against the held-out \scf{} through the \scf{} view. The first row is the sampling-noise floor. Cells are means over the ten paired donor splits, with the standard deviation in parentheses. Energy distance: lower is better. Coverage: higher is better. C2ST AUC: 0.5 is indistinguishable from the holdout. Net-worth $W_1$/sd: lower is better. Net-worth q99 ratio: 1 is a perfect extreme tail. Bold marks the best non-reference value in a column. Indented rows are the full estimator with design choices switched off or, for net worth derived, with net worth computed from imputed components; the other rows are baselines (Table~\ref{tab:methods}). Source: authors' calculations from the 2022 Survey of Consumer Finances and the 2023--2025 \cps{} ASEC.}
+Notes: Ten shared predictors, four chain-ordered balance-sheet targets, and a fixed subsample of 20,000 of the 168,852 pooled ASEC 2023--2025 receiver households. Candidates are assembled from real \cps{} demographics plus each method's imputed wealth, under \cps{} household weights, and scored against the held-out \scf{} through the \scf{} view. The first row is the sampling-noise floor. Cells are means over the ten paired donor splits, with the standard deviation in parentheses. Energy distance: lower is better. Coverage: higher is better. C2ST AUC: 0.5 is indistinguishable from the holdout. Net-worth $W_1$/sd: lower is better. Net-worth q99 ratio: 1 is a perfect extreme tail. Bold marks the best non-reference value in a column. Indented rows are the full estimator with design choices switched off or, for net worth derived, with net worth computed from imputed components; the other rows are baselines (Table~\ref{tab:methods}). The constrained hot deck was run with its size limit raised. Source: authors' calculations from the 2022 Survey of Consumer Finances and the 2023--2025 \cps{} ASEC.}
 
 Tables \ref{tab:harness} and \ref{tab:harness-scale} report the
 population-view experiment in its two profiles. The sampling floor behaves
@@ -381,6 +380,20 @@ the higher AUC comes with the draw. Its q99 ratio is 2.1 and 2.6 times the
 weighted one's (1.08 and 1.57, against 0.52 and 0.60), so in this pair the
 weights go with a lower imputed tail, as they do for the estimator in the
 first finding.
+
+The constrained hot deck shows what its limit on donor use does when
+receivers outnumber donors. Here 20,000 receivers are matched to fewer than
+3,700 donors, so the limit is six uses per donor, and the receivers need 5.4
+to 5.7 uses per donor on average. The limit therefore forces nearly even use
+of all donors, the oversampled wealthy ones included, and the imputed file
+takes the composition of the sample and not of the population. Its
+net-worth q99 is 4.9 times the holdout's in both profiles, and 8.4 times on
+the 2025 wave. Its tail $W_1$/sd is 0.346 and 0.360, against the full
+estimator's 0.031 and 0.027. The joint metrics do not show that error. The
+constrained hot deck's AUC is 0.749 and 0.767, which is 1.7 and 0.6 points
+above the full estimator's, and its coverage is the highest of any method in
+both profiles and both waves. This is the first finding again: an error at
+the top that only the tail metrics capture.
 
 What the full estimator adds over matching is
 therefore not within-survey marginal fit, once the donor is chosen with the
