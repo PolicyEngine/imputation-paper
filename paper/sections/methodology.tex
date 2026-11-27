@@ -207,7 +207,9 @@ $\lceil n_{\text{receivers}} / n \rceil$ receivers. The cap counts receivers,
 and the weights enter that assignment only to break exact ties in distance,
 in favour of the higher-weight donor. Its assignment problem is dense, and at the
 population view's 20,000 receivers one split took thirteen minutes against
-seconds for every other method, so it is run on the within-survey tasks only.
+seconds for every other method. It is skipped at that size by default, and
+we ran it on the population view once, with the size limit raised
+(Section~\ref{sec:results-harness}).
 
 \subsection{Joint metrics: the population-view harness}
 \label{sec:harness}

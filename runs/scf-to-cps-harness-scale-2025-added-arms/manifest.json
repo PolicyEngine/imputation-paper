@@ -63,5 +63,6 @@
     "rebase_factor": 1.0,
     "url": "https://www.federalreserve.gov/econres/files/scfp2025s.zip",
     "profile": "populace-scale"
-  }
+  },
+  "constrained_max_cells": 500000000
 }

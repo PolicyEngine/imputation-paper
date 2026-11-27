@@ -101,8 +101,12 @@ and by 2.4 and 3.3 with net worth derived. Those margins run from a third of
 the floor's seed-to-seed standard deviation to one and a half times it, and
 on the 2025 wave at scale the nearest-neighbour hot deck's AUC is the lower
 of the two by 0.3 points. The constrained hot deck, which has the best
-marginal fit on several within-survey columns, was not run on the population
-view, so its joint scores are unknown.
+marginal fit on several within-survey columns, does not carry that over
+either. Its AUC on the population view is 0.6 to 2.5 points above the
+estimator's across the two profiles and waves, and its imputed 99th
+percentile of net worth is 4.9 to 8.4 times the holdout's, because its limit
+of six uses per donor there forces nearly even use of the donors
+(Section~\ref{sec:results-harness}).
 
 The direct test of conditional fit
 (Section~\ref{sec:results-conditional}) separates the methods more than
@@ -137,7 +141,9 @@ distribution, which the dollar measures score. The classifier's order also
 depends on the test's split. Where donors outnumber receivers, a method that
 never repeats a donor scores best on it. A production file has many more
 receivers than donors, and no method that draws from donor records can avoid
-repeating them there.
+repeating them there. On the population view, where the constrained hot
+deck's limit is six uses per donor, its 99th percentile of net worth is 4.9
+to 8.4 times the holdout's.
 
 Two limits apply. The survey tasks have three to ten predictors and at most
 four targets, and no task here tests whether the comparison changes when
@@ -236,10 +242,8 @@ view, and the targets were chosen to exercise its gates and chaining, while
 the baselines were not tuned to these tasks. The 2025 wave is the only
 \scf{} data that no design decision saw.
 
-\paragraph{Arms evaluated on part of the tasks.} The constrained hot deck
-took thirteen minutes per split at the population view's 20,000 receivers,
-against seconds for every other method, and was not run there. The gates are
-tested on targets whose sign classes are all common, not on a rare class.
+\paragraph{Gates on common sign classes only.} The gates are tested on
+targets whose sign classes are all common, not on a rare class.
 
 \paragraph{One resample per forest.} The estimator draws its weighted
 resample once for each forest. On the \scf{} that leaves out about half of
@@ -308,8 +312,7 @@ in each wave with a much higher AUC at production scale; the interaction of
 gating and chaining on the dividend zero share; and the part of the fall in
 the q90 ratio on the 2025 wave that re-basing does not account for.
 
-\paragraph{Runs not made.} The constrained hot deck was not run on the
-population view, the subsample cap was not varied, and the fragility
+\paragraph{Runs not made.} The subsample cap was not varied, and the fragility
 diagnostic was not run on a cross-survey file, which is the setting that
 motivates it. No run uses the other four \scf{} implicates or the replicate
 weights, and the gates were not tested on a rare sign class. The zero-share

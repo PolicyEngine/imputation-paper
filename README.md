@@ -145,9 +145,14 @@ into it:
 export OMP_NUM_THREADS=1
 ARMS=(populace_fit weighted_marginal statmatch_hotdeck populace_fit_ungated populace_fit_ungated_unchained populace_fit_derived populace_fit_unchained_derived statmatch_rand_hotdeck statmatch_constrained_hotdeck statmatch_rand_hotdeck_unweighted)
 uv run imp sweep --task scf_wealth --methods "${ARMS[@]}" --out runs/scf-wealth-added-arms
-uv run imp harness --profile populace-scale --methods "${ARMS[@]}" --out runs/scf-to-cps-harness-scale-added-arms
+uv run imp harness --profile populace-scale --methods "${ARMS[@]}" --constrained-max-cells 500000000 --out runs/scf-to-cps-harness-scale-added-arms
 uv run imp tables
 ```
+
+`--constrained-max-cells` lets the constrained hot deck run at the population
+view's size, where it is skipped by default. One split then takes about
+thirteen minutes and 6 GB, so the four population-view directories take about
+nine hours, one at a time.
 
 The first three keys are controls: methods the first sweep also ran. `imp
 tables` reads the two directories together and refuses to write a table
