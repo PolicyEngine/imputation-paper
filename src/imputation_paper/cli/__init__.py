@@ -234,6 +234,19 @@ def main(argv: list[str] | None = None) -> int:
         default=2022,
         help="SCF wave for the scf_wealth task: 2022 or 2025.",
     )
+    conditional.add_argument(
+        "--value-reuse",
+        action="store_true",
+        help="Also record how many receivers share a non-zero imputed value "
+        "with another receiver, next to the same share for the true values.",
+    )
+    conditional.add_argument(
+        "--constrained-max-cells",
+        type=int,
+        default=None,
+        help="Size limit, in cells, for the constrained hot deck in this run "
+        "(default: the package's).",
+    )
 
     figures = subcommands.add_parser(
         "figures",
@@ -310,6 +323,8 @@ def main(argv: list[str] | None = None) -> int:
             n_seeds=args.seeds,
             max_rows=args.max_rows,
             scf_year=args.scf_year,
+            value_reuse=args.value_reuse,
+            constrained_max_cells=args.constrained_max_cells,
         )
     if args.command == "figures":
         from imputation_paper.cli.figures import make_figures

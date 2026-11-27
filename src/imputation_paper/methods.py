@@ -30,8 +30,9 @@ leak through.
 
 from __future__ import annotations
 
+import contextlib
 import inspect
-from collections.abc import Callable, Sequence
+from collections.abc import Callable, Iterator, Sequence
 from dataclasses import dataclass
 from typing import Protocol
 
@@ -106,6 +107,10 @@ class MethodCategory:
     VARIANT = "variant"
     #: A standard survey-imputation method the candidate is benchmarked against.
     BASELINE = "baseline"
+    #: The candidate with one internal step changed to diagnose a result. It
+    #: is not part of the paper's method surface: no sweep runs it by default
+    #: and it is kept out of :data:`REGISTRY` (see :data:`DIAGNOSTICS`).
+    DIAGNOSTIC = "diagnostic"
 
 
 @dataclass(frozen=True)
@@ -527,7 +532,27 @@ def _donor_use_cap(n_receivers: int, n_donors: int) -> int:
 CONSTRAINED_MAX_CELLS = 100_000_000
 
 
-def _statmatch_hotdeck_constructor(selection: str = "nearest") -> FitFn:
+@contextlib.contextmanager
+def constrained_cell_limit(limit: int | None) -> Iterator[None]:
+    """Run the block with another size limit for the constrained hot deck.
+
+    ``None`` leaves :data:`CONSTRAINED_MAX_CELLS` as it is.
+    """
+    global CONSTRAINED_MAX_CELLS  # noqa: PLW0603 - a run-scoped override
+    if limit is None:
+        yield
+        return
+    default = CONSTRAINED_MAX_CELLS
+    CONSTRAINED_MAX_CELLS = limit
+    try:
+        yield
+    finally:
+        CONSTRAINED_MAX_CELLS = default
+
+
+def _statmatch_hotdeck_constructor(
+    selection: str = "nearest", *, min_uses: int = 1
+) -> FitFn:
     """Adapter for py-statmatch's distance hot decks (statistical matching).
 
     py-statmatch is a Python port of R's StatMatch. Each receiver is matched
@@ -589,7 +614,7 @@ def _statmatch_hotdeck_constructor(selection: str = "nearest") -> FitFn:
                     data_rec=receiver, data_don=donor, match_vars=predictors, **weighted
                 )["mtc.ids"]
             if selection == "constrained":
-                cap = _donor_use_cap(len(receiver), len(donor))
+                cap = max(_donor_use_cap(len(receiver), len(donor)), min_uses)
                 cells = len(receiver) * len(donor) * cap
                 if cells > CONSTRAINED_MAX_CELLS:
                     raise NotImplementedError(
@@ -878,6 +903,23 @@ REGISTRY: dict[str, Method] = {
     ),
 }
 
+#: Diagnostic variants of the paper's methods. They are kept out of
+#: :data:`REGISTRY`, so no sweep, table or default method list includes them.
+#: A command runs one only when it is asked for by key.
+DIAGNOSTICS: dict[str, Method] = {
+    "statmatch_constrained_hotdeck_two_uses": Method(
+        key="statmatch_constrained_hotdeck_two_uses",
+        category=MethodCategory.DIAGNOSTIC,
+        description=(
+            "The constrained hot deck with each donor allowed to serve two "
+            "receivers where the registered method allows one. Distance, "
+            "tie rule and solver are unchanged."
+        ),
+        citation_key="dorazio2025statmatch",
+        constructor=lambda: _statmatch_hotdeck_constructor("constrained", min_uses=2),
+    ),
+}
+
 #: Keys grouped by category, for the sweep and the paper's method list.
 CANDIDATE_KEYS: tuple[str, ...] = tuple(
     k for k, m in REGISTRY.items() if m.category == MethodCategory.CANDIDATE
@@ -901,10 +943,15 @@ def list_methods(category: str | None = None) -> list[str]:
 
 
 def get_method(key: str) -> Method:
-    """Return the :class:`Method` for ``key`` (raises ``KeyError`` if unknown)."""
-    try:
+    """Return the :class:`Method` for ``key`` (raises ``KeyError`` if unknown).
+
+    Looks in :data:`REGISTRY` and then in :data:`DIAGNOSTICS`.
+    """
+    if key in REGISTRY:
         return REGISTRY[key]
-    except KeyError:
-        raise KeyError(
-            f"Unknown method {key!r}. Registered methods: {sorted(REGISTRY)}."
-        ) from None
+    if key in DIAGNOSTICS:
+        return DIAGNOSTICS[key]
+    raise KeyError(
+        f"Unknown method {key!r}. Registered methods: {sorted(REGISTRY)}; "
+        f"diagnostic variants: {sorted(DIAGNOSTICS)}."
+    )

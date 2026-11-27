@@ -110,7 +110,10 @@ the two are level in dollars.
 
 Against the constrained hot deck the two measures disagree on the \scf{}.
 The classifier finds the hot deck's values harder to tell from the truth
-(0.526 and 0.519). In dollars the hot deck is behind. Its within-group
+(0.526 and 0.519). That lead comes from the hot deck's limit of one use per
+donor and not from closer matches: with two uses allowed, its AUC equals the
+estimator's (Section~\ref{sec:results-conditional}). In dollars the hot deck
+is behind. Its within-group
 distance on net worth is 2.9 and 1.6 times the estimator's, and its wealth
 total is 1.97 and 1.32 times the survey's, because it chooses donors without
 the weights from a sample in which wealthy households are over-represented.
@@ -123,15 +126,18 @@ is better, because that depends on the use.
 The classifier gives every household the same say. The dollar measures are
 moved by the few households that hold most of the wealth. A file used to
 cost a policy that bears on wealth depends on totals and on the top of the
-distribution, which the dollar measures score. For a use that depends on
-typical households and not on totals, the classifier is the more relevant
-measure, and there the constrained hot deck leads.
+distribution, which the dollar measures score. The classifier's order also
+depends on the test's split. Where donors outnumber receivers, a method that
+never repeats a donor scores best on it. A production file has many more
+receivers than donors, and no method that draws from donor records can avoid
+repeating them there.
 
 Two limits apply. The survey tasks have three to ten predictors and at most
 four targets, and no task here tests whether the comparison changes when
-there are more predictors and close donors become scarce. And we have not
-established why the constrained hot deck leads on the classifier where the
-weights play no part (Section~\ref{sec:future}).
+there are more predictors and close donors become scarce. And the test was
+run with four donors for each receiver, which is what lets a limit of one
+use per donor hold. We ran one other limit and no other split
+(Section~\ref{sec:future}).
 
 \subsection{What the evaluation shows}
 \label{sec:discussion-evaluation}
@@ -259,15 +265,13 @@ treatment.
 \subsection{Open questions and future work}
 \label{sec:future}
 
-\paragraph{Why the constrained hot deck leads the classifier test.} The
-constrained hot deck has the lowest AUC on the paired classifier test on all
-three survey tasks and on three of the six OpenML datasets
-(Section~\ref{sec:results-conditional}). On the \cps{} the weights carry
-little information about the targets, and on the OpenML datasets they are
-uniform, so its lead there does not come from the weights. We have not
-established what it comes from. A proper score of each method's predictive
-distribution at each receiver row would be a second direct test of
-conditional fit, and we did not run one.
+\paragraph{Other splits, and a second test of conditional fit.} The paired
+classifier test was run with one receiver for every four donors. With more
+receivers than donors, every method that draws from donor records must
+repeat them, and the order of the methods on the test may change. We did not
+run that split. A proper score of each method's predictive distribution at
+each receiver row would be a second direct test of conditional fit, and we
+did not run one.
 
 \paragraph{Harder tasks.} The survey tasks have three to ten predictors and
 at most four targets, and the donor and receiver are either the same survey

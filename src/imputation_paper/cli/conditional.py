@@ -38,6 +38,7 @@ from imputation_paper.experiments.conditional_fit import (
     ReceiverGroups,
     paired_two_sample_auc,
     ratios_to_sample,
+    shared_value_share,
     swap_mask,
     within_group_wasserstein1,
 )
@@ -74,6 +75,8 @@ def run_conditional_fit(
     n_seeds: int = 10,
     max_rows: int = 20_000,
     scf_year: int = 2022,
+    value_reuse: bool = False,
+    constrained_max_cells: int | None = None,
 ) -> int:
     """Run ``methods`` over ``n_seeds`` paired splits and score conditional fit.
 
@@ -84,6 +87,11 @@ def run_conditional_fit(
         n_seeds: Number of repeated paired splits.
         max_rows: Deterministic row cap applied before splitting.
         scf_year: SCF wave for the ``scf_wealth`` task.
+        value_reuse: Also record, for each target, the share of receivers
+            whose non-zero imputed value another receiver also has, next to
+            the same share for the true values.
+        constrained_max_cells: Size limit for the constrained hot deck in
+            this run; ``None`` keeps the package's.
 
     Returns:
         Process exit code (``0`` if at least one method produced metrics).
@@ -99,11 +107,13 @@ def run_conditional_fit(
     frame, was_capped = _capped(task_frame.frame, max_rows)
 
     requested = methods if methods is not None else list(method_registry.REGISTRY)
-    unknown = [key for key in requested if key not in method_registry.REGISTRY]
+    known = {*method_registry.REGISTRY, *method_registry.DIAGNOSTICS}
+    unknown = [key for key in requested if key not in known]
     if unknown:
         raise SystemExit(
             f"Unknown method key(s) {unknown}; registered: "
-            f"{sorted(method_registry.REGISTRY)}."
+            f"{sorted(method_registry.REGISTRY)}; diagnostic variants (run only "
+            f"when named): {sorted(method_registry.DIAGNOSTICS)}."
         )
 
     predictors = list(task_frame.predictors)
@@ -126,15 +136,16 @@ def run_conditional_fit(
         try:
             for split in paired_splits(frame, seeds=seeds):
                 started = time.monotonic()
-                result = run_condition(
-                    key,
-                    split.train,
-                    split.test,
-                    predictors,
-                    targets,
-                    weight_column=task_frame.weight_column,
-                    seed=split.seed,
-                )
+                with method_registry.constrained_cell_limit(constrained_max_cells):
+                    result = run_condition(
+                        key,
+                        split.train,
+                        split.test,
+                        predictors,
+                        targets,
+                        weight_column=task_frame.weight_column,
+                        seed=split.seed,
+                    )
                 fitted = time.monotonic()
                 x = split.test[predictors].to_numpy(dtype=np.float64)
                 truth = split.test[targets].to_numpy(dtype=np.float64)
@@ -198,6 +209,17 @@ def run_conditional_fit(
                         "wasserstein1",
                         result.metrics[f"{target}.wasserstein1"],
                     )
+                    if value_reuse:
+                        record(
+                            target,
+                            "shared_value_share",
+                            shared_value_share(imputed[:, position]),
+                        )
+                        record(
+                            target,
+                            "shared_value_share_truth",
+                            shared_value_share(truth[:, position]),
+                        )
                     if groups is None:
                         continue
                     record(
@@ -264,6 +286,14 @@ def run_conditional_fit(
             "receiver rows swapped",
         },
     }
+    if value_reuse:
+        manifest["value_reuse"] = (
+            "shared_value_share: among receivers with a non-zero imputed value, "
+            "the share whose value another receiver also has; "
+            "shared_value_share_truth: the same for the true values"
+        )
+    if constrained_max_cells is not None:
+        manifest["constrained_max_cells"] = constrained_max_cells
     if groups is not None:
         manifest["dollar_measures"] = {
             "within_group_wasserstein1": "weighted Wasserstein-1 distance "

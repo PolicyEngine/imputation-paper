@@ -46,6 +46,9 @@ METHOD_ORDER: tuple[tuple[str, str], ...] = (
     ("statmatch_rand_hotdeck_unweighted", "Random hot deck"),
     ("statmatch_rand_hotdeck", "Weighted random hot deck"),
     ("statmatch_constrained_hotdeck", "Constrained hot deck"),
+    # A diagnostic variant: it appears only in the conditional-fit tables,
+    # whose added-arms runs include it.
+    ("statmatch_constrained_hotdeck_two_uses", r"\quad -- two uses per donor"),
     ("weighted_marginal", "Weighted marginal draw"),
 )
 _DISPLAY = dict(METHOD_ORDER)

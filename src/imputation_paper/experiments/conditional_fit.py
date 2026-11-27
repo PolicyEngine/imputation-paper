@@ -43,9 +43,33 @@ __all__ = [
     "paired_folds",
     "paired_two_sample_auc",
     "ratios_to_sample",
+    "shared_value_share",
     "swap_mask",
     "within_group_wasserstein1",
 ]
+
+
+def shared_value_share(values: np.ndarray) -> float:
+    """Share of non-zero values that another row also has, exactly.
+
+    In a survey, two households rarely have the same non-zero amount. A
+    method that gives several receivers the same donor's amount raises this
+    share, which a classifier can pick up. Zeros are left out because many
+    households share a true zero.
+
+    Args:
+        values: One value per receiver.
+
+    Returns:
+        Among the rows whose value is not zero, the share whose value equals
+        that of at least one other such row. ``nan`` if every value is zero.
+    """
+    array = np.asarray(values, dtype=np.float64)
+    nonzero = array[array != 0.0]
+    if nonzero.size == 0:
+        return float("nan")
+    _, inverse, counts = np.unique(nonzero, return_inverse=True, return_counts=True)
+    return float((counts[inverse] > 1).mean())
 
 
 def _as_matrix(values: np.ndarray, name: str) -> np.ndarray:
