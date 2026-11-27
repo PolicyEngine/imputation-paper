@@ -99,11 +99,13 @@ def run_conditional_fit(
     frame, was_capped = _capped(task_frame.frame, max_rows)
 
     requested = methods if methods is not None else list(method_registry.REGISTRY)
-    unknown = [key for key in requested if key not in method_registry.REGISTRY]
+    known = {*method_registry.REGISTRY, *method_registry.DIAGNOSTICS}
+    unknown = [key for key in requested if key not in known]
     if unknown:
         raise SystemExit(
             f"Unknown method key(s) {unknown}; registered: "
-            f"{sorted(method_registry.REGISTRY)}."
+            f"{sorted(method_registry.REGISTRY)}; diagnostic variants (run only "
+            f"when named): {sorted(method_registry.DIAGNOSTICS)}."
         )
 
     predictors = list(task_frame.predictors)

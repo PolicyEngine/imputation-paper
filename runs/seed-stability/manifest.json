@@ -1,0 +1,93 @@
+{
+  "scf_year": 2022,
+  "profile": "minimal",
+  "receiver_years": [
+    2025
+  ],
+  "receiver_rows": 20000,
+  "receiver_sample_seed": 0,
+  "shared_predictors": [
+    "age",
+    "hhsex",
+    "married",
+    "kids",
+    "income",
+    "wageinc"
+  ],
+  "targets": [
+    "debt",
+    "networth"
+  ],
+  "donor_split_seeds": [
+    0,
+    1,
+    2
+  ],
+  "one_off_resample": {
+    "target_of_the_upper_tail": "networth",
+    "equal_weight_share_of_rows_kept": 0.6321205588285577,
+    "by_donor_split": {
+      "0": {
+        "donor_rows": 3676,
+        "expected_share_of_rows_kept": 0.5089726611759966,
+        "rows_above_weighted_q99": 455,
+        "expected_share_kept_above_weighted_q99": 0.06876625716172667
+      },
+      "1": {
+        "donor_rows": 3676,
+        "expected_share_of_rows_kept": 0.5114946567757451,
+        "rows_above_weighted_q99": 440,
+        "expected_share_kept_above_weighted_q99": 0.07119647189566833
+      },
+      "2": {
+        "donor_rows": 3676,
+        "expected_share_of_rows_kept": 0.5105768612539425,
+        "rows_above_weighted_q99": 439,
+        "expected_share_kept_above_weighted_q99": 0.07028059440437551
+      }
+    }
+  },
+  "estimator_seeds": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19
+  ],
+  "arms": [
+    "populace_fit",
+    "populace_fit_per_tree"
+  ],
+  "kinds": {
+    "refit": "one fit and one draw per estimator seed",
+    "redraw": "further draws from the first seed's fit"
+  },
+  "ratios": "imputed weighted mean and upper quantiles over the receivers, as multiples of the donor split's",
+  "far_from_median": 0.25,
+  "input_provenance": {
+    "scf_year": 2022,
+    "file": "rscfp2022.dta",
+    "zip_sha256": "3bb4d890ae2463ff6039ec7692e375f544dd98a55a37ca2cb2340354b9cc9d80",
+    "file_dollar_year": 2022,
+    "file_description": "SCF 2022 in 2022 dollars (rscfp2022.dta dated 2024-03-29), served until 2026-10-09; the input of the paper's committed 2022 runs",
+    "dollar_year": 2022,
+    "rebase_factor": 1.0,
+    "url": "https://www.federalreserve.gov/econres/files/scfp2022s.zip",
+    "profile": "minimal"
+  }
+}

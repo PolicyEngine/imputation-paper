@@ -235,6 +235,39 @@ def main(argv: list[str] | None = None) -> int:
         help="SCF wave for the scf_wealth task: 2022 or 2025.",
     )
 
+    stability = subcommands.add_parser(
+        "seed-stability",
+        help="Hold SCF donor splits fixed, impute onto the population view's "
+        "CPS receivers, and vary only the estimator's seed (needs the methods "
+        "extra).",
+    )
+    stability.add_argument(
+        "--scf-year",
+        type=int,
+        default=2022,
+        help="SCF donor wave: 2022 or 2025.",
+    )
+    stability.add_argument(
+        "--out",
+        type=Path,
+        default=None,
+        help="Run directory (default: runs/seed-stability, with the wave as a "
+        "suffix when it is not 2022).",
+    )
+    stability.add_argument(
+        "--splits",
+        type=int,
+        nargs="+",
+        default=[0, 1, 2],
+        help="Seeds of the donor splits to hold fixed, one at a time.",
+    )
+    stability.add_argument(
+        "--seeds",
+        type=int,
+        default=20,
+        help="Estimator seeds per split and arm.",
+    )
+
     figures = subcommands.add_parser(
         "figures",
         help="Aggregate a run's long-format artifacts into summary tables.",
@@ -310,6 +343,15 @@ def main(argv: list[str] | None = None) -> int:
             n_seeds=args.seeds,
             max_rows=args.max_rows,
             scf_year=args.scf_year,
+        )
+    if args.command == "seed-stability":
+        from imputation_paper.cli.stability import run_seed_stability
+
+        return run_seed_stability(
+            scf_year=args.scf_year,
+            out=args.out,
+            splits=tuple(args.splits),
+            n_seeds=args.seeds,
         )
     if args.command == "figures":
         from imputation_paper.cli.figures import make_figures

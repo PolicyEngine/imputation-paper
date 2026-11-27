@@ -30,6 +30,7 @@ leak through.
 
 from __future__ import annotations
 
+import contextlib
 import inspect
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass
@@ -106,6 +107,10 @@ class MethodCategory:
     VARIANT = "variant"
     #: A standard survey-imputation method the candidate is benchmarked against.
     BASELINE = "baseline"
+    #: The candidate with one internal step changed to diagnose a result. It
+    #: is not part of the paper's method surface: no sweep runs it by default
+    #: and it is kept out of :data:`REGISTRY` (see :data:`DIAGNOSTICS`).
+    DIAGNOSTIC = "diagnostic"
 
 
 @dataclass(frozen=True)
@@ -193,8 +198,13 @@ def _fit_populace(
     weights_mode: str,
     chained: bool,
     gated: bool,
+    per_tree: bool = False,
 ) -> tuple[list, dict[str, float]]:
     """Fit populace-fit's estimator; return the fitted models and target shifts.
+
+    With ``per_tree`` the forests sample by weight inside each tree in place of
+    the one-off weighted resample
+    (:func:`~imputation_paper.experiments.tree_sampling.per_tree_weighted_sampling`).
 
     The shifts are all zero when ``gated``. Otherwise each target with more
     than one sign class is moved by :func:`single_sign_shift` before the fit,
@@ -219,22 +229,30 @@ def _fit_populace(
             **{target: table[target] + shift for target, shift in shifts.items()}
         )
 
-    if chained:
-        fitted = [
-            RegimeGatedQRF(seed=seed).fit(table, predictors, targets, weights=spec)
-        ]
+    if per_tree:
+        from imputation_paper.experiments.tree_sampling import (
+            per_tree_weighted_sampling as sampling,
+        )
     else:
-        # Chaining-off: each target sees only the predictors. Offsetting
-        # the seed per target keeps the independent draws independent.
-        fitted = [
-            RegimeGatedQRF(seed=seed + position).fit(
-                table.loc[:, [*predictors, target]],
-                predictors,
-                [target],
-                weights=spec,
-            )
-            for position, target in enumerate(targets)
-        ]
+        sampling = contextlib.nullcontext
+
+    with sampling():
+        if chained:
+            fitted = [
+                RegimeGatedQRF(seed=seed).fit(table, predictors, targets, weights=spec)
+            ]
+        else:
+            # Chaining-off: each target sees only the predictors. Offsetting
+            # the seed per target keeps the independent draws independent.
+            fitted = [
+                RegimeGatedQRF(seed=seed + position).fit(
+                    table.loc[:, [*predictors, target]],
+                    predictors,
+                    [target],
+                    weights=spec,
+                )
+                for position, target in enumerate(targets)
+            ]
 
     if not gated:
         ungated = {Regime.POSITIVE_ONLY, Regime.NEGATIVE_ONLY, Regime.DEGENERATE_ZERO}
@@ -277,7 +295,11 @@ def _ungated_regimes(
 
 
 def _populace_fit_constructor(
-    *, weights_mode: str = "design", chained: bool = True, gated: bool = True
+    *,
+    weights_mode: str = "design",
+    chained: bool = True,
+    gated: bool = True,
+    per_tree: bool = False,
 ) -> FitFn:
     """Adapter for populace-fit's :class:`RegimeGatedQRF` over plain DataFrames.
 
@@ -299,6 +321,8 @@ def _populace_fit_constructor(
             rows, same weighted bootstrap, same draw), and the draws are
             shifted back. A target that already has one sign class is left
             alone, so there the ablation is the full estimator.
+        per_tree: ``True`` is the diagnostic variant that samples by weight
+            inside each tree in place of the one-off weighted resample.
 
     Returns:
         A :class:`FitFn`.
@@ -323,6 +347,7 @@ def _populace_fit_constructor(
             weights_mode=weights_mode,
             chained=chained,
             gated=gated,
+            per_tree=per_tree,
         )
 
         def predict(test_df: pd.DataFrame) -> pd.DataFrame:
@@ -878,6 +903,25 @@ REGISTRY: dict[str, Method] = {
     ),
 }
 
+#: Diagnostic variants of the candidate. They are kept out of
+#: :data:`REGISTRY`, so no sweep, table or default method list includes them.
+#: A command runs one only when it is asked for by key.
+DIAGNOSTICS: dict[str, Method] = {
+    "populace_fit_per_tree": Method(
+        key="populace_fit_per_tree",
+        category=MethodCategory.DIAGNOSTIC,
+        description=(
+            "populace-fit with the weights sampled inside each tree, in place "
+            "of one weighted resample per forest. Gates, chaining and the "
+            "draw are unchanged."
+        ),
+        citation_key="microcosm2026",
+        constructor=lambda: _populace_fit_constructor(
+            weights_mode="design", chained=True, per_tree=True
+        ),
+    ),
+}
+
 #: Keys grouped by category, for the sweep and the paper's method list.
 CANDIDATE_KEYS: tuple[str, ...] = tuple(
     k for k, m in REGISTRY.items() if m.category == MethodCategory.CANDIDATE
@@ -901,10 +945,15 @@ def list_methods(category: str | None = None) -> list[str]:
 
 
 def get_method(key: str) -> Method:
-    """Return the :class:`Method` for ``key`` (raises ``KeyError`` if unknown)."""
-    try:
+    """Return the :class:`Method` for ``key`` (raises ``KeyError`` if unknown).
+
+    Looks in :data:`REGISTRY` and then in :data:`DIAGNOSTICS`.
+    """
+    if key in REGISTRY:
         return REGISTRY[key]
-    except KeyError:
-        raise KeyError(
-            f"Unknown method {key!r}. Registered methods: {sorted(REGISTRY)}."
-        ) from None
+    if key in DIAGNOSTICS:
+        return DIAGNOSTICS[key]
+    raise KeyError(
+        f"Unknown method {key!r}. Registered methods: {sorted(REGISTRY)}; "
+        f"diagnostic variants: {sorted(DIAGNOSTICS)}."
+    )

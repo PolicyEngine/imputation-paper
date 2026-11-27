@@ -29,6 +29,9 @@ METHOD_ORDER: tuple[tuple[str, str], ...] = (
     # the committed run artifacts); display labels carry the current name.
     ("populace_fit", "microcosm-fit"),
     ("populace_fit_unweighted", r"\quad -- unweighted"),
+    # A diagnostic variant, not an ablation: it appears only in the table
+    # on the one-off resample, which reads its own run directories.
+    ("populace_fit_per_tree", r"\quad -- weights sampled in each tree"),
     ("populace_fit_unchained", r"\quad -- unchained"),
     ("populace_fit_ungated", r"\quad -- ungated"),
     ("populace_fit_ungated_unchained", r"\quad -- ungated, unchained"),
@@ -71,6 +74,20 @@ HARNESS_COLUMNS: list[tuple[str, str, str]] = [
 #: Suffix of the run directory that holds a task's arms added after its first
 #: sweep: ``runs/scf-wealth-added-arms`` sits beside ``runs/scf-wealth``.
 ADDED_ARMS_SUFFIX = "-added-arms"
+
+#: Suffix of the run directory that holds the per-tree sampling variant of a
+#: conditional-fit run, with the estimator rerun as its control.
+PER_TREE_SUFFIX = "-per-tree"
+
+#: Rows of the table on the one-off resample: the estimator, its unweighted
+#: ablation, the per-tree variant, and the method with the lowest classifier
+#: AUC, for scale.
+RESAMPLE_ROWS: tuple[str, ...] = (
+    "populace_fit",
+    "populace_fit_unweighted",
+    "populace_fit_per_tree",
+    "statmatch_constrained_hotdeck",
+)
 
 #: Replication waves whose tables are written next to the paper's when their
 #: runs exist: ``(run-directory suffix, table-file suffix, donor label)``.
@@ -279,8 +296,12 @@ def _load_summary(run_dir: Path, filename: str) -> pd.DataFrame | None:
     return None if frame.empty else frame
 
 
-def _read_long(run_dir: Path, filename: str) -> pd.DataFrame | None:
+def _read_long(
+    run_dir: Path, filename: str, suffix: str = ADDED_ARMS_SUFFIX
+) -> pd.DataFrame | None:
     """A run's long file, with the rows of its added-arms directory merged in.
+
+    ``suffix`` names the directory to merge: by default the run's added arms.
 
     Returns ``None`` when the run itself has no (or an empty) long file. The
     added-arms directory is optional. Where it exists:
@@ -302,7 +323,7 @@ def _read_long(run_dir: Path, filename: str) -> pd.DataFrame | None:
     long = pd.read_csv(path)
     if long.empty:
         return None
-    added_path = run_dir.with_name(run_dir.name + ADDED_ARMS_SUFFIX) / filename
+    added_path = run_dir.with_name(run_dir.name + suffix) / filename
     if not added_path.exists():
         return long
     added = pd.read_csv(added_path)
@@ -583,6 +604,51 @@ def _conditional_fit_tables(runs_dir: Path, out_dir: Path, written: list[str]) -
         written.append(out_name)
 
 
+def _resample_tables(runs_dir: Path, out_dir: Path, written: list[str]) -> None:
+    """One panel per survey task for the table on the one-off resample.
+
+    Reads each conditional-fit run together with its per-tree directory, which
+    reran the estimator as a control, and prints the rows of
+    :data:`RESAMPLE_ROWS`. The merge refuses a control whose rows differ.
+    """
+    from imputation_paper.cli.conditional import JOINT
+
+    for run_name, out_name, targets, divisor in CONDITIONAL_FIT_TABLES:
+        run_dir = runs_dir / run_name
+        if not (run_dir.with_name(run_name + PER_TREE_SUFFIX)).exists():
+            print(f"  {run_name}{PER_TREE_SUFFIX}: no run found; panel skipped")
+            continue
+        long = _read_long(run_dir, "metrics_long.csv", suffix=PER_TREE_SUFFIX)
+        if long is None:
+            print(f"  {run_name}: no run found; panel skipped")
+            continue
+        long = long[long["method"].isin(RESAMPLE_ROWS)]
+        summary = (
+            long.groupby(["method", "target", "metric"], as_index=False)["value"]
+            .agg(mean="mean", sd="std")
+            .fillna({"sd": 0.0})
+        )
+        distance = summary["metric"] == "within_group_wasserstein1"
+        summary.loc[distance, ["mean", "sd"]] /= divisor
+        columns = [(JOINT, "conditional_auc", "Classifier AUC")]
+        for column, label in targets:
+            columns += [
+                (column, "within_group_wasserstein1", f"{label} $W_1$ in groups"),
+                (column, "total_ratio", f"{label} total"),
+            ]
+        panel = out_name.replace("conditional_fit_", "resample_")
+        (out_dir / panel).write_text(
+            _tabular(
+                summary,
+                columns,
+                f"The estimator with weights sampled in each tree ({run_name} and "
+                f"its{PER_TREE_SUFFIX} directory), mean (sd) over "
+                f"{long['seed'].nunique()} paired seeds.",
+            )
+        )
+        written.append(panel)
+
+
 def make_tables(
     runs_dir: Path = Path("runs"), out_dir: Path = Path("paper/tables")
 ) -> int:
@@ -686,6 +752,7 @@ def make_tables(
     _openml_table(runs_dir, out_dir, written)
     _ablation_table(runs_dir, out_dir, written)
     _conditional_fit_tables(runs_dir, out_dir, written)
+    _resample_tables(runs_dir, out_dir, written)
 
     for name in written:
         print(f"  wrote {out_dir / name}")
