@@ -122,6 +122,15 @@ def main(argv: list[str] | None = None) -> int:
         default=20_000,
         help="Deterministic cap on the CPS receiver sample.",
     )
+    harness.add_argument(
+        "--constrained-max-cells",
+        type=int,
+        default=None,
+        help="Largest assignment problem, in cells, the constrained hot deck "
+        "is asked to solve. By default it is skipped at the population "
+        "view's size; 500000000 runs it, at minutes and several gigabytes "
+        "per split.",
+    )
     _add_scf_wave_arguments(harness, "the SCF donor")
 
     tables = subcommands.add_parser(
@@ -240,6 +249,7 @@ def main(argv: list[str] | None = None) -> int:
             profile=args.profile,
             scf_year=args.scf_year,
             scf_dollar_year=args.scf_dollar_year,
+            constrained_max_cells=args.constrained_max_cells,
         )
     if args.command == "tables":
         from imputation_paper.cli.tables import make_tables

@@ -36,6 +36,10 @@ from imputation_paper.experiments.views import SurveyView, harness_scorecard
 #: Registry key used for the sampling-noise floor rows.
 REFERENCE_KEY = "scf_sample_reference"
 
+#: The constrained hot deck's size limit as the package ships it. A run made
+#: with another limit records that limit in its manifest.
+_DEFAULT_CONSTRAINED_MAX_CELLS = method_registry.CONSTRAINED_MAX_CELLS
+
 
 #: Receiver ASEC years per profile. The populace-scale profile pools three
 #: vintages, mirroring the production support spine's multi-year design.
@@ -70,6 +74,7 @@ def run_harness(
     profile: str = "minimal",
     scf_year: int = 2022,
     scf_dollar_year: int | None = None,
+    constrained_max_cells: int | None = None,
 ) -> int:
     """Run the SCF->CPS population-view experiment; write ``harness_long.csv``.
 
@@ -86,10 +91,30 @@ def run_harness(
             replication wave). The receiver vintages do not depend on it.
         scf_dollar_year: Dollar basis of the donor's dollar columns; ``None``
             means the survey year's own dollars.
+        constrained_max_cells: Largest assignment problem, in cells, the
+            constrained hot deck is asked to solve in this run. ``None`` keeps
+            :data:`imputation_paper.methods.CONSTRAINED_MAX_CELLS`, under which
+            the population view's 20,000 receivers are skipped. At that size
+            one split takes minutes and several gigabytes of memory.
 
     Returns:
         Process exit code (``0`` if at least one method produced rows).
     """
+    if constrained_max_cells is not None:
+        default_limit = method_registry.CONSTRAINED_MAX_CELLS
+        method_registry.CONSTRAINED_MAX_CELLS = constrained_max_cells
+        try:
+            return run_harness(
+                out=out,
+                methods=methods,
+                n_seeds=n_seeds,
+                max_receiver_rows=max_receiver_rows,
+                profile=profile,
+                scf_year=scf_year,
+                scf_dollar_year=scf_dollar_year,
+            )
+        finally:
+            method_registry.CONSTRAINED_MAX_CELLS = default_limit
     from imputation_paper.data.cps import load_cps_households
     from imputation_paper.data.scf import load_scf
 
@@ -197,6 +222,8 @@ def run_harness(
         "reference_key": REFERENCE_KEY,
         "donor_input_provenance": dict(scf.provenance),
     }
+    if method_registry.CONSTRAINED_MAX_CELLS != _DEFAULT_CONSTRAINED_MAX_CELLS:
+        manifest["constrained_max_cells"] = method_registry.CONSTRAINED_MAX_CELLS
     (out / "manifest.json").write_text(json.dumps(manifest, indent=2))
 
     ran = sorted({str(row["method"]) for row in rows})
