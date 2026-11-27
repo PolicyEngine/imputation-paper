@@ -281,7 +281,7 @@ donor split itself scored as a candidate, shows what ``as good as another
 sample of the survey'' means on each metric, including how much a tail ratio
 moves under sampling noise alone.
 
-\subsection{Marginal and stress metrics}
+\subsection{Within-survey metrics}
 \label{sec:metrics}
 
 All metrics are computed on held-out receiver rows under survey weights,
@@ -335,6 +335,54 @@ the exposure a faithful method should match, not minimize: a much lower
 value means the method spreads the total too evenly, and a much higher one
 means it has created an outsized record.
 
+\paragraph{Paired classifier test.} The metrics above look at one imputed
+variable at a time. They cannot tell a method that follows the predictors
+from one that draws each variable from the right distribution and ignores
+them. Within a survey the receivers' true values are known, so conditional
+fit can be tested directly.
+
+We make two copies of the receiver rows. One copy carries each row's true
+target values and the other carries the imputed ones. The predictors and the
+weights are the same in both. A gradient-boosted classifier is trained to
+tell the two copies apart from the predictors and the targets together, and
+we report its cross-validated AUC under the receiver weights. Both copies of
+a row sit in the same fold, so the classifier is never tested on a row whose
+other copy it was trained on. Because the predictors are identical in the
+two copies, the classifier can separate them only through how the targets
+vary with the predictors and with each other. An AUC of 0.5 means it cannot
+separate them, and a lower AUC is better.
+
+This test differs from the classifier two-sample test of
+Section~\ref{sec:harness}, which compares two different sets of households.
+To show how far its AUC moves by chance, we repeat it with the labels of a
+random half of the rows swapped. If the imputed values followed the true
+conditional distribution, either copy of a row could carry either label, so
+the repeat is a draw from the test's distribution when the imputation is
+right. We call its result the null AUC.
+
+\paragraph{Wasserstein-1 distance within groups.} The classifier counts
+households. Every receiver has the same say in it, whatever its wealth, so a
+method can score well while misplacing a few very large values, and those
+are what move a total. We therefore pair the classifier with a conditional
+measure in dollars. The receivers are divided into groups of similar
+households. Within each group we compute the weighted $W_1$ distance between
+the imputed values and the same rows' true values. We report the average of
+the group distances, weighted by each group's total weight.
+
+In the \scf{} task the groups are the fifths of household income crossed
+with three age bands (under 40, 40 to 64, and 65 or over), 15 in all. In the
+\cps{} task they are the adults with no earnings and the thirds of those with
+earnings, crossed with the same age bands, 12 in all. The cut points are
+weighted quantiles of the task's full sample, so every split and every
+method is scored on the same groups. A group with fewer than five receivers
+in a split is left out of that split's average.
+
+\paragraph{Imputed total.} Beside the within-group distance we report each
+target's imputed total as a multiple of the survey's. It is the weighted
+mean of the imputed values over the receivers, divided by the weighted mean
+of the true values in the task's full sample. A value of 1 reproduces the
+survey's total.
+
 \subsection{Protocol}
 \label{sec:protocol}
 
@@ -346,3 +394,10 @@ results tables are generated from the sweep artifacts by the repository's
 command line; no result is hand-entered. Where a method is unavailable or a
 metric undefined for a task, the cell is reported as absent rather than
 omitted.
+
+The paired classifier test, the within-group distance and the imputed total
+were added after the 2025 replication had been scored
+(Section~\ref{sec:results-conditional}). They refit every method on the same
+splits with the same seeds, so they score the same draws as the other
+within-survey tables. On the three survey tasks they use 30 seeds, the ten
+above and twenty more. On the OpenML datasets they use the ten.

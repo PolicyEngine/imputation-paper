@@ -77,6 +77,28 @@ py-statmatch (git). CI deliberately runs without it:
 the registry imports methods lazily, and sweeps record unavailable methods in
 `skipped.csv` rather than failing or silently dropping them.
 
+### Conditional fit within each survey
+
+The paired classifier test and the dollar measures of the paper's section on
+conditional fit have their own runs. `imp conditional-fit` refits every method
+on the sweep's splits with the sweep's seeds, so it scores the same draws, and
+it writes its own run directory:
+
+```bash
+export OMP_NUM_THREADS=1
+uv run imp conditional-fit --task scf_wealth --seeds 30 --out runs/conditional-fit-scf-wealth
+uv run imp conditional-fit --task scf_wealth --scf-year 2025 --seeds 30 --out runs/conditional-fit-scf-wealth-2025
+uv run imp conditional-fit --task cps_components --seeds 30 --out runs/conditional-fit-cps-components
+for name in space_ga elevators brazilian_houses onlinenewspopularity abalone house_sales; do
+  uv run imp conditional-fit --task "openml_$name" --out "runs/conditional-fit-openml-$name"
+done
+uv run imp tables
+```
+
+The survey tasks use 30 seeds; the first ten are the sweep's. A test checks
+that each run's Wasserstein-1 distances equal the sweep's, cell for cell, on
+the seeds they share.
+
 ### Arms added after the first sweeps
 
 Seven methods joined the surface after the first sweeps were committed: the

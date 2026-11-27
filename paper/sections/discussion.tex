@@ -71,10 +71,9 @@ uniform.
 \subsection{Comparison with matching}
 \label{sec:discussion-matching}
 
-The results do not show that the estimator outperforms a hot deck that uses
-the weights. On the metrics of this paper the two are level within noise,
-and the differences in the estimator's favour are about one floor standard
-deviation.
+No method is ahead on every measure. Whether the estimator or a hot deck
+does better depends on which hot deck it is, on the survey, and on whether
+the measure counts households or dollars.
 
 Within a survey, a hot deck that draws its donor among the nearest in
 proportion to weight equals the full estimator on marginal fit, where the
@@ -98,20 +97,41 @@ of the two by 0.3 points. The constrained hot deck, which has the best
 marginal fit on several within-survey columns, was not run on the population
 view, so its joint scores are unknown.
 
-Two readings of this near-parity are possible, and the experiments do not
-separate them. The first is that the methods are close on these tasks. The
-survey tasks have three to ten predictors and at most four targets. Whether
-the estimator gains on a hot deck when there are more predictors, and close
-donors become scarce, is not tested by any task here. The second is that the
-metrics are weak where a difference would show. The within-survey metrics
-score each imputed variable on its own and say nothing about how it varies
-with the predictors. On the population view, every candidate carries the
-same demographic difference between the two surveys, which raises every
-candidate's AUC and leaves less room for the methods to differ: the full
-estimator's AUC is 0.73 and 0.76, against a sampling floor of 0.50. And
-energy distance separates only OLS from the rest. Conditional fit can be
-tested directly within a survey, where the receivers' true values are known
-(Section~\ref{sec:future}). We did not run that test.
+The direct test of conditional fit
+(Section~\ref{sec:results-conditional}) separates the methods more than
+those metrics do, and it does not give one order.
+
+Against the weighted random hot deck, which chooses donors by weight, the
+estimator is ahead on the \scf{} on both conditional measures. Its AUC is the
+lower in every seed of both waves (0.561 and 0.564 against 0.611 and 0.612),
+and its within-group distance on net worth is lower by a factor of 1.4. On
+the \cps{} the classifier puts the hot deck ahead (0.525 against 0.534), and
+the two are level in dollars.
+
+Against the constrained hot deck the two measures disagree on the \scf{}.
+The classifier finds the hot deck's values harder to tell from the truth
+(0.526 and 0.519). In dollars the hot deck is behind. Its within-group
+distance on net worth is 2.9 and 1.6 times the estimator's, and its wealth
+total is 1.97 and 1.32 times the survey's, because it chooses donors without
+the weights from a sample in which wealthy households are over-represented.
+On the \cps{}, where the weights carry little information about the targets,
+it is ahead of the estimator on the classifier and level with it in dollars.
+
+The earlier metrics left open whether the methods were as close as they
+looked. The direct test shows that they differ. It does not say which method
+is better, because that depends on the use.
+The classifier gives every household the same say. The dollar measures are
+moved by the few households that hold most of the wealth. A file used to
+cost a policy that bears on wealth depends on totals and on the top of the
+distribution, which the dollar measures score. For a use that depends on
+typical households and not on totals, the classifier is the more relevant
+measure, and there the constrained hot deck leads.
+
+Two limits apply. The survey tasks have three to ten predictors and at most
+four targets, and no task here tests whether the comparison changes when
+there are more predictors and close donors become scarce. And we have not
+established why the constrained hot deck leads on the classifier where the
+weights play no part (Section~\ref{sec:future}).
 
 \subsection{What the evaluation shows}
 \label{sec:discussion-evaluation}
@@ -231,13 +251,15 @@ treatment.
 \subsection{Open questions and future work}
 \label{sec:future}
 
-\paragraph{A direct test of conditional fit.} Within a survey the receivers'
-true values are known, so conditional fit can be scored directly: with a
-classifier that tries to tell receiver rows carrying their true values from
-the same rows carrying imputed ones, or with a proper score of each method's
-predictive distribution at each row. Either would show whether the
-near-parity between the estimator and the weighted random hot deck belongs
-to the methods or to the metrics used here.
+\paragraph{Why the constrained hot deck leads the classifier test.} The
+constrained hot deck has the lowest AUC on the paired classifier test on all
+three survey tasks and on three of the six OpenML datasets
+(Section~\ref{sec:results-conditional}). On the \cps{} the weights carry
+little information about the targets, and on the OpenML datasets they are
+uniform, so its lead there does not come from the weights. We have not
+established what it comes from. A proper score of each method's predictive
+distribution at each receiver row would be a second direct test of
+conditional fit, and we did not run one.
 
 \paragraph{Harder tasks.} The survey tasks have three to ten predictors and
 at most four targets, and the donor and receiver are either the same survey
