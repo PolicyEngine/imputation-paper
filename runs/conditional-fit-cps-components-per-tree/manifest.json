@@ -1,0 +1,82 @@
+{
+  "task": "cps_components",
+  "rows_used": 20000,
+  "rows_available": 108044,
+  "row_cap_applied": true,
+  "max_rows": 20000,
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29
+  ],
+  "methods_requested": [
+    "populace_fit",
+    "populace_fit_per_tree"
+  ],
+  "predictors": [
+    "age",
+    "is_female",
+    "employment_income"
+  ],
+  "targets": [
+    "interest_income",
+    "dividend_income"
+  ],
+  "weight_column": "person_weight",
+  "test": {
+    "statistic": "weighted out-of-fold AUC of a classifier telling the receivers' true target values from the imputed ones, on predictors and targets together",
+    "classifier": "sklearn HistGradientBoostingClassifier at its defaults",
+    "folds": 5,
+    "folds_over": "receiver rows (both copies of a row share a fold)",
+    "null": "the same test with the labels of a random half of the receiver rows swapped"
+  },
+  "dollar_measures": {
+    "within_group_wasserstein1": "weighted Wasserstein-1 distance between imputed and true values inside each group of receivers, averaged by group weight",
+    "groups": {
+      "income_column": "employment_income",
+      "income_cuts": [
+        36000.0,
+        74000.0
+      ],
+      "zero_band": true,
+      "age_column": "age",
+      "age_cuts": [
+        40.0,
+        65.0
+      ],
+      "cut_on": "the task's full sample, weighted"
+    },
+    "ratios": "imputed weighted mean and upper quantiles over the receivers, as multiples of the full sample's",
+    "quantile_levels": [
+      0.9,
+      0.99
+    ]
+  }
+}

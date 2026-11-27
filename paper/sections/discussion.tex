@@ -31,6 +31,13 @@ unweighted fit an explicit request. The weighted fit has a cost of its own
 on the population view, where it understates the 99th percentile and the
 unweighted fit overstates it.
 
+How the weights are applied matters as well. The estimator resamples its
+donor rows once per forest. Sampling by weight inside each tree instead
+keeps the weighted totals, lowers the paired classifier AUC towards the
+unweighted ablation's, and stops the estimator's seed from moving the upper
+tail when the donors are fixed (Section~\ref{sec:results-resample}). That
+variant is a diagnostic and not the estimator evaluated here.
+
 \paragraph{Gating.} Within the estimator, the gates are what keep the share
 of zeros right. With its gates off, the estimator misses the dividend zero
 share by 7.2 percentage points instead of 0.6 (4.3 with chaining off as
@@ -238,6 +245,17 @@ the baselines were not tuned to these tasks. The 2025 wave is the only
 \paragraph{Gates on common sign classes only.} The gates are tested on
 targets whose sign classes are all common, not on a rare class.
 
+\paragraph{One resample per forest.} The estimator draws its weighted
+resample once for each forest. On the \scf{} that leaves out about half of
+the distinct donor rows and most of the rows at the top of the wealth
+distribution (Section~\ref{sec:results-resample}). Two costs follow. The
+paired classifier AUC is 0.012 to 0.015 higher than when the weights are
+sampled inside each tree. And with fixed donors, the imputed 99th percentile
+of net worth depends on the estimator's seed: it lay more than 25 percent
+from its typical value in 11 of 120 fits. The results of this paper are
+means over seeds and splits, so they do not show that risk. A single
+production file carries it.
+
 \paragraph{Dollar basis.} The population view does not put the two surveys'
 incomes on a common dollar basis: the \scf{}'s are in survey-year dollars
 and the ASEC's in each income year's. Re-basing the 2022 donor to 2025
@@ -285,7 +303,9 @@ comparison with matching changes.
 
 \paragraph{Results we have not explained.} Six results are reported without
 an explanation: the unweighted ablation's lower classifier AUC in all four
-combinations of profile and wave; the \microimpute{} forest's q99 ratio,
+combinations of profile and wave on the population view, which
+Section~\ref{sec:results-resample} accounts for within a survey and which we
+did not rerun on that view; the \microimpute{} forest's q99 ratio,
 which is nearer 1 than the full estimator's; the shortfall at the 99th
 percentile that the full estimator shares with two hot decks; the one seed
 in each wave with a much higher AUC at production scale; the interaction of

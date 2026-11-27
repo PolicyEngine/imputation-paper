@@ -112,6 +112,28 @@ uv run imp conditional-fit --task cps_components --seeds 30 --value-reuse --cons
 uv run imp tables
 ```
 
+### What the one-off weighted resample costs
+
+One diagnostic variant of the estimator samples by weight inside each tree,
+in place of one weighted resample per forest. It is kept out of the method
+registry, so no sweep or table includes it unless it is named. Its runs sit
+beside the conditional-fit runs, with the estimator rerun as a control, and a
+second command holds the donors fixed and changes only the estimator's seed:
+
+```bash
+export OMP_NUM_THREADS=1
+ARMS=(populace_fit populace_fit_per_tree)
+uv run imp conditional-fit --task scf_wealth --seeds 30 --methods "${ARMS[@]}" --out runs/conditional-fit-scf-wealth-per-tree
+uv run imp conditional-fit --task scf_wealth --scf-year 2025 --seeds 30 --methods "${ARMS[@]}" --out runs/conditional-fit-scf-wealth-2025-per-tree
+uv run imp conditional-fit --task cps_components --seeds 30 --methods "${ARMS[@]}" --out runs/conditional-fit-cps-components-per-tree
+uv run imp seed-stability --scf-year 2022   # runs/seed-stability
+uv run imp seed-stability --scf-year 2025   # runs/seed-stability-2025
+uv run imp tables
+```
+
+`imp tables` writes the variant's table only if the control's rows are
+identical in the two run directories.
+
 ### Arms added after the first sweeps
 
 Seven methods joined the surface after the first sweeps were committed: the

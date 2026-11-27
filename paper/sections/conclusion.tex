@@ -55,6 +55,12 @@ survey's total net worth, where the estimator imputes 0.98 to 1.00 times.
 On the population view, where its limit is six uses per donor, its 99th
 percentile of net worth is 4.9 to 8.4 times the holdout's.
 
+The estimator's weighted resample is drawn once per forest, and that has a
+cost of its own. With fixed donors, the imputed 99th percentile of net worth
+lay more than 25 percent from its typical value in 11 of 120 fits. It did so
+in none when the weights were sampled inside each tree, a variant that is
+not the estimator evaluated here.
+
 Marginal metrics rank an unconditional marginal draw first on \scf{} pinball
 loss as coded and tied for second of ten methods on the OpenML suite, while
 the classifier separates that draw from the holdout at an AUC of 0.968,

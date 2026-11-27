@@ -293,7 +293,9 @@ is the lower of the two, by 0.1 and 0.7 points on the 2022 wave and by 0.7
 and 2.2 on the 2025 wave. The last of these is 1.1 floor standard deviations
 and leaves that tie inconclusive. A lower AUC means the classifier finds the
 unweighted file harder to tell from the holdout, and we have not explained
-why it does.
+why it does on this view. Within a survey,
+Section~\ref{sec:results-resample} traces the same pattern to the
+estimator's one-off resample.
 
 Fitting the \scf{} unweighted learns the conditionals of a sample in which
 wealthy households are over-represented, and none of the three joint metrics
@@ -633,3 +635,95 @@ so we do not read those two datasets as evidence for the estimator. On the
 other three the weights are uniform, so the constrained hot deck's lead
 cannot come from the weights. Its limit there is one use per donor, as on
 the survey tasks.
+
+\subsection{What the one-off weighted resample costs}
+\label{sec:results-resample}
+
+The full estimator applies the weights by resampling its donor rows once for
+each forest (Section~\ref{sec:estimator}). A row with a low weight is often
+left out of that resample, and a row left out is read by no tree. On the
+\scf{} donor splits the resample is expected to keep 51 percent of the
+distinct donor rows, against 63 percent under equal weights. Of the rows
+above the weighted 99th percentile of net worth, which the \scf{} oversamples
+and gives low weights, it is expected to keep 7 percent.
+
+This subsection measures what that costs. It compares the full estimator
+with the diagnostic variant of Section~\ref{sec:ablations}, which leaves the
+resample out and samples by weight inside each tree. The variant is not the
+estimator the package ships. Like Section~\ref{sec:results-conditional},
+these runs were made after the 2025 replication had been scored.
+Table~\ref{tab:resample} gives the three survey tasks on the 30 seeds of
+that section.
+
+\landscapefloat{table}{The estimator with the weights sampled in each tree}{tab:resample}{%
+{\tablefont Panel A: \scf{}, 2022 wave}\\[2pt]
+\generatedtable[2pt]{resample_scf_wealth}\\[8pt]
+{\tablefont Panel B: \scf{}, 2025 wave}\\[2pt]
+\generatedtable[2pt]{resample_scf_wealth_2025}\\[8pt]
+{\tablefont Panel C: \cps{}}\\[2pt]
+\generatedtable[2pt]{resample_cps_components}}{%
+Notes: Each panel repeats three rows of Tables~\ref{tab:conditional-scf}, \ref{tab:conditional-scf-2025} and~\ref{tab:conditional-cps} and adds the diagnostic variant, in which each tree samples the donor rows by weight and there is no one-off resample. The constrained hot deck is shown for scale. Columns are defined as in Table~\ref{tab:conditional-scf}. Distances are in thousands of each wave's dollars in Panels A and B and in dollars in Panel C. Cells are means over 30 paired seeds, with the standard deviation across seeds in parentheses. Bold marks, among the four rows of a panel, the AUC closest to 0.5 and the lowest distance; the totals are not ranked. Source: authors' calculations from the 2022 and 2025 Surveys of Consumer Finances and the 2025 \cps{} ASEC.}
+
+\paragraph{The resample accounts for most of the unweighted ablation's lower
+AUC.} With the weights sampled in each tree, the paired classifier AUC falls
+from 0.561 to 0.546 on the 2022 wave, from 0.564 to 0.552 on the 2025 wave,
+and from 0.534 to 0.522 on the \cps{}. The fall holds in 21, 23 and 28 of the
+30 seeds. It is half of one standard deviation of the null AUC on the two
+\scf{} waves and 1.2 standard deviations on the \cps{}.
+
+The unweighted ablation scores 0.546, 0.542 and 0.521. The variant equals it
+on the 2022 wave and on the \cps{}, and covers about half of the distance to
+it on the 2025 wave. The unweighted ablation has no resample and reads every
+donor row. So its lower AUC, here and in
+Section~\ref{sec:results-conditional}, comes mostly from the rows the
+resample leaves out, and not from fitting without the weights.
+
+The variant does not change the order of the methods on this test. The
+constrained hot deck's AUC stays the lowest (0.526, 0.519 and 0.504). With
+two uses allowed per donor (Section~\ref{sec:results-conditional}) the hot
+deck scores 0.563, 0.562 and 0.550, against the variant's 0.546, 0.552 and
+0.522.
+
+\paragraph{The dollar measures change little, and not in one direction.} On
+the 2022 wave the variant's net-worth total is 1.04 times the survey's,
+against 0.98 for the full estimator, and its within-group distance on net
+worth is 11 percent higher. Each difference is about two standard errors of
+the paired difference. On the 2025 wave the variant's total is 0.98 against
+1.00, and its distance is 4 percent lower. On the \cps{} its within-group
+distances are 5 and 8 percent lower on interest and dividends (2.7 and 1.9
+standard errors).
+
+The variant keeps what the weights are there for. Its net-worth total stays
+within 4 percent of the survey's on both waves, where the unweighted
+ablation's is 2.14 and 1.57 times the survey's.
+
+\paragraph{With the donors fixed, the upper tail depends on the estimator's
+seed.} In every experiment above, a seed changes the donors, the receivers
+and the estimator's draws together. A production file is built once, from
+fixed donors onto many receivers, with one seed. To reproduce that case we
+held a donor split of the population view's minimal profile fixed, imputed
+onto the same 20,000 \cps{} households, and changed only the estimator's
+seed (Section~\ref{sec:protocol}).
+
+As shipped, the imputed 99th percentile of net worth lay more than 25
+percent from its split's median in 4 of the 60 fits on the 2022 wave and in
+7 of the 60 on the 2025 wave. The largest value on the 2025 wave was more
+than 2.5 times the donors' 99th percentile. With the weights sampled in each
+tree, no fit of the 120 lay that far from its split's median. The standard
+deviation of that percentile across estimator seeds, as a ratio to the
+donors' and pooled over the three splits, fell from 0.089 to 0.042 on the
+2022 wave and from 0.414 to 0.030 on the 2025 wave.
+
+As shipped, most of that spread comes from the fit and not from the draw.
+Drawing twenty times from one fitted estimator per split gave a standard
+deviation of 0.039 on the 2022 wave and 0.013 on the 2025 wave. For the
+variant, redrawing from one fit gave the same spread as refitting (0.043
+and 0.026).
+
+The typical value does not change. Across the six donor splits, the median
+99th percentile over estimator seeds was 0.59 to 0.67 of the donors' as
+shipped and 0.61 to 0.69 with the variant. The resample therefore adds a
+spread to the upper tail of a single imputed file, and it does not move
+where that tail sits on average. The shortfall of the imputed 99th
+percentile on this view (Section~\ref{sec:results-harness}) is not an effect
+of the resample.

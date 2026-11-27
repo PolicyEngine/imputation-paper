@@ -12,13 +12,18 @@ lookup. Each tree is grown until every leaf holds one or a few training
 rows, and the forest predicts for a new row from the target values of the
 training rows that share its leaves. Passing per-record weights to the
 forest when it is fitted can change where the trees
-split, but each stored training row still counts once when a value is read
-out, so the predicted distribution is not weighted. The estimator therefore
+split, but in the version of scikit-learn used here (1.8) each stored
+training row still counts once when a value is read out, so the predicted
+distribution is not weighted. The estimator therefore
 puts the weights into the data. Before each forest is grown, training rows
 are resampled with replacement with probability proportional to weight, so a
 household that stands for many others appears many times in the leaves.
 Draws from the fitted forest then follow the weighted conditional
-distribution. Resampling to undo an
+distribution. The resample is drawn once for each forest. Every tree of the
+forest then draws its own bootstrap sample from the resampled rows with
+equal probabilities, so a donor row that the resample leaves out is read by
+no tree (Section~\ref{sec:results-resample} measures what that costs).
+Resampling to undo an
 unequal-probability design is an established device
 \citep{hinkins1997inverse, dong2014nonparametric}; Section~\ref{sec:background-weights}
 places this one in that literature.
@@ -148,6 +153,16 @@ trees the way a different random seed would. A target that already has one
 sign class is not shifted, and there the ablation is the full estimator.
 Switching off gates and chaining together completes a two-by-two design,
 which shows where the two interact.
+
+One further variant is a diagnostic and not an ablation. It leaves out the
+one-off resample, and each tree draws its bootstrap sample from all donor
+rows with probability proportional to weight. Gates, chaining and the draw
+are unchanged, and every gate and forest keeps the seed it has in the full
+estimator. This is how scikit-learn samples from version 1.9 when a forest
+is fitted with weights \citep{pedregosa2011scikit}, and we reproduce it
+under the pinned version. The variant is not the estimator the package
+ships. It is used only in Section~\ref{sec:results-resample}, and it is not
+listed in Table~\ref{tab:methods}.
 
 Where the targets satisfy an accounting identity, a practitioner would impute
 all but one of them and compute the last. The net-worth-derived variants do
@@ -403,3 +418,9 @@ were added after the 2025 replication had been scored
 splits with the same seeds, so they score the same draws as the other
 within-survey tables. On the three survey tasks they use 30 seeds, the ten
 above and twenty more. On the OpenML datasets they use the ten.
+
+One experiment of Section~\ref{sec:results-resample} changes the estimator's
+seed alone. It holds a donor split of the population view's minimal profile
+fixed, imputes onto the same 20,000 \cps{} households, and refits the
+estimator with twenty seeds. It does so for three donor splits in each
+wave.

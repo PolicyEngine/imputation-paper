@@ -1,0 +1,93 @@
+{
+  "scf_year": 2025,
+  "profile": "minimal",
+  "receiver_years": [
+    2025
+  ],
+  "receiver_rows": 20000,
+  "receiver_sample_seed": 0,
+  "shared_predictors": [
+    "age",
+    "hhsex",
+    "married",
+    "kids",
+    "income",
+    "wageinc"
+  ],
+  "targets": [
+    "debt",
+    "networth"
+  ],
+  "donor_split_seeds": [
+    0,
+    1,
+    2
+  ],
+  "one_off_resample": {
+    "target_of_the_upper_tail": "networth",
+    "equal_weight_share_of_rows_kept": 0.6321205588285577,
+    "by_donor_split": {
+      "0": {
+        "donor_rows": 3488,
+        "expected_share_of_rows_kept": 0.5120570103272322,
+        "rows_above_weighted_q99": 423,
+        "expected_share_kept_above_weighted_q99": 0.07067365563352229
+      },
+      "1": {
+        "donor_rows": 3488,
+        "expected_share_of_rows_kept": 0.5113279545910031,
+        "rows_above_weighted_q99": 428,
+        "expected_share_kept_above_weighted_q99": 0.06979967340337503
+      },
+      "2": {
+        "donor_rows": 3488,
+        "expected_share_of_rows_kept": 0.5125825221166564,
+        "rows_above_weighted_q99": 413,
+        "expected_share_kept_above_weighted_q99": 0.07127509767035091
+      }
+    }
+  },
+  "estimator_seeds": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19
+  ],
+  "arms": [
+    "populace_fit",
+    "populace_fit_per_tree"
+  ],
+  "kinds": {
+    "refit": "one fit and one draw per estimator seed",
+    "redraw": "further draws from the first seed's fit"
+  },
+  "ratios": "imputed weighted mean and upper quantiles over the receivers, as multiples of the donor split's",
+  "far_from_median": 0.25,
+  "input_provenance": {
+    "scf_year": 2025,
+    "file": "rscfp2025.dta",
+    "zip_sha256": "32dcf86be48b20fb5fd9e659f79fa22a4d9cccf456e44b6ca9b1329e9869bbeb",
+    "file_dollar_year": 2025,
+    "file_description": "SCF 2025 in 2025 dollars (rscfp2025.dta dated 2026-10-05), first release, served from 2026-10-09",
+    "dollar_year": 2025,
+    "rebase_factor": 1.0,
+    "url": "https://www.federalreserve.gov/econres/files/scfp2025s.zip",
+    "profile": "minimal"
+  }
+}
