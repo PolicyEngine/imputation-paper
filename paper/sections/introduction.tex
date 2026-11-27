@@ -2,106 +2,107 @@
 
 Microsimulation models of tax and transfer policy require individual records
 that span domains no single survey covers
-\citep{bourguignon2006microsimulation, sutherland2013euromod}. The Current
-Population Survey observes employment and income but not wealth; the Survey of
-Consumer Finances observes wealth in detail but lacks the \cps{}'s coverage
-and program detail; administrative tax records observe income components
-precisely but only for filers, and with narrow demographics. Model builders
-bridge these gaps with imputation: fit a conditional model of the missing
-variables on a donor survey, then draw values for the receiver's records
+\citep{bourguignon2006microsimulation, sutherland2013euromod}. In the United
+States, the Current Population Survey (\cps{}) observes employment and income
+but not wealth; the Survey of Consumer Finances (\scf{}) observes wealth in
+detail but lacks the \cps{}'s coverage and program detail; administrative tax
+records observe income components precisely but only for filers, and with
+narrow demographics. Model builders bridge these gaps with imputation: fit a
+conditional model of the missing variables on a donor survey, then draw
+values for the receiver's records
 \citep{little2002statistical, dorazio2006statistical}.
 
-Two properties of this setting distinguish it from generic missing-data
-problems. First, both files are \emph{weighted samples}: each record stands in
-for a different number of population units, and the quantity of interest is a
+Two properties of imputation for microsimulation distinguish it from generic
+missing-data problems. The first it shares with any imputation between
+surveys: both files are weighted samples. Each record stands in for a
+different number of population units, and the quantity of interest is a
 population distribution, not a sample one. An imputation model fit to
-unweighted records recovers the sample conditional, which differs from the
-population conditional exactly when the design (or a prior calibration)
-correlates weights with outcomes. Second, the imputed file is not an endpoint.
-It is \emph{reweighted downstream}: calibrated to administrative margins
+unweighted records learns the sample's conditional distribution, which
+differs from the population's exactly when the design (or a prior
+calibration) correlates weights with outcomes. The second is specific to microsimulation
+data: the imputed file is not an endpoint. It is reweighted afterwards, when
+it is calibrated to administrative margins
 \citep{deville1992calibration, hainmueller2012entropy}, filtered to
-subpopulations, stressed under reforms. An imputation that looks
+subpopulations, or stressed under reforms. An imputation that looks
 acceptable under the weights it shipped with can therefore fail under weights
 it never saw. A rare donor record carrying an extreme value at near-zero weight
-barely moves the shipped aggregates; a later reweighting that assigns it mass
-turns it into a distortion of the population total. We refer to such records
-as landmines. Section~\ref{sec:results-cps} applies a reweighting stress
-test for them to a within-survey task (Table~\ref{tab:fragility}), where it
-does not separate the weighted fit from the unweighted one.
+barely moves totals under the shipped weights; a later reweighting that
+assigns it mass turns it into a distortion of the population total. We refer to such records
+as \emph{landmines}. Section~\ref{sec:results-cps} applies a reweighting
+stress test for them to a within-survey task (Table~\ref{tab:fragility}),
+where it does not separate the weighted fit from the unweighted one.
 
-This paper presents and evaluates the imputation operator of
+This paper presents and evaluates the imputation estimator of
 \populace{},\footnote{\populace{} was first released under the name
 Populace. Artifact and release identifiers created before the rename keep
 the legacy \texttt{populace} prefix, and the reproducibility pins in the
 data-availability section reference the repository at a pre-rename commit.}
 \policyengine{}'s open-source microdata stack \citep{microcosm2026}. The
-estimator combines three design choices, each aimed at one of the failure
-modes above. A \emph{weighted bootstrap} materializes survey weights into
-the training data of each forest, so that the forests learn weighted
-conditionals. \emph{Regime gates} classify each record's sign class
-(negative, zero, positive) before magnitudes are modeled, to keep the mass
-structure of zero-inflated and sign-mixed variables, which are common in
-economic microdata \citep{mullahy1986specification, lambert1992zero}.
+estimator is a quantile regression forest with three design choices, each
+aimed at one of the problems above. A \emph{weighted bootstrap} puts survey
+weights into the training data of each forest, so that the forests learn
+weighted conditionals. \emph{Sign gates} classify each record's sign class
+(negative, zero, positive) before magnitudes are modeled, to keep the shares
+of zero and negative values in variables that have them, which are common
+in economic microdata \citep{mullahy1986specification, lambert1992zero}.
 \emph{Sequential chaining} conditions each imputed variable on
 the ones already drawn, to carry joint structure among targets through the
 imputation \citep{raghunathan2001multivariate, vanbuuren2011mice}. The interface
-enforces the first choice: fits are weighted by construction, and an
+enforces the first choice: fits are weighted by default, and an
 unweighted fit must be requested explicitly.
+
+We test the estimator on wealth and capital income, which have the features
+these choices are aimed at. From the \scf{} we impute household debt and net
+worth and, in a larger experiment, the balance-sheet items behind net worth
+(financial assets, nonfinancial assets, and debt). Within the \cps{} we
+impute interest and dividend income. Most adults have no dividend income,
+many households have no debt, net worth can be negative, and all of these
+variables have long right tails. The \scf{} also oversamples wealthy
+households, so its weights carry information about wealth.
 
 We make three contributions:
 
 \begin{enumerate}
-\item \textbf{A weight-aware imputation estimator, available standalone.}
-We describe the estimator and its interface contract, and release it as
-\populacefit{}, installable and usable on plain data frames independently of
-the rest of the \populace{} stack.
-\item \textbf{The population-view harness.} We frame the evaluation
-question as one latent population observed through survey \emph{views}
-(variable subsets, designs, measurement idioms), and score any candidate
-weighted file by projecting it through each view against that survey's
-holdout. The score has four blocks: a strictly proper joint score
-\citep{gneiting2007strictly, szekely2013energy}, a support-based coverage
-axis that by definition does not depend on the candidate's weights
-\citep{naeem2020reliable} (as implemented, up to a weight-proportional
-subsample), a weighted classifier two-sample test, and an
-uncapped tail block on imputed columns. We added the tail block after
-capped sample-geometry metrics failed to register a twofold error in the
-99th percentile of imputed net worth. The harness applies to any generator,
-and its holdouts appear nowhere upstream of a candidate. Its coverage block
-is designed to isolate the part of a file that later calibration cannot
-change.
-\item \textbf{A benchmark against standard practice with attribution, plus a
-reweighting stress test.} We compare the estimator against unweighted and
+\item \textbf{A weighted, sign-gated, chained imputation estimator, available
+standalone.} We describe the estimator and its interface contract, and
+release it as \populacefit{}, installable and usable on plain data frames
+independently of the rest of the \populace{} stack.
+\item \textbf{The first application of the population-view harness.} The
+harness \citep{ghenis2026popdgp} scores a candidate file against held-out
+samples of the surveys that observe the same population. We use it to
+compare \cps{} households carrying imputed wealth with held-out \scf{}
+households, on demographics and wealth together, and we report where its
+metrics separate the methods and where they do not.
+\item \textbf{A benchmark that attributes results to each design choice, plus
+a reweighting stress test.} We compare the estimator against unweighted and
 weighted quantile regression forests \citep{meinshausen2006quantile},
 ordinary least squares imputation \citep{vonhippel2013should}, linear
 quantile regression \citep{koenker1978regression}, and distance
 hot-deck statistical matching, with the donor chosen with and without its
 weight \citep{andridge2010review, dorazio2006statistical}, under a paired,
-repeated holdout protocol. Ablations knock out one design choice at a time,
+repeated holdout protocol. Ablations switch off one design choice at a time,
 and gating and chaining together, so that each choice and the interaction of
-those two can be read. A
-closed-form fragility diagnostic
+those two can be read. A closed-form fragility diagnostic
 measures each method's worst-case single-record exposure under bounded
-reweightings of the imputed file (the landmine failure mode).
+reweightings of the imputed file (the landmine problem).
 \end{enumerate}
 
-One policy use shows why the joint matters. Supplemental Security Income
-conditions eligibility on countable resources \citep{ssa2024ssi}, and the
-\cps{} does not observe wealth. Simulating the program's baseline caseload
-on the \cps{}, or a reform such as the SSI Savings Penalty Elimination Act,
-which would raise the resource limits \citep{ssi_spea_2025}, therefore
-requires imputed wealth, and the composition of the simulated caseload is a
-functional of the imputed joint of demographics and wealth. This paper does
-not simulate the SSI caseload. It scores the imputed joint of demographics
-and wealth, on which such a simulation depends, and it does not score fit
-near the resource limits. The
-population-view experiment of Section~\ref{sec:task-harness} scores the
-imputed joint directly: it asks whether households assembled from \cps{}
-demographics and imputed wealth are distributionally exchangeable with
-households the \scf{} actually observed.
+One policy use shows why the joint distribution matters. Supplemental
+Security Income conditions eligibility on countable resources
+\citep{ssa2024ssi}, and the \cps{} does not observe wealth. Simulating the
+program's baseline caseload on the \cps{}, or a reform such as the SSI
+Savings Penalty Elimination Act, which would raise the resource limits
+\citep{ssi_spea_2025}, therefore requires imputed wealth, and the
+composition of the simulated caseload depends on how imputed wealth varies
+with demographics. This paper does not simulate the SSI caseload, and it
+does not score fit near the resource limits. Its population-view experiment
+(Section~\ref{sec:task-harness}) applies the harness of
+\citet{ghenis2026popdgp} to a broader question: whether households assembled
+from \cps{} demographics and imputed wealth can be told apart from households
+the \scf{} observed.
 
 The rest of the paper proceeds as follows. Section~2 situates the estimator in
 the survey-imputation literature. Section~3 specifies the estimator, the
 ablation design, the metrics, and the protocol. Section~4 describes the four
 benchmark tasks and their data. Section~5 reports results, Section~6
-discusses limitations, and Section~7 concludes.
+discusses them and their limitations, and Section~7 concludes.

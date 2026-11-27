@@ -1,24 +1,27 @@
 \section{Data and tasks}
 \label{sec:data}
 
-Four task families cover the settings studied here. Where a task
-imputes within one survey, the protocol of Section~\ref{sec:protocol} applies:
-80/20 donor/receiver holdouts repeated over ten paired seeds. The
-population-view experiment additionally projects candidates onto a second
-survey. Every table in Section~\ref{sec:results} regenerates from the
-repository's committed run configurations; row caps and skipped cells are
-recorded in the run manifests.
+Four task families cover the settings studied here. Three of them impute
+within one survey. There the receivers' true values are known, so we split
+the survey into donors and receivers by the protocol of
+Section~\ref{sec:protocol} (80/20 holdouts repeated over ten paired seeds)
+and score each method against the truth. The fourth, the population-view
+experiment, imputes onto a second survey, where no true values exist, and
+scores each candidate file against a held-out part of the donor survey.
+Every table in Section~\ref{sec:results} regenerates from the repository's
+committed run configurations; row limits and skipped cells are recorded in
+the run manifests.
 
 \subsection{Task 1: wealth within the SCF}
 \label{sec:task-scf}
 
 The Survey of Consumer Finances \citep{fed2023scf} observes household wealth
 in detail. From the 2022 summary extract (first implicate, survey weights) we
-impute \texttt{debt} (zero-inflated and nonnegative) and \texttt{networth}
-(sign-mixed, with a heavy right tail) from age, sex,
+impute debt (zero for many households, never negative) and net worth
+(negative, zero, or positive, with a heavy right tail) from age, sex,
 education class, marital status, children, total income, and wage income.
 The two targets are chosen deliberately: their sign structures exercise the
-regime gates, and their mutual dependence exercises chaining.
+sign gates, and their mutual dependence exercises chaining.
 Appendix~\ref{app:scf2025} reruns this task and both profiles of the next
 on the 2025 wave, which no method here was tuned on.
 
@@ -26,10 +29,11 @@ on the 2025 wave, which no method here was tuned on.
 \label{sec:task-harness}
 
 Each method fits wealth conditionals on an SCF donor split and imputes them
-onto real \cps{} ASEC households sharing the predictor set. The households
-are built from the Census Bureau's ASEC public-use files
-\citep{census2025}, read directly from \texttt{census.gov} so that no task
-input flows through any PolicyEngine processing. The experiment runs in two
+onto real households from the \cps{}'s Annual Social and Economic Supplement
+(ASEC) that share the predictor set. The households are built from the
+Census Bureau's ASEC public-use files \citep{census2025}, read directly from
+the Bureau's website so that no task input flows through any PolicyEngine
+processing. The experiment runs in two
 profiles. The \emph{minimal} profile has six shared predictors, the two
 wealth targets of Section~\ref{sec:task-scf}, and a single receiver vintage
 (ASEC 2025). It is the controlled case, small enough to trace each
@@ -38,8 +42,8 @@ stack's shape in three ways. The shared predictor set widens to the ten
 variables the two surveys share, adding education class, race,
 homeownership, and labor-force status, each mapping verified against both
 files' codebooks. The receiver pools three ASEC vintages (2023--2025,
-weights scaled to one household population, 168,852 households), as the
-production support spine does. And the targets widen to a four-component
+weights scaled to one household population, 168,852 households), as
+\populace{}'s production build does. And the targets widen to a four-component
 chained balance sheet (financial assets, nonfinancial assets, debt, then
 net worth), whose accounting identity
 $\text{networth} = \text{fin} + \text{nfin} - \text{debt}$ holds exactly in
@@ -49,19 +53,19 @@ households (of 55,762 in the minimal profile and 168,852 at production
 scale), the same for every method and seed. The candidate population
 (\cps{} demographics plus imputed wealth, under \cps{} household weights)
 is then scored through the harness of Section~\ref{sec:harness} against the
-\emph{held-out} SCF: the joint of shared predictors and wealth, under SCF
-weights. The \texttt{scf\_sample\_reference} rows score the donor split
-itself against the holdout, anchoring the sampling-noise floor. This
-experiment compares how the methods reproduce the joint of shared
-predictors and wealth on a receiver file the donor survey never saw. The
+held-out SCF, on shared predictors and wealth together, under SCF
+weights. The sampling-floor row of each results table scores the donor split
+itself against the holdout. This
+experiment compares how the methods reproduce the joint distribution of
+shared predictors and wealth on a receiver file the donor survey never saw. The
 conditional independence that statistical matching assumes is one way to
 lose that structure \citep{rassler2002statistical, dorazio2006statistical}.
 Dependence between wealth and variables that only the \cps{} observes is not
-scored, and every method relies on conditional independence there. Because the demographic block of every candidate is
-the same real \cps{} sample, differences between methods isolate the wealth
-block and its coupling to demographics; the shared demographic offset between
-the two surveys is common to all methods and bounded below by the reference
-floor.
+scored, and every method relies on conditional independence there. Because
+the demographic part of every candidate is the same real \cps{} sample,
+differences between methods come from the imputed wealth and from how it
+varies with demographics. The difference between the two surveys'
+demographics is common to all methods.
 
 \subsection{Task 3: zero-inflated income components in the CPS}
 \label{sec:task-cps}
@@ -69,17 +73,15 @@ floor.
 From the Census Bureau's ASEC 2025 public-use person file (income reference
 year 2024), we impute interest and dividend income for adults from age, sex,
 and employment income, under the ASEC person supplement weights. The file is
-read directly from \texttt{census.gov} and never from a processed or
-enhanced artifact, which would embed the production imputations this paper
-is about. (Survey
-files publish per-person design weights; \populace{}'s production convention
-deliberately carries calibrated \emph{household} weights onto persons, since
-its calibration operates at household grain. The task fixes the survey's own
-published weights, and because every method shares whatever weights the task
-fixes, the method comparison does not turn on this choice.) Interest is zero
-for 41.7 percent of adults and dividends for 84.7 percent (weighted shares),
-both with heavy positive tails, which is the structure the gates are built
-for. The task runs on a fixed uniform subsample of 20,000
+read directly from the Census Bureau's website and never from a processed or
+enhanced file, which would embed the production imputations this paper
+is about. The task uses the survey's published person weights. Every method
+shares them, so the comparison between methods does not depend on that
+choice.
+
+Interest is zero for 41.7 percent of adults and dividends for 84.7 percent
+(weighted shares), and both have heavy positive tails, which is the
+structure the gates are built for. The task runs on a fixed uniform subsample of 20,000
 of the file's 108,044 adults. Public-use ASEC amounts are topcoded, which truncates the
 extreme tail relative to an administrative or SCF-style source. The fragility
 values of Section~\ref{sec:results-cps} are those of a topcoded file.
@@ -93,7 +95,7 @@ measured under this paper's protocol.
 \subsection{Task 4: cross-dataset transfer}
 \label{sec:task-openml}
 
-To test behavior beyond economic microdata, we run the method surface over
+To test behavior beyond economic microdata, we run the methods on
 the six OpenML AutoML Benchmark regression datasets used in the
 \microimpute{} manuscript's appendix \citep{vanschoren2014openml}:
 \texttt{space\_ga}, \texttt{elevators}, \texttt{brazilian\_houses},
